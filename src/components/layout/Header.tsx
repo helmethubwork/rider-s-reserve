@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Heart, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Heart, ShoppingCart, User, Menu, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 // Category data with subcategories
 const navigationData = [
+  {
+    name: "Latest Offers",
+    href: "/latest-offers",
+    subcategories: [],
+  },
   {
     name: "Helmets",
     href: "/category/helmets",
@@ -51,48 +56,36 @@ const navigationData = [
       { name: "Bike Covers", href: "/category/motorcycle-accessories?type=covers" },
     ],
   },
+  {
+    name: "All Brands",
+    href: "/brands",
+    subcategories: [
+      { name: "AGV", href: "/brands/agv" },
+      { name: "HJC", href: "/brands/hjc" },
+      { name: "Shoei", href: "/brands/shoei" },
+      { name: "LS2", href: "/brands/ls2" },
+      { name: "MT Helmets", href: "/brands/mt" },
+      { name: "Studds", href: "/brands/studds" },
+    ],
+  },
+  {
+    name: "Contact",
+    href: "/contact",
+    subcategories: [],
+  },
 ];
-
-// Logo component with helmet icon
-const Logo = () => (
-  <Link to="/" className="flex items-center gap-2">
-    {/* Helmet Icon */}
-    <div className="relative w-10 h-10 md:w-12 md:h-12">
-      <svg viewBox="0 0 48 48" className="w-full h-full" fill="none">
-        <path
-          d="M8 28C8 18 14 10 24 10C34 10 40 18 40 28C40 32 38 36 36 38H12C10 36 8 32 8 28Z"
-          stroke="hsl(45 93% 58%)"
-          strokeWidth="2.5"
-          fill="none"
-        />
-        <path
-          d="M12 24C12 20 17 16 24 16C31 16 36 20 36 24"
-          stroke="hsl(45 93% 58%)"
-          strokeWidth="2"
-          fill="none"
-        />
-        <path
-          d="M14 38H34"
-          stroke="hsl(45 93% 58%)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    </div>
-    <div className="flex flex-col items-start leading-none">
-      <span className="text-lg md:text-xl font-bold text-foreground tracking-wider">
-        HELMET HUB
-      </span>
-      <span className="text-xs md:text-sm font-semibold text-primary tracking-widest">
-        AND GEARS
-      </span>
-    </div>
-  </Link>
-);
 
 // Dropdown Menu Component
 const NavDropdown = ({ item }: { item: typeof navigationData[0] }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  if (item.subcategories.length === 0) {
+    return (
+      <Link to={item.href} className="nav-link py-3">
+        {item.name}
+      </Link>
+    );
+  }
 
   return (
     <div
@@ -102,7 +95,7 @@ const NavDropdown = ({ item }: { item: typeof navigationData[0] }) => {
     >
       <Link
         to={item.href}
-        className="nav-link flex items-center gap-1 py-4"
+        className="nav-link flex items-center gap-1 py-3"
       >
         {item.name}
         <ChevronDown
@@ -140,128 +133,162 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      {/* Top Banner */}
-      <div className="bg-primary py-2 px-4 text-center">
-        <p className="text-primary-foreground text-sm font-medium">
-          🏍️ Preorder Now & Get 10% Off Your First Order!
-        </p>
+    <header className="sticky top-0 z-50 bg-background border-b border-border">
+      {/* Top Banner with arrows */}
+      <div className="bg-background py-2 px-4">
+        <div className="flex items-center justify-center gap-4">
+          <button className="text-muted-foreground hover:text-primary transition-colors">
+            <ChevronLeft size={18} />
+          </button>
+          <p className="text-primary text-sm font-medium">
+            Get Assured Flat Discount on your First Order
+          </p>
+          <button className="text-muted-foreground hover:text-primary transition-colors">
+            <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
 
-      {/* Main Header */}
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Left Actions (Mobile Menu) */}
-          <div className="flex items-center gap-2 md:hidden">
-            <button
-              className="p-2 text-foreground"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+      {/* Main Header - Logo centered with icons */}
+      <div className="bg-background py-4 border-t border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            {/* Left - Search */}
+            <div className="flex items-center">
+              <button className="p-2 text-foreground hover:text-primary transition-colors md:block hidden">
+                <Search size={22} />
+              </button>
+              {/* Mobile Menu Button */}
+              <button
+                className="p-2 text-foreground md:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
 
-          {/* Desktop Left Nav */}
-          <nav className="hidden md:flex items-center gap-4 flex-1">
-            <Link to="/latest-offers" className="nav-link py-4">
-              Latest Offers
+            {/* Center - Logo */}
+            <Link to="/" className="flex flex-col items-center">
+              {/* Helmet Icon with brand name */}
+              <div className="flex items-center gap-1">
+                {/* Helmet SVG Icon */}
+                <svg viewBox="0 0 40 40" className="w-8 h-8 md:w-10 md:h-10" fill="none">
+                  <path
+                    d="M6 22C6 14 11 8 20 8C29 8 34 14 34 22C34 26 32 30 30 32H10C8 30 6 26 6 22Z"
+                    stroke="hsl(45 93% 58%)"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M10 20C10 16 14 12 20 12C26 12 30 16 30 20"
+                    stroke="hsl(45 93% 58%)"
+                    strokeWidth="1.5"
+                    fill="none"
+                  />
+                  <path
+                    d="M12 32H28"
+                    stroke="hsl(45 93% 58%)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-2xl md:text-3xl font-bold text-primary tracking-wide" style={{ fontStyle: 'italic' }}>
+                    HELMET
+                  </span>
+                  <span className="text-xl md:text-2xl font-bold text-foreground tracking-wide -mt-1" style={{ fontStyle: 'italic' }}>
+                    HUB
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] md:text-xs text-primary tracking-widest mt-1">
+                #COMPLETERIDINGSOLUTION
+              </span>
             </Link>
-            {navigationData.slice(0, 2).map((item) => (
-              <NavDropdown key={item.name} item={item} />
-            ))}
-          </nav>
 
-          {/* Center Logo */}
-          <div className="flex-shrink-0">
-            <Logo />
-          </div>
-
-          {/* Desktop Right Nav */}
-          <nav className="hidden md:flex items-center gap-4 flex-1 justify-end">
-            {navigationData.slice(2).map((item) => (
-              <NavDropdown key={item.name} item={item} />
-            ))}
-          </nav>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-1 md:gap-3 md:ml-4">
-            <button className="p-2 text-foreground hover:text-primary transition-colors">
-              <Search size={20} />
-            </button>
-            <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors hidden md:block">
-              <User size={20} />
-            </Link>
-            <Link to="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative">
-              <Heart size={20} />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+            {/* Right - Icons */}
+            <div className="flex items-center gap-1 md:gap-3">
+              <button className="p-2 text-foreground hover:text-primary transition-colors md:hidden">
+                <Search size={20} />
+              </button>
+              <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
+                <User size={22} />
+              </Link>
+              <Link to="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative">
+                <Heart size={22} />
+                <span className="absolute -top-0.5 -right-0.5 bg-background text-foreground text-[10px] font-medium">
                   {wishlistCount}
                 </span>
-              )}
-            </Link>
-            <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
-              <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+              </Link>
+              <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
+                <ShoppingCart size={22} />
+                <span className="absolute -top-0.5 -right-0.5 bg-background text-foreground text-[10px] font-medium">
                   {cartCount}
                 </span>
-              )}
-            </Link>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Navigation Bar */}
+      <nav className="hidden md:block bg-background border-t border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-6 lg:gap-8">
+            {navigationData.map((item) => (
+              <NavDropdown key={item.name} item={item} />
+            ))}
+          </div>
+        </div>
+      </nav>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-background border-t border-border max-h-[70vh] overflow-y-auto">
           <nav className="container mx-auto px-4 py-4 flex flex-col">
-            <Link
-              to="/latest-offers"
-              className="nav-link py-3 border-b border-border"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Latest Offers
-            </Link>
-            
             {navigationData.map((item) => (
               <div key={item.name} className="border-b border-border">
-                <button
-                  onClick={() => toggleMobileCategory(item.name)}
-                  className="w-full flex items-center justify-between py-3 nav-link"
-                >
-                  {item.name}
-                  <ChevronDown
-                    size={16}
-                    className={`transition-transform duration-200 ${
-                      expandedMobileCategory === item.name ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                
-                {expandedMobileCategory === item.name && (
-                  <div className="pb-3 pl-4 space-y-2">
-                    {item.subcategories.map((sub) => (
-                      <Link
-                        key={sub.name}
-                        to={sub.href}
-                        className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
+                {item.subcategories.length === 0 ? (
+                  <Link
+                    to={item.href}
+                    className="block py-3 nav-link"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => toggleMobileCategory(item.name)}
+                      className="w-full flex items-center justify-between py-3 nav-link"
+                    >
+                      {item.name}
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${
+                          expandedMobileCategory === item.name ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    
+                    {expandedMobileCategory === item.name && (
+                      <div className="pb-3 pl-4 space-y-2">
+                        {item.subcategories.map((sub) => (
+                          <Link
+                            key={sub.name}
+                            to={sub.href}
+                            className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
-            
-            <Link
-              to="/auth"
-              className="nav-link py-3 border-b border-border"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Login / Sign Up
-            </Link>
           </nav>
         </div>
       )}
