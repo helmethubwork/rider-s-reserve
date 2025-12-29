@@ -1,11 +1,3 @@
-@import '@fontsource/oswald/400.css';
-@import '@fontsource/oswald/500.css';
-@import '@fontsource/oswald/600.css';
-@import '@fontsource/oswald/700.css';
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -110,11 +102,12 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-bold tracking-tight;
+    @apply font-bold tracking-tight;
   }
 }
 
@@ -150,11 +143,11 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-display font-semibold px-6 py-3 rounded transition-all duration-300 hover:bg-accent hover:scale-105;
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded transition-all duration-300 hover:bg-accent hover:scale-105;
   }
 
   .btn-outline {
-    @apply border-2 border-primary text-primary font-display font-semibold px-6 py-3 rounded transition-all duration-300 hover:bg-primary hover:text-primary-foreground;
+    @apply border-2 border-primary text-primary font-semibold px-6 py-3 rounded transition-all duration-300 hover:bg-primary hover:text-primary-foreground;
   }
 
   .nav-link {
@@ -162,7 +155,7 @@
   }
 
   .section-title {
-    @apply text-3xl md:text-4xl font-display font-bold text-foreground text-center;
+    @apply text-3xl md:text-4xl font-bold text-foreground text-center;
   }
 
   .badge-preorder {

@@ -21,7 +21,7 @@ const HeroSection = () => {
           <span className="badge-preorder mb-4 inline-block">
             🏍️ Preorder Now
           </span>
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight mb-6">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight mb-6">
             RIDE WITH
             <span className="text-gradient block">CONFIDENCE</span>
           </h1>
@@ -46,15 +46,15 @@ const HeroSection = () => {
           {/* Trust Badges */}
           <div className="mt-12 flex flex-wrap items-center gap-8">
             <div className="text-center">
-              <p className="font-display text-2xl font-bold text-primary">100%</p>
+              <p className="text-2xl font-bold text-primary">100%</p>
               <p className="text-sm text-muted-foreground">Authentic Products</p>
             </div>
             <div className="text-center">
-              <p className="font-display text-2xl font-bold text-primary">500+</p>
+              <p className="text-2xl font-bold text-primary">500+</p>
               <p className="text-sm text-muted-foreground">Happy Riders</p>
             </div>
             <div className="text-center">
-              <p className="font-display text-2xl font-bold text-primary">24/7</p>
+              <p className="text-2xl font-bold text-primary">24/7</p>
               <p className="text-sm text-muted-foreground">Support</p>
             </div>
           </div>
