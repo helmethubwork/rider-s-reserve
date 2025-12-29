@@ -111,7 +111,7 @@ const ProductCard = ({
 
         {/* Price */}
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-xl font-bold text-foreground">
+          <span className="text-xl font-bold text-foreground">
             {formatPrice(price)}
           </span>
           {originalPrice && (
