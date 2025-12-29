@@ -1,6 +1,6 @@
-import { Heart, Star, ShoppingCart } from "lucide-react";
+import { Heart, Star, ShoppingCart, Eye } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -11,6 +11,7 @@ interface ProductCardProps {
   rating: number;
   reviewCount: number;
   brand: string;
+  badge?: "Sale" | "Clearance Sale" | "Summer Special" | "New";
   isPreorder?: boolean;
   isSoldOut?: boolean;
 }
@@ -24,78 +25,91 @@ const ProductCard = ({
   rating,
   reviewCount,
   brand,
-  isPreorder = true,
+  badge,
+  isPreorder = false,
   isSoldOut = false,
 }: ProductCardProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const discount = originalPrice
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
+  const [showQuickView, setShowQuickView] = useState(false);
 
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
-      minimumFractionDigits: 0,
+      minimumFractionDigits: 2,
     }).format(value);
   };
 
+  const getBadgeStyles = (badgeType?: string) => {
+    switch (badgeType) {
+      case "Sale":
+        return "bg-primary text-primary-foreground";
+      case "Clearance Sale":
+        return "bg-destructive text-destructive-foreground";
+      case "Summer Special":
+        return "bg-primary text-primary-foreground";
+      case "New":
+        return "bg-accent text-accent-foreground";
+      default:
+        return "bg-primary text-primary-foreground";
+    }
+  };
+
   return (
-    <div className="product-card group bg-card relative overflow-hidden">
-      {/* Badges */}
-      <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-        {discount > 0 && (
-          <span className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded">
-            -{discount}%
+    <div className="group bg-card relative overflow-hidden">
+      {/* Badge */}
+      {badge && (
+        <div className="absolute top-4 right-4 z-10">
+          <span className={`text-xs font-semibold px-3 py-1 rounded-sm ${getBadgeStyles(badge)}`}>
+            {badge}
           </span>
-        )}
-        {isSoldOut && (
-          <span className="bg-muted text-muted-foreground text-xs font-semibold px-2 py-1 rounded">
-            Sold Out
-          </span>
-        )}
-        {isPreorder && !isSoldOut && (
-          <span className="badge-preorder">
-            Preorder
-          </span>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Wishlist Button */}
-      <button
-        onClick={() => setIsWishlisted(!isWishlisted)}
-        className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all ${
-          isWishlisted
-            ? "bg-primary text-primary-foreground"
-            : "bg-background/80 text-foreground hover:bg-primary hover:text-primary-foreground"
-        }`}
-      >
-        <Heart size={18} fill={isWishlisted ? "currentColor" : "none"} />
-      </button>
+      {/* Image Container */}
+      <div className="relative aspect-square overflow-hidden bg-muted/30">
+        <Link to={`/product/${id}`}>
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
 
-      {/* Image */}
-      <div className="aspect-square overflow-hidden bg-muted/30">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {/* Quick View Overlay */}
+        <div
+          className={`absolute inset-x-0 bottom-0 bg-foreground/80 text-background py-3 text-center text-sm font-medium tracking-wide transition-all duration-300 cursor-pointer ${
+            showQuickView ? "translate-y-0" : "translate-y-full"
+          } group-hover:translate-y-0`}
+          onMouseEnter={() => setShowQuickView(true)}
+          onMouseLeave={() => setShowQuickView(false)}
+        >
+          <span className="flex items-center justify-center gap-2">
+            <Eye size={16} />
+            Quick view
+          </span>
+        </div>
+
+        {/* Color Variants */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="w-4 h-4 rounded-full bg-destructive border-2 border-background cursor-pointer" />
+          <span className="w-4 h-4 rounded-full bg-primary border-2 border-background cursor-pointer" />
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
-        <p className="text-xs text-muted-foreground uppercase tracking-wide">{brand}</p>
-        <h3 className="font-semibold text-foreground line-clamp-2 leading-tight min-h-[2.5rem]">
+      <div className="p-4 text-center space-y-2">
+        <h3 className="font-medium text-foreground text-sm tracking-wide uppercase">
           {name}
         </h3>
 
         {/* Rating */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-1">
           <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                size={14}
+                size={12}
                 className={
                   i < Math.floor(rating)
                     ? "text-primary fill-primary"
@@ -105,39 +119,29 @@ const ProductCard = ({
             ))}
           </div>
           <span className="text-xs text-muted-foreground">
-            ({reviewCount} reviews)
+            {reviewCount} reviews
           </span>
         </div>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2">
-          <span className="text-xl font-bold text-foreground">
-            {formatPrice(price)}
-          </span>
+        <div className="flex items-center justify-center gap-2">
           {originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="text-sm text-destructive line-through">
               {formatPrice(originalPrice)}
             </span>
           )}
+          <span className="text-base font-semibold text-primary">
+            {formatPrice(price)}
+          </span>
         </div>
 
-        {/* EMI */}
+        {/* EMI Option */}
         <p className="text-xs text-muted-foreground">
-          or {formatPrice(Math.round(price / 3))}/Month{" "}
-          <span className="text-primary cursor-pointer hover:underline">
+          or ₹{Math.round(price / 3)}/Month{" "}
+          <span className="border border-border px-2 py-0.5 rounded text-foreground cursor-pointer hover:bg-secondary transition-colors">
             Buy on EMI &gt;
           </span>
         </p>
-
-        {/* Add to Cart */}
-        <Button
-          className="w-full mt-2"
-          variant={isSoldOut ? "secondary" : "default"}
-          disabled={isSoldOut}
-        >
-          <ShoppingCart size={16} className="mr-2" />
-          {isSoldOut ? "Out of Stock" : "Add to Cart"}
-        </Button>
       </div>
     </div>
   );

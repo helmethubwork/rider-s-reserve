@@ -1,63 +1,55 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Heart, ShoppingCart, User, Menu, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 
-// Category data with subcategories
+// Navigation data with mega menu structure
 const navigationData = [
+  { name: "Home", href: "/", subcategories: [] },
   {
-    name: "Latest Offers",
-    href: "/latest-offers",
-    subcategories: [],
-  },
-  {
-    name: "Helmets",
-    href: "/category/helmets",
-    subcategories: [
-      { name: "Full Face Helmets", href: "/category/helmets?type=full-face" },
-      { name: "Half Face Helmets", href: "/category/helmets?type=half-face" },
-      { name: "Modular Helmets", href: "/category/helmets?type=modular" },
-      { name: "Off-Road Helmets", href: "/category/helmets?type=off-road" },
-      { name: "Open Face Helmets", href: "/category/helmets?type=open-face" },
+    name: "Products",
+    href: "/category/all",
+    megaMenu: true,
+    columns: [
+      {
+        title: "HELMETS",
+        items: [
+          { name: "Full-Face", href: "/category/helmets?type=full-face" },
+          { name: "Open-Face", href: "/category/helmets?type=open-face" },
+          { name: "Modular", href: "/category/helmets?type=modular" },
+          { name: "Dual Sport & Motocross", href: "/category/helmets?type=motocross" },
+        ],
+      },
+      {
+        title: "JACKETS",
+        items: [
+          { name: "Urban", href: "/category/riding-gears?type=jackets-urban" },
+          { name: "Sports", href: "/category/riding-gears?type=jackets-sports" },
+          { name: "Adventure/Touring", href: "/category/riding-gears?type=jackets-touring" },
+        ],
+      },
+      {
+        title: "RIDING GEAR",
+        isPlain: true,
+        items: [
+          { name: "GLOVES", href: "/category/riding-gears?type=gloves" },
+          { name: "PANTS", href: "/category/riding-gears?type=pants" },
+          { name: "BOOTS", href: "/category/riding-gears?type=boots" },
+          { name: "INTERCOM", href: "/category/helmet-accessories?type=intercoms" },
+          { name: "LUGGAGE", href: "/category/motorcycle-accessories?type=luggage" },
+        ],
+      },
+      {
+        title: "ACCESSORIES",
+        items: [
+          { name: "Helmet Accessories", href: "/category/helmet-accessories" },
+          { name: "Riding Accessories", href: "/category/riding-gears" },
+          { name: "Bike Accessories", href: "/category/motorcycle-accessories" },
+        ],
+      },
     ],
   },
   {
-    name: "Riding Gears",
-    href: "/category/riding-gears",
-    subcategories: [
-      { name: "Jackets", href: "/category/riding-gears?type=jackets" },
-      { name: "Riding Pants", href: "/category/riding-gears?type=pants" },
-      { name: "Knee & Elbow Guards", href: "/category/riding-gears?type=guards" },
-      { name: "Gloves", href: "/category/riding-gears?type=gloves" },
-      { name: "Face Mask", href: "/category/riding-gears?type=face-mask" },
-      { name: "Arm Sleeves", href: "/category/riding-gears?type=arm-sleeves" },
-      { name: "Bagpacks", href: "/category/riding-gears?type=bagpacks" },
-      { name: "Boots", href: "/category/riding-gears?type=boots" },
-    ],
-  },
-  {
-    name: "Helmet Accessories",
-    href: "/category/helmet-accessories",
-    subcategories: [
-      { name: "Visors", href: "/category/helmet-accessories?type=visors" },
-      { name: "Bluetooth Intercoms", href: "/category/helmet-accessories?type=intercoms" },
-      { name: "Helmet Locks", href: "/category/helmet-accessories?type=locks" },
-      { name: "Helmet Bags", href: "/category/helmet-accessories?type=bags" },
-      { name: "Anti-Fog Inserts", href: "/category/helmet-accessories?type=anti-fog" },
-    ],
-  },
-  {
-    name: "Motorcycle Accessories",
-    href: "/category/motorcycle-accessories",
-    subcategories: [
-      { name: "Phone Mounts", href: "/category/motorcycle-accessories?type=phone-mounts" },
-      { name: "Action Cameras", href: "/category/motorcycle-accessories?type=cameras" },
-      { name: "Tank Bags", href: "/category/motorcycle-accessories?type=tank-bags" },
-      { name: "Saddle Bags", href: "/category/motorcycle-accessories?type=saddle-bags" },
-      { name: "Bike Covers", href: "/category/motorcycle-accessories?type=covers" },
-    ],
-  },
-  {
-    name: "All Brands",
+    name: "Brands",
     href: "/brands",
     subcategories: [
       { name: "AGV", href: "/brands/agv" },
@@ -68,45 +60,101 @@ const navigationData = [
       { name: "Studds", href: "/brands/studds" },
     ],
   },
+  { name: "Sale", href: "/sale", subcategories: [] },
   {
-    name: "Contact",
-    href: "/contact",
-    subcategories: [],
+    name: "Store Locator",
+    href: "/stores",
+    subcategories: [
+      { name: "Mumbai", href: "/stores?city=mumbai" },
+      { name: "Delhi", href: "/stores?city=delhi" },
+      { name: "Bangalore", href: "/stores?city=bangalore" },
+    ],
   },
+  { name: "Track Orders", href: "/track-order", subcategories: [] },
+  {
+    name: "Support",
+    href: "/support",
+    subcategories: [
+      { name: "Contact Us", href: "/contact" },
+      { name: "FAQs", href: "/faq" },
+      { name: "Size Guide", href: "/size-guide" },
+      { name: "Returns", href: "/returns" },
+    ],
+  },
+  { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Dropdown Menu Component
-const NavDropdown = ({ item }: { item: typeof navigationData[0] }) => {
-  const [isOpen, setIsOpen] = useState(false);
+// Logo Component
+const Logo = () => (
+  <Link to="/" className="flex items-center gap-1">
+    <span className="text-2xl md:text-3xl font-bold text-primary italic tracking-wider">
+      HELMET
+    </span>
+    <span className="text-2xl md:text-3xl font-bold text-foreground italic tracking-wider">
+      HUB
+    </span>
+  </Link>
+);
 
-  if (item.subcategories.length === 0) {
-    return (
-      <Link to={item.href} className="nav-link py-3">
-        {item.name}
-      </Link>
-    );
-  }
+// Mega Menu Component
+const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] }) => (
+  <div className="mega-menu animate-fade-in">
+    <div className="container mx-auto px-4">
+      <div className="grid grid-cols-4 gap-8">
+        {columns?.map((column, idx) => (
+          <div key={idx}>
+            <h3 className="text-primary font-bold text-sm tracking-wider mb-4">{column.title}</h3>
+            <ul className="space-y-2">
+              {column.items.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    to={item.href}
+                    className={`text-sm transition-colors ${column.isPlain ? 'text-muted-foreground font-semibold tracking-wide hover:text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Dropdown Component
+const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave }: { 
+  item: typeof navigationData[0]; 
+  isOpen: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+}) => {
+  const hasSubcategories = item.subcategories && item.subcategories.length > 0;
+  const hasMegaMenu = 'megaMenu' in item && item.megaMenu;
 
   return (
     <div
       className="relative"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <Link
         to={item.href}
-        className="nav-link flex items-center gap-1 py-3"
+        className={`nav-link flex items-center gap-1 py-4 ${isOpen ? 'text-primary border-b-2 border-primary' : ''}`}
       >
         {item.name}
-        <ChevronDown
-          size={14}
-          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-        />
+        {(hasSubcategories || hasMegaMenu) && (
+          <ChevronDown
+            size={14}
+            className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          />
+        )}
       </Link>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute top-full left-0 min-w-[220px] bg-card border border-border rounded-lg shadow-lg z-50 py-2 animate-fade-in">
+      {/* Simple Dropdown */}
+      {isOpen && hasSubcategories && !hasMegaMenu && (
+        <div className="absolute top-full left-0 min-w-[200px] bg-card border border-border rounded-lg shadow-lg z-50 py-2 animate-fade-in">
           {item.subcategories.map((sub) => (
             <Link
               key={sub.name}
@@ -118,44 +166,34 @@ const NavDropdown = ({ item }: { item: typeof navigationData[0] }) => {
           ))}
         </div>
       )}
+
+      {/* Mega Menu */}
+      {isOpen && hasMegaMenu && 'columns' in item && item.columns && (
+        <MegaMenu columns={item.columns} />
+      )}
     </div>
   );
 };
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [cartCount] = useState(0);
-  const [wishlistCount] = useState(0);
 
   const toggleMobileCategory = (name: string) => {
     setExpandedMobileCategory(expandedMobileCategory === name ? null : name);
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border">
-      {/* Top Banner with arrows */}
-      <div className="bg-background py-2 px-4">
-        <div className="flex items-center justify-center gap-4">
-          <button className="text-muted-foreground hover:text-primary transition-colors">
-            <ChevronLeft size={18} />
-          </button>
-          <p className="text-primary text-sm font-medium">
-            Get Assured Flat Discount on your First Order
-          </p>
-          <button className="text-muted-foreground hover:text-primary transition-colors">
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Main Header - Logo centered with icons */}
-      <div className="bg-background py-4 border-t border-border">
+    <header className="sticky top-0 z-50">
+      {/* Main Header */}
+      <div className="bg-background py-4">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Left - Search */}
-            <div className="flex items-center">
-              <button className="p-2 text-foreground hover:text-primary transition-colors md:block hidden">
+            <div className="flex items-center gap-4">
+              <button className="p-2 text-foreground hover:text-primary transition-colors hidden md:block">
                 <Search size={22} />
               </button>
               {/* Mobile Menu Button */}
@@ -168,63 +206,23 @@ const Header = () => {
             </div>
 
             {/* Center - Logo */}
-            <Link to="/" className="flex flex-col items-center">
-              {/* Helmet Icon with brand name */}
-              <div className="flex items-center gap-1">
-                {/* Helmet SVG Icon */}
-                <svg viewBox="0 0 40 40" className="w-8 h-8 md:w-10 md:h-10" fill="none">
-                  <path
-                    d="M6 22C6 14 11 8 20 8C29 8 34 14 34 22C34 26 32 30 30 32H10C8 30 6 26 6 22Z"
-                    stroke="hsl(45 93% 58%)"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M10 20C10 16 14 12 20 12C26 12 30 16 30 20"
-                    stroke="hsl(45 93% 58%)"
-                    strokeWidth="1.5"
-                    fill="none"
-                  />
-                  <path
-                    d="M12 32H28"
-                    stroke="hsl(45 93% 58%)"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-2xl md:text-3xl font-bold text-primary tracking-wide" style={{ fontStyle: 'italic' }}>
-                    HELMET
-                  </span>
-                  <span className="text-xl md:text-2xl font-bold text-foreground tracking-wide -mt-1" style={{ fontStyle: 'italic' }}>
-                    HUB
-                  </span>
-                </div>
-              </div>
-              <span className="text-[10px] md:text-xs text-primary tracking-widest mt-1">
-                #COMPLETERIDINGSOLUTION
-              </span>
-            </Link>
+            <Logo />
 
             {/* Right - Icons */}
-            <div className="flex items-center gap-1 md:gap-3">
+            <div className="flex items-center gap-2 md:gap-4">
               <button className="p-2 text-foreground hover:text-primary transition-colors md:hidden">
                 <Search size={20} />
               </button>
               <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
                 <User size={22} />
               </Link>
-              <Link to="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative">
-                <Heart size={22} />
-                <span className="absolute -top-0.5 -right-0.5 bg-background text-foreground text-[10px] font-medium">
-                  {wishlistCount}
-                </span>
-              </Link>
               <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
                 <ShoppingCart size={22} />
-                <span className="absolute -top-0.5 -right-0.5 bg-background text-foreground text-[10px] font-medium">
-                  {cartCount}
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </div>
           </div>
@@ -236,59 +234,92 @@ const Header = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-6 lg:gap-8">
             {navigationData.map((item) => (
-              <NavDropdown key={item.name} item={item} />
+              <NavDropdown
+                key={item.name}
+                item={item}
+                isOpen={openDropdown === item.name}
+                onMouseEnter={() => setOpenDropdown(item.name)}
+                onMouseLeave={() => setOpenDropdown(null)}
+              />
             ))}
           </div>
         </div>
       </nav>
 
+      {/* Promo Banner */}
+      <div className="promo-banner">
+        FREE SHIPPING ON ALL ORDERS!
+      </div>
+
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-background border-t border-border max-h-[70vh] overflow-y-auto">
           <nav className="container mx-auto px-4 py-4 flex flex-col">
-            {navigationData.map((item) => (
-              <div key={item.name} className="border-b border-border">
-                {item.subcategories.length === 0 ? (
-                  <Link
-                    to={item.href}
-                    className="block py-3 nav-link"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => toggleMobileCategory(item.name)}
-                      className="w-full flex items-center justify-between py-3 nav-link"
+            {navigationData.map((item) => {
+              const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
+              
+              return (
+                <div key={item.name} className="border-b border-border">
+                  {!hasSubmenu ? (
+                    <Link
+                      to={item.href}
+                      className="block py-3 nav-link"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
-                      <ChevronDown
-                        size={16}
-                        className={`transition-transform duration-200 ${
-                          expandedMobileCategory === item.name ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                    
-                    {expandedMobileCategory === item.name && (
-                      <div className="pb-3 pl-4 space-y-2">
-                        {item.subcategories.map((sub) => (
-                          <Link
-                            key={sub.name}
-                            to={sub.href}
-                            className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => toggleMobileCategory(item.name)}
+                        className="w-full flex items-center justify-between py-3 nav-link"
+                      >
+                        {item.name}
+                        <ChevronDown
+                          size={16}
+                          className={`transition-transform duration-200 ${
+                            expandedMobileCategory === item.name ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                      
+                      {expandedMobileCategory === item.name && (
+                        <div className="pb-3 pl-4 space-y-2">
+                          {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
+                            item.columns.map((col, idx) => (
+                              <div key={idx} className="mb-4">
+                                <p className="text-primary text-xs font-bold tracking-wide mb-2">{col.title}</p>
+                                {col.items.map((subItem) => (
+                                  <Link
+                                    key={subItem.name}
+                                    to={subItem.href}
+                                    className="block py-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                  >
+                                    {subItem.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            ))
+                          ) : (
+                            item.subcategories?.map((sub) => (
+                              <Link
+                                key={sub.name}
+                                to={sub.href}
+                                className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {sub.name}
+                              </Link>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </nav>
         </div>
       )}
