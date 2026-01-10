@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
-import helmetHubLogo from "@/assets/helmet-hub-logo.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -87,12 +86,13 @@ const navigationData = [
 
 // Logo Component
 const Logo = () => (
-  <Link to="/" className="flex items-center">
-    <img 
-      src={helmetHubLogo} 
-      alt="Helmet Hub" 
-      className="h-12 md:h-16 w-auto object-contain"
-    />
+  <Link to="/" className="flex items-center gap-1">
+    <span className="text-2xl md:text-3xl font-bold text-primary italic tracking-wider">
+      HELMET
+    </span>
+    <span className="text-2xl md:text-3xl font-bold text-foreground italic tracking-wider">
+      HUB
+    </span>
   </Link>
 );
 
