@@ -122,18 +122,27 @@ const Logo = () => (
 
 // Mega Menu Component
 const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] }) => (
-  <div className="mega-menu animate-fade-in">
-    <div className="container mx-auto px-4">
-      <div className="grid grid-cols-4 gap-8">
+  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-10 z-50 animate-fade-in">
+    <div className="container mx-auto px-8">
+      <div className="grid grid-cols-4 gap-16">
         {columns?.map((column, idx) => (
           <div key={idx}>
-            <h3 className="text-primary font-bold text-sm tracking-wider mb-4">{column.title}</h3>
-            <ul className="space-y-2">
+            {/* Show title only for non-plain columns */}
+            {!column.isPlain && (
+              <h3 className="text-primary font-bold text-xs tracking-[0.2em] mb-5 uppercase">
+                {column.title}
+              </h3>
+            )}
+            <ul className={column.isPlain ? "space-y-4" : "space-y-3"}>
               {column.items.map((item) => (
                 <li key={item.name}>
                   <Link
                     to={item.href}
-                    className={`text-sm transition-colors ${column.isPlain ? 'text-muted-foreground font-semibold tracking-wide hover:text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                    className={`block transition-colors ${
+                      column.isPlain 
+                        ? 'text-foreground font-bold text-xs tracking-[0.15em] uppercase hover:text-primary' 
+                        : 'text-muted-foreground text-sm hover:text-primary'
+                    }`}
                   >
                     {item.name}
                   </Link>
