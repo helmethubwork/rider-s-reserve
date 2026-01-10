@@ -84,50 +84,65 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Helmet Icon SVG - Racing helmet style matching the reference logo
+// Helmet Icon SVG - Professional racing helmet matching reference
 const HelmetIcon = ({ className }: { className?: string }) => (
   <svg 
-    viewBox="0 0 64 64" 
+    viewBox="0 0 80 60" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >
-    {/* Helmet shell outline - muted gray */}
+    {/* Main helmet shell - gray outline */}
     <path 
-      d="M18 44C14 40 12 34 12 28C12 18 20 10 32 10C44 10 52 18 52 28C52 34 50 40 46 44"
+      d="M25 45C20 42 16 36 15 30C14 22 18 14 26 10C32 7 40 6 48 8"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Visor frame - gray */}
+    <path 
+      d="M15 30C14 34 14 38 16 42C18 46 22 50 28 52"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Visor cross line - gray */}
+    <path 
+      d="M17 38L30 35"
       stroke="hsl(var(--muted-foreground))"
       strokeWidth="2"
       strokeLinecap="round"
       fill="none"
     />
-    {/* Visor area - muted gray */}
+    {/* Visor vertical line - gray */}
     <path 
-      d="M16 32L14 40L18 48L24 50"
+      d="M22 32L20 44"
       stroke="hsl(var(--muted-foreground))"
       strokeWidth="2"
       strokeLinecap="round"
-      strokeLinejoin="round"
       fill="none"
     />
-    {/* Visor horizontal line */}
+    {/* Top curve accent - primary yellow */}
     <path 
-      d="M16 36L28 34"
-      stroke="hsl(var(--muted-foreground))"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      fill="none"
-    />
-    {/* Top accent swoosh - primary yellow */}
-    <path 
-      d="M20 16C24 10 30 8 36 8C44 8 50 12 54 18"
+      d="M26 10C34 4 46 4 56 8C64 12 68 18 70 24"
       stroke="hsl(var(--primary))"
       strokeWidth="3"
       strokeLinecap="round"
       fill="none"
     />
-    {/* Chin/bottom swoosh - primary yellow */}
+    {/* Back of helmet - primary yellow */}
     <path 
-      d="M24 50C30 54 42 54 50 48C54 44 56 40 58 36"
+      d="M70 24C72 30 72 36 70 42"
+      stroke="hsl(var(--primary))"
+      strokeWidth="3"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Chin spoiler swoosh - primary yellow */}
+    <path 
+      d="M28 52C36 56 48 56 58 50C66 44 72 38 76 32"
       stroke="hsl(var(--primary))"
       strokeWidth="3"
       strokeLinecap="round"
