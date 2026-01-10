@@ -221,9 +221,9 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-all duration-300">
+    <header className="sticky top-0 z-50">
       {/* Main Header */}
-      <div className="py-4 border-b border-border/50">
+      <div className="bg-background py-4 border-b border-border/50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Left - Search */}
