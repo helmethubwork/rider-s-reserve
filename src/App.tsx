@@ -13,7 +13,6 @@ import ShippingPolicyPage from "./pages/ShippingPolicyPage";
 import WarrantyPolicyPage from "./pages/WarrantyPolicyPage";
 import ExchangeReturnsPage from "./pages/ExchangeReturnsPage";
 import ContactPage from "./pages/ContactPage";
-import TrackOrderPage from "./pages/TrackOrderPage";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +33,6 @@ const App = () => (
           <Route path="/warranty-policy" element={<WarrantyPolicyPage />} />
           <Route path="/exchange-returns" element={<ExchangeReturnsPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/track-order" element={<TrackOrderPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
