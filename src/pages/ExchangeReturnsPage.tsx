@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PromoBanner from "@/components/PromoBanner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const ExchangeReturnsPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
+      <PromoBanner />
       
       <main className="flex-1 py-16 md:py-24">
         <div className="container mx-auto px-4">

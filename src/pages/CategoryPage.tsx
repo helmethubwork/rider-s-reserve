@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
+import PromoBanner from "@/components/PromoBanner";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/ProductCard";
 import { getProductsByCategory, categories } from "@/data/products";
@@ -13,6 +14,7 @@ const CategoryPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <PromoBanner />
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-3xl font-display font-bold text-foreground mb-4">
             Category Not Found
@@ -29,6 +31,7 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <PromoBanner />
       
       {/* Category Header */}
       <section className="py-12 bg-secondary border-b border-border">

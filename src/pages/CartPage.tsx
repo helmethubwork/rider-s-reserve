@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PromoBanner from "@/components/PromoBanner";
 import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -29,6 +30,7 @@ const CartPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <PromoBanner />
       
       <section className="py-12">
         <div className="container mx-auto px-4">
