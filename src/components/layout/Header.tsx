@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import PromoBanner from "@/components/PromoBanner";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -373,9 +372,6 @@ const Header = () => {
           </nav>
         </div>
       )}
-
-        {/* Promo Banner - Inside fixed header */}
-        <PromoBanner />
 
         {/* Search Modal */}
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
