@@ -76,9 +76,9 @@ const navigationData = [
     href: "/support",
     subcategories: [
       { name: "Contact Us", href: "/contact" },
-      { name: "FAQs", href: "/faq" },
-      { name: "Size Guide", href: "/size-guide" },
-      { name: "Returns", href: "/returns" },
+      { name: "Shipping Policy", href: "/shipping-policy" },
+      { name: "Exchange, Returns & Cancellation", href: "/exchange-returns" },
+      { name: "Warranty Policy", href: "/warranty-policy" },
     ],
   },
   { name: "Blog", href: "/blog", subcategories: [] },
