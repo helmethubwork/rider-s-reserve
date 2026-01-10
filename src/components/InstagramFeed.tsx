@@ -124,18 +124,24 @@ const InstagramFeed = () => {
         .instagram-video-container {
           position: relative;
           overflow: hidden;
+          background: #000;
         }
         .instagram-video-container iframe {
           position: absolute !important;
           top: -64px !important;
           left: 0 !important;
           width: 100% !important;
-          height: calc(100% + 180px) !important;
+          height: calc(100% + 240px) !important;
           border: 0 !important;
+          background: #000 !important;
         }
         .instagram-video-container .instagram-media {
           min-width: 100% !important;
           width: 100% !important;
+          background: #000 !important;
+        }
+        .instagram-video-container .instagram-media-rendered {
+          background: #000 !important;
         }
       `}</style>
     </section>
