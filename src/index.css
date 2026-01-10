@@ -4,95 +4,95 @@
 
 @layer base {
   :root {
-    /* PowerSports Dark Theme - Navy Blue + Neon Yellow */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Helmet Hub Professional Theme - Dark Navy + Golden Yellow */
+    --background: 220 40% 13%;
+    --foreground: 0 0% 98%;
 
     /* Cards & Surfaces */
-    --card: 222 47% 14%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 40% 16%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 14%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 40% 16%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Primary - Neon Yellow/Green */
-    --primary: 66 100% 50%;
-    --primary-foreground: 222 47% 11%;
+    /* Primary - Golden Yellow (matching logo) */
+    --primary: 45 95% 53%;
+    --primary-foreground: 220 40% 13%;
 
-    /* Secondary - Dark Blue Gray */
-    --secondary: 222 47% 18%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Lighter Navy */
+    --secondary: 220 35% 20%;
+    --secondary-foreground: 0 0% 98%;
 
     /* Muted */
-    --muted: 222 30% 25%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 25% 25%;
+    --muted-foreground: 220 15% 65%;
 
-    /* Accent - Bright Lime */
-    --accent: 66 100% 55%;
-    --accent-foreground: 222 47% 11%;
+    /* Accent - Bright Gold */
+    --accent: 45 100% 58%;
+    --accent-foreground: 220 40% 13%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
     /* Borders & Inputs */
-    --border: 222 30% 25%;
-    --input: 222 30% 25%;
-    --ring: 66 100% 50%;
+    --border: 220 25% 22%;
+    --input: 220 25% 22%;
+    --ring: 45 95% 53%;
 
     --radius: 0.5rem;
 
     /* Custom Brand Colors */
-    --brand-navy: 222 47% 11%;
-    --brand-navy-light: 222 47% 14%;
-    --brand-yellow: 66 100% 50%;
-    --brand-yellow-glow: 66 100% 60%;
-    --brand-gray: 222 30% 25%;
-    --brand-light-gray: 215 20% 65%;
+    --brand-navy: 220 40% 13%;
+    --brand-navy-light: 220 40% 16%;
+    --brand-gold: 45 95% 53%;
+    --brand-gold-glow: 45 100% 60%;
+    --brand-gray: 220 25% 25%;
+    --brand-light-gray: 220 15% 65%;
 
     /* Shadows & Effects */
-    --shadow-glow: 0 0 30px hsl(66 100% 50% / 0.3);
+    --shadow-glow: 0 0 30px hsl(45 95% 53% / 0.25);
     --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.4);
 
     /* Sidebar */
-    --sidebar-background: 222 47% 9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 66 100% 50%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 222 47% 18%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 25%;
-    --sidebar-ring: 66 100% 50%;
+    --sidebar-background: 220 40% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 45 95% 53%;
+    --sidebar-primary-foreground: 220 40% 13%;
+    --sidebar-accent: 220 35% 20%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 25% 22%;
+    --sidebar-ring: 45 95% 53%;
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 14%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 14%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 66 100% 50%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 222 47% 18%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 30% 25%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 66 100% 55%;
-    --accent-foreground: 222 47% 11%;
+    --background: 220 40% 13%;
+    --foreground: 0 0% 98%;
+    --card: 220 40% 16%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 40% 16%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 45 95% 53%;
+    --primary-foreground: 220 40% 13%;
+    --secondary: 220 35% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 25% 25%;
+    --muted-foreground: 220 15% 65%;
+    --accent: 45 100% 58%;
+    --accent-foreground: 220 40% 13%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 222 30% 25%;
-    --input: 222 30% 25%;
-    --ring: 66 100% 50%;
-    --sidebar-background: 222 47% 9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 66 100% 50%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 222 47% 18%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 25%;
-    --sidebar-ring: 66 100% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 25% 22%;
+    --input: 220 25% 22%;
+    --ring: 45 95% 53%;
+    --sidebar-background: 220 40% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 45 95% 53%;
+    --sidebar-primary-foreground: 220 40% 13%;
+    --sidebar-accent: 220 35% 20%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 25% 22%;
+    --sidebar-ring: 45 95% 53%;
   }
 }
 
@@ -210,10 +210,10 @@
 
   @keyframes pulseGlow {
     0%, 100% {
-      box-shadow: 0 0 20px hsl(66 100% 50% / 0.3);
+      box-shadow: 0 0 20px hsl(45 95% 53% / 0.25);
     }
     50% {
-      box-shadow: 0 0 40px hsl(66 100% 50% / 0.5);
+      box-shadow: 0 0 40px hsl(45 95% 53% / 0.4);
     }
   }
 }
