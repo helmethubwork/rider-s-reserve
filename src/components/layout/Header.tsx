@@ -52,7 +52,7 @@ const navigationData = [
     name: "Brands",
     href: "/brands",
     subcategories: [
-      { name: "AGV", href: "/brands/agv" },
+      { name: "AXOR", href: "/brands/axor" },
       { name: "HJC", href: "/brands/hjc" },
       { name: "Shoei", href: "/brands/shoei" },
       { name: "LS2", href: "/brands/ls2" },
