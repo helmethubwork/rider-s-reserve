@@ -84,35 +84,28 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Racing style inspired
+// Logo Component
 const Logo = () => (
-  <Link to="/" className="flex items-center group relative">
-    {/* Racing stripes decoration */}
-    <div className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-20 hidden md:flex gap-1">
-      <div className="w-3 h-8 bg-muted-foreground transform -skew-x-12" />
-      <div className="w-3 h-8 bg-muted-foreground transform -skew-x-12" />
-    </div>
-    <div className="flex items-center">
-      <span 
-        className="text-xl md:text-2xl lg:text-3xl font-black text-primary uppercase"
-        style={{ 
-          fontStyle: 'italic',
-          letterSpacing: '0.15em',
-          textShadow: '0 0 20px hsl(var(--primary) / 0.3)'
-        }}
-      >
-        HELMET
-      </span>
-      <span 
-        className="text-xl md:text-2xl lg:text-3xl font-black text-foreground uppercase ml-2"
-        style={{ 
-          fontStyle: 'italic',
-          letterSpacing: '0.15em'
-        }}
-      >
-        HUB
-      </span>
-    </div>
+  <Link to="/" className="flex items-center">
+    <span 
+      className="text-xl md:text-2xl lg:text-3xl font-black text-primary uppercase"
+      style={{ 
+        fontStyle: 'italic',
+        letterSpacing: '0.15em',
+        textShadow: '0 0 20px hsl(var(--primary) / 0.3)'
+      }}
+    >
+      HELMET
+    </span>
+    <span 
+      className="text-xl md:text-2xl lg:text-3xl font-black text-foreground uppercase ml-2"
+      style={{ 
+        fontStyle: 'italic',
+        letterSpacing: '0.15em'
+      }}
+    >
+      HUB
+    </span>
   </Link>
 );
 
