@@ -9,15 +9,11 @@ import BrandShowcase from "@/components/BrandShowcase";
 import WhyHelmetHub from "@/components/WhyHelmetHub";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import NewArrivalsSlider from "@/components/NewArrivalsSlider";
-import PromoBanner from "@/components/PromoBanner";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Promo Banner - Scrolls with content */}
-      <PromoBanner />
       
       {/* Hero Slider */}
       <HeroSlider />
