@@ -221,7 +221,18 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-background">
+    <header 
+      className="w-full bg-background"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999,
+        transform: 'none',
+        willChange: 'auto',
+      }}
+    >
       {/* Main Header */}
       <div className="bg-background py-4 border-b border-border/50">
         <div className="container mx-auto px-4">
