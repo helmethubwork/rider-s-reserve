@@ -13,21 +13,21 @@ const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS, JUST FOR YOU!" }: Offers
   }));
 
   return (
-    <section className="py-16 bg-foreground">
+    <section className="py-16 md:py-20 bg-foreground">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-background text-center mb-4 italic">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-background text-center mb-4 tracking-tight" style={{ fontStyle: 'italic' }}>
           {title}
         </h2>
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-12">
           <Link
             to="/sale"
-            className="border-2 border-background text-background font-semibold px-6 py-2 text-sm tracking-wider hover:bg-background hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 border-2 border-background text-background font-bold px-8 py-3 text-sm tracking-[0.15em] hover:bg-background hover:text-foreground transition-all duration-300"
           >
             VIEW ALL
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map((product) => (
             <ProductCard
               key={product.id}

@@ -1,35 +1,42 @@
+import { Link } from "react-router-dom";
+
 const brands = [
-  { name: "AGV", logo: "AGV" },
-  { name: "HJC", logo: "HJC" },
-  { name: "Shoei", logo: "SHOEI" },
-  { name: "Arai", logo: "ARAI" },
-  { name: "LS2", logo: "LS2" },
-  { name: "MT", logo: "MT" },
-  { name: "Korda", logo: "KORDA" },
-  { name: "Alpinestars", logo: "ALPINESTARS" },
+  { name: "AGV", slug: "agv" },
+  { name: "HJC", slug: "hjc" },
+  { name: "SHOEI", slug: "shoei" },
+  { name: "ARAI", slug: "arai" },
+  { name: "LS2", slug: "ls2" },
+  { name: "MT", slug: "mt" },
+  { name: "KORDA", slug: "korda" },
+  { name: "ALPINESTARS", slug: "alpinestars" },
+  { name: "AXOR", slug: "axor" },
+  { name: "STUDDS", slug: "studds" },
 ];
 
 const BrandShowcase = () => {
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 md:py-20 bg-secondary">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-wider mb-2">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-wider mb-3">
             BRANDS WE DEAL IN
           </h2>
-          <p className="text-muted-foreground">Trusted brands for quality products</p>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Trusted brands for quality products
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3">
           {brands.map((brand) => (
-            <div
+            <Link
               key={brand.name}
-              className="flex items-center justify-center p-4 md:p-6 bg-card border border-border hover:border-primary transition-all duration-300 group cursor-pointer"
+              to={`/brands/${brand.slug}`}
+              className="flex items-center justify-center py-6 px-4 bg-card border border-border hover:border-primary hover:bg-primary/5 transition-all duration-300 group"
             >
-              <span className="text-sm md:text-base font-bold text-muted-foreground group-hover:text-primary transition-colors tracking-wide">
-                {brand.logo}
+              <span className="text-xs md:text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors tracking-wider">
+                {brand.name}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
