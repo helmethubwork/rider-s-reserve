@@ -236,6 +236,9 @@ const Header = () => {
           willChange: 'auto',
         }}
       >
+        {/* Promo Banner - At the very top of fixed header */}
+        <PromoBanner />
+
         {/* Main Header */}
         <div className="bg-background py-4 border-b border-border/50">
           <div className="container mx-auto px-4">
@@ -374,8 +377,6 @@ const Header = () => {
         </div>
       )}
 
-        {/* Promo Banner - Inside fixed header */}
-        <PromoBanner />
 
         {/* Search Modal */}
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
