@@ -84,67 +84,67 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Helmet Icon SVG - Professional racing helmet matching reference
+// Helmet Icon SVG - Premium racing helmet design
 const HelmetIcon = ({ className }: { className?: string }) => (
   <svg 
-    viewBox="0 0 80 60" 
+    viewBox="0 0 56 48" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >
-    {/* Main helmet shell - gray outline */}
+    {/* Helmet shell - muted outline */}
     <path 
-      d="M25 45C20 42 16 36 15 30C14 22 18 14 26 10C32 7 40 6 48 8"
-      stroke="hsl(var(--muted-foreground))"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      fill="none"
-    />
-    {/* Visor frame - gray */}
-    <path 
-      d="M15 30C14 34 14 38 16 42C18 46 22 50 28 52"
-      stroke="hsl(var(--muted-foreground))"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      fill="none"
-    />
-    {/* Visor cross line - gray */}
-    <path 
-      d="M17 38L30 35"
+      d="M16 32 C12 28 10 22 12 16 C14 10 20 6 28 6 C36 6 42 10 44 16"
       stroke="hsl(var(--muted-foreground))"
       strokeWidth="2"
       strokeLinecap="round"
       fill="none"
     />
-    {/* Visor vertical line - gray */}
+    {/* Visor outer frame */}
     <path 
-      d="M22 32L20 44"
+      d="M12 20 L8 28 L10 36 L16 40"
       stroke="hsl(var(--muted-foreground))"
       strokeWidth="2"
       strokeLinecap="round"
+      strokeLinejoin="round"
       fill="none"
     />
-    {/* Top curve accent - primary yellow */}
+    {/* Visor inner details */}
     <path 
-      d="M26 10C34 4 46 4 56 8C64 12 68 18 70 24"
-      stroke="hsl(var(--primary))"
-      strokeWidth="3"
+      d="M10 30 L18 28"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="1.5"
       strokeLinecap="round"
       fill="none"
     />
-    {/* Back of helmet - primary yellow */}
     <path 
-      d="M70 24C72 30 72 36 70 42"
-      stroke="hsl(var(--primary))"
-      strokeWidth="3"
+      d="M14 24 L12 34"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="1.5"
       strokeLinecap="round"
       fill="none"
     />
-    {/* Chin spoiler swoosh - primary yellow */}
+    {/* Top aerodynamic curve - PRIMARY */}
     <path 
-      d="M28 52C36 56 48 56 58 50C66 44 72 38 76 32"
+      d="M18 8 C24 2 36 2 44 8 C50 14 52 20 52 26"
       stroke="hsl(var(--primary))"
-      strokeWidth="3"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Rear vent accent - PRIMARY */}
+    <path 
+      d="M52 26 C52 32 50 36 46 40"
+      stroke="hsl(var(--primary))"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Chin spoiler swoosh - PRIMARY */}
+    <path 
+      d="M16 40 C22 44 34 46 44 42 C50 38 54 32 56 26"
+      stroke="hsl(var(--primary))"
+      strokeWidth="2.5"
       strokeLinecap="round"
       fill="none"
     />
@@ -153,13 +153,13 @@ const HelmetIcon = ({ className }: { className?: string }) => (
 
 // Logo Component
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-1">
-    <HelmetIcon className="w-10 h-10 md:w-12 md:h-12 -mr-1" />
-    <div className="flex items-baseline">
-      <span className="text-xl md:text-2xl lg:text-3xl font-black text-primary italic tracking-wide">
+  <Link to="/" className="flex items-center gap-2 group">
+    <HelmetIcon className="w-11 h-11 md:w-14 md:h-14 transition-transform group-hover:scale-105" />
+    <div className="flex items-baseline gap-0.5">
+      <span className="text-xl md:text-2xl lg:text-3xl font-black text-primary italic tracking-tight" style={{ fontStyle: 'italic' }}>
         HELMET
       </span>
-      <span className="text-xl md:text-2xl lg:text-3xl font-black text-foreground italic tracking-wide ml-1">
+      <span className="text-xl md:text-2xl lg:text-3xl font-black text-foreground italic tracking-tight" style={{ fontStyle: 'italic' }}>
         HUB
       </span>
     </div>
