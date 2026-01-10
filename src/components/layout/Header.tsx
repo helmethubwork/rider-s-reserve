@@ -84,24 +84,30 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component
+// Logo Component - Professional motorsports style
 const Logo = () => (
-  <Link to="/" className="flex items-center">
+  <Link 
+    to="/" 
+    className="flex items-center gap-1 transition-opacity hover:opacity-90"
+  >
     <span 
-      className="text-xl md:text-2xl lg:text-3xl font-black text-primary uppercase"
+      className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-primary"
       style={{ 
+        fontFamily: 'system-ui, -apple-system, sans-serif',
         fontStyle: 'italic',
-        letterSpacing: '0.15em',
-        textShadow: '0 0 20px hsl(var(--primary) / 0.3)'
+        letterSpacing: '0.08em',
+        fontWeight: 900,
       }}
     >
       HELMET
     </span>
     <span 
-      className="text-xl md:text-2xl lg:text-3xl font-black text-foreground uppercase ml-2"
+      className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground"
       style={{ 
+        fontFamily: 'system-ui, -apple-system, sans-serif',
         fontStyle: 'italic',
-        letterSpacing: '0.15em'
+        letterSpacing: '0.08em',
+        fontWeight: 900,
       }}
     >
       HUB
