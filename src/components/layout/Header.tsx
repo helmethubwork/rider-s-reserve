@@ -221,76 +221,77 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50">
-      {/* Main Header */}
-      <div className="bg-background py-4 border-b border-border/50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            {/* Left - Search */}
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setSearchOpen(true)}
-                className="p-2 text-foreground hover:text-primary transition-colors hidden md:block"
-              >
-                <Search size={22} />
-              </button>
-              {/* Mobile Menu Button */}
-              <button
-                className="p-2 text-foreground md:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-
-            {/* Center - Logo */}
-            <Logo />
-
-            {/* Right - Icons */}
-            <div className="flex items-center gap-2 md:gap-4">
-              <button 
-                onClick={() => setSearchOpen(true)}
-                className="p-2 text-foreground hover:text-primary transition-colors md:hidden"
-              >
-                <Search size={20} />
-              </button>
-              <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
-                <User size={22} />
-              </Link>
-              <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
-                <ShoppingCart size={22} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Bar */}
-      <nav className="hidden md:block bg-background border-b border-border/30">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 lg:gap-8">
-            {navigationData.map((item) => (
-              <NavDropdown
-                key={item.name}
-                item={item}
-                isOpen={openDropdown === item.name}
-                onMouseEnter={() => setOpenDropdown(item.name)}
-                onMouseLeave={() => setOpenDropdown(null)}
-              />
-            ))}
-          </div>
-        </div>
-      </nav>
-
-      {/* Promo Banner */}
+    <>
+      {/* Promo Banner - Scrolls away */}
       <div className="promo-banner">
         FREE SHIPPING ON ALL ORDERS!
       </div>
+
+      <header className="sticky top-0 z-50 bg-background shadow-sm">
+        {/* Main Header */}
+        <div className="py-4 border-b border-border/50">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between">
+              {/* Left - Search */}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2 text-foreground hover:text-primary transition-colors hidden md:block"
+                >
+                  <Search size={22} />
+                </button>
+                {/* Mobile Menu Button */}
+                <button
+                  className="p-2 text-foreground md:hidden"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
+
+              {/* Center - Logo */}
+              <Logo />
+
+              {/* Right - Icons */}
+              <div className="flex items-center gap-2 md:gap-4">
+                <button 
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2 text-foreground hover:text-primary transition-colors md:hidden"
+                >
+                  <Search size={20} />
+                </button>
+                <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
+                  <User size={22} />
+                </Link>
+                <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
+                  <ShoppingCart size={22} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Bar */}
+        <nav className="hidden md:block bg-background border-b border-border/30">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-6 lg:gap-8">
+              {navigationData.map((item) => (
+                <NavDropdown
+                  key={item.name}
+                  item={item}
+                  isOpen={openDropdown === item.name}
+                  onMouseEnter={() => setOpenDropdown(item.name)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                />
+              ))}
+            </div>
+          </div>
+        </nav>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
@@ -368,6 +369,7 @@ const Header = () => {
       {/* Search Modal */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
+    </>
   );
 };
 
