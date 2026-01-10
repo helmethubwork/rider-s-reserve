@@ -42,8 +42,8 @@
 
     --radius: 0.5rem;
 
-    /* Header Height for fixed header offset */
-    --header-height: 140px;
+    /* Header Height for fixed header offset (includes promo banner) */
+    --header-height: 160px;
 
     /* Custom Brand Colors */
     --brand-navy: 222 47% 11%;
@@ -113,14 +113,14 @@
   /* Tablet view */
   @media (min-width: 769px) and (max-width: 1024px) {
     :root {
-      --header-height: 120px;
+      --header-height: 140px;
     }
   }
 
   /* Mobile view */
   @media (max-width: 768px) {
     :root {
-      --header-height: 70px;
+      --header-height: 100px;
     }
   }
 
