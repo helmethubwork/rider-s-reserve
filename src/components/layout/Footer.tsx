@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, Twitter, ChevronRight } from "lucide-react";
-
+import helmetHubLogo from "@/assets/helmet-hub-logo.png";
 const Footer = () => {
   return (
     <footer className="bg-background border-t border-border">
@@ -9,13 +9,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="space-y-6">
-            <Link to="/" className="inline-flex items-center gap-1">
-              <span className="text-2xl font-black text-primary tracking-tight" style={{ fontStyle: 'italic' }}>
-                HELMET
-              </span>
-              <span className="text-2xl font-black text-foreground tracking-tight" style={{ fontStyle: 'italic' }}>
-                HUB
-              </span>
+            <Link to="/" className="inline-block">
+              <img 
+                src={helmetHubLogo} 
+                alt="Helmet Hub" 
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Your trusted destination for premium motorcycle helmets and riding gear.

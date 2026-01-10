@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-
+import helmetHubLogo from "@/assets/helmet-hub-logo.png";
 // Navigation data with mega menu structure
 const navigationData = [
   { name: "Home", href: "/", subcategories: [] },
@@ -85,39 +85,14 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - PowerSports style with racing stripes
+// Logo Component - Using uploaded logo image
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-2 group">
-    {/* Racing stripes accent */}
-    <div className="hidden md:flex items-center gap-0.5 mr-1">
-      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
-      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
-    </div>
-    <div className="flex items-baseline">
-      <span 
-        className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        HELMET
-      </span>
-      <span 
-        className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight ml-1"
-        style={{ 
-          fontStyle: 'italic',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        HUB
-      </span>
-    </div>
-    {/* Racing stripes accent */}
-    <div className="hidden md:flex items-center gap-0.5 ml-1">
-      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
-      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
-    </div>
+  <Link to="/" className="flex items-center group">
+    <img 
+      src={helmetHubLogo} 
+      alt="Helmet Hub" 
+      className="h-10 md:h-12 lg:h-14 w-auto object-contain"
+    />
   </Link>
 );
 
