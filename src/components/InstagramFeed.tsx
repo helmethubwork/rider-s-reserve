@@ -36,7 +36,7 @@ const InstagramFeed = () => {
         {instagramPosts.map((post) => (
           <a
             key={post.id}
-            href="https://www.instagram.com/helmethub46"
+            href="https://www.instagram.com/reel/C-C3abzBKYd/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
             target="_blank"
             rel="noopener noreferrer"
             className="aspect-square overflow-hidden group relative"
