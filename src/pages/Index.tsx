@@ -6,6 +6,7 @@ import FeaturedPromo from "@/components/FeaturedPromo";
 import InstagramFeed from "@/components/InstagramFeed";
 import OffersCarousel from "@/components/OffersCarousel";
 import BrandShowcase from "@/components/BrandShowcase";
+import WhyHelmetHub from "@/components/WhyHelmetHub";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import NewArrivalsSlider from "@/components/NewArrivalsSlider";
 
@@ -34,6 +35,9 @@ const Index = () => {
 
       {/* Brand Showcase */}
       <BrandShowcase />
+
+      {/* Why Helmet Hub */}
+      <WhyHelmetHub />
 
       {/* WhatsApp Button */}
       <WhatsAppButton />
