@@ -221,27 +221,25 @@ const Header = () => {
   };
 
   return (
-    <>
-      {/* Scrollable Promo Banner - Sits above fixed header in document flow */}
+    <header 
+      className="w-full bg-background"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999,
+        transform: 'none',
+        willChange: 'auto',
+      }}
+    >
+      {/* Promo Banner - Fixed at top */}
       <div className="promo-banner">
         FREE SHIPPING ON ALL ORDERS!
       </div>
 
-      {/* Fixed Header */}
-      <header 
-        className="w-full bg-background"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          transform: 'none',
-          willChange: 'auto',
-        }}
-      >
-        {/* Main Header */}
-        <div className="bg-background py-4 border-b border-border/50">
+      {/* Main Header */}
+      <div className="bg-background py-4 border-b border-border/50">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between">
               {/* Left - Search */}
@@ -378,10 +376,9 @@ const Header = () => {
         </div>
       )}
 
-        {/* Search Modal */}
-        <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-      </header>
-    </>
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+    </header>
   );
 };
 
