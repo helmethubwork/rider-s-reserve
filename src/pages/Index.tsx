@@ -36,11 +36,11 @@ const Index = () => {
         buttonLink="/brands/hjc"
       />
 
-      {/* Instagram Feed */}
-      <InstagramFeed />
-
       {/* Offers Carousel */}
       <OffersCarousel />
+
+      {/* Instagram Feed */}
+      <InstagramFeed />
 
       {/* Brand Showcase */}
       <BrandShowcase />
