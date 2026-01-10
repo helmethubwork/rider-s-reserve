@@ -222,13 +222,8 @@ const Header = () => {
 
   return (
     <>
-      {/* Scrollable Promo Banner - Sits above fixed header in document flow */}
-      <div className="promo-banner">
-        FREE SHIPPING ON ALL ORDERS!
-      </div>
-
       {/* Fixed Header */}
-      <header 
+      <header
         className="w-full bg-background"
         style={{
           position: 'fixed',

@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PromoBanner from "@/components/PromoBanner";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,9 @@ const TrackOrderPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
+      
+      {/* Promo Banner - Scrolls with content */}
+      <PromoBanner />
       
       <main className="flex-1 py-16 md:py-24">
         <div className="container mx-auto px-4">
