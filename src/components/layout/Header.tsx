@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
-import helmetHubLogo from "@/assets/helmet-hub-logo.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -85,14 +84,70 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
+// Helmet Icon SVG - Racing helmet style matching the reference logo
+const HelmetIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 64 64" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    {/* Helmet shell outline - muted gray */}
+    <path 
+      d="M18 44C14 40 12 34 12 28C12 18 20 10 32 10C44 10 52 18 52 28C52 34 50 40 46 44"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Visor area - muted gray */}
+    <path 
+      d="M16 32L14 40L18 48L24 50"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    {/* Visor horizontal line */}
+    <path 
+      d="M16 36L28 34"
+      stroke="hsl(var(--muted-foreground))"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Top accent swoosh - primary yellow */}
+    <path 
+      d="M20 16C24 10 30 8 36 8C44 8 50 12 54 18"
+      stroke="hsl(var(--primary))"
+      strokeWidth="3"
+      strokeLinecap="round"
+      fill="none"
+    />
+    {/* Chin/bottom swoosh - primary yellow */}
+    <path 
+      d="M24 50C30 54 42 54 50 48C54 44 56 40 58 36"
+      stroke="hsl(var(--primary))"
+      strokeWidth="3"
+      strokeLinecap="round"
+      fill="none"
+    />
+  </svg>
+);
+
 // Logo Component
 const Logo = () => (
-  <Link to="/" className="flex items-center">
-    <img 
-      src={helmetHubLogo} 
-      alt="Helmet Hub" 
-      className="h-10 md:h-14 w-auto object-contain"
-    />
+  <Link to="/" className="flex items-center gap-1">
+    <HelmetIcon className="w-10 h-10 md:w-12 md:h-12 -mr-1" />
+    <div className="flex items-baseline">
+      <span className="text-xl md:text-2xl lg:text-3xl font-black text-primary italic tracking-wide">
+        HELMET
+      </span>
+      <span className="text-xl md:text-2xl lg:text-3xl font-black text-foreground italic tracking-wide ml-1">
+        HUB
+      </span>
+    </div>
   </Link>
 );
 
