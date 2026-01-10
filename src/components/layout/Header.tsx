@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
+import SearchModal from "@/components/SearchModal";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -213,6 +214,7 @@ const Header = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [cartCount] = useState(0);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const toggleMobileCategory = (name: string) => {
     setExpandedMobileCategory(expandedMobileCategory === name ? null : name);
@@ -226,7 +228,10 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Left - Search */}
             <div className="flex items-center gap-4">
-              <button className="p-2 text-foreground hover:text-primary transition-colors hidden md:block">
+              <button 
+                onClick={() => setSearchOpen(true)}
+                className="p-2 text-foreground hover:text-primary transition-colors hidden md:block"
+              >
                 <Search size={22} />
               </button>
               {/* Mobile Menu Button */}
@@ -243,7 +248,10 @@ const Header = () => {
 
             {/* Right - Icons */}
             <div className="flex items-center gap-2 md:gap-4">
-              <button className="p-2 text-foreground hover:text-primary transition-colors md:hidden">
+              <button 
+                onClick={() => setSearchOpen(true)}
+                className="p-2 text-foreground hover:text-primary transition-colors md:hidden"
+              >
                 <Search size={20} />
               </button>
               <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
@@ -356,6 +364,9 @@ const Header = () => {
           </nav>
         </div>
       )}
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 };
