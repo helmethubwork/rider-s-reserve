@@ -18,6 +18,9 @@ const Index = () => {
       {/* Hero Slider */}
       <HeroSlider />
 
+      {/* Offers Carousel */}
+      <OffersCarousel />
+
       {/* Category Grid - 8 columns like powersports */}
       <CategoryGrid />
 
@@ -35,9 +38,6 @@ const Index = () => {
         buttonText="SHOP NOW"
         buttonLink="/brands/hjc"
       />
-
-      {/* Offers Carousel */}
-      <OffersCarousel />
 
       {/* Instagram Feed */}
       <InstagramFeed />
