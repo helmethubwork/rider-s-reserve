@@ -185,18 +185,18 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
       {hasDropdown ? (
         <button
           onClick={handleClick}
-          className={`nav-link flex items-center gap-1 py-4 ${isOpen ? 'text-primary' : ''}`}
+          className={`nav-link flex items-center gap-1.5 py-5 text-sm font-semibold ${isOpen ? 'text-primary' : ''}`}
         >
           {item.name}
           <ChevronDown
-            size={14}
+            size={16}
             className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
         </button>
       ) : (
         <Link
           to={item.href}
-          className="nav-link flex items-center gap-1 py-4"
+          className="nav-link flex items-center gap-1.5 py-5 text-sm font-semibold"
         >
           {item.name}
         </Link>
