@@ -158,14 +158,23 @@ const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] })
 );
 
 // Dropdown Component
-const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave }: { 
+const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: { 
   item: typeof navigationData[0]; 
   isOpen: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onClick: () => void;
 }) => {
   const hasSubcategories = item.subcategories && item.subcategories.length > 0;
   const hasMegaMenu = 'megaMenu' in item && item.megaMenu;
+  const hasDropdown = hasSubcategories || hasMegaMenu;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (hasDropdown) {
+      e.preventDefault();
+      onClick();
+    }
+  };
 
   return (
     <div
@@ -173,22 +182,29 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave }: {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <Link
-        to={item.href}
-        className={`nav-link flex items-center gap-1 py-4 ${isOpen ? 'text-primary' : ''}`}
-      >
-        {item.name}
-        {(hasSubcategories || hasMegaMenu) && (
+      {hasDropdown ? (
+        <button
+          onClick={handleClick}
+          className={`nav-link flex items-center gap-1 py-4 ${isOpen ? 'text-primary' : ''}`}
+        >
+          {item.name}
           <ChevronDown
             size={14}
             className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
-        )}
-      </Link>
+        </button>
+      ) : (
+        <Link
+          to={item.href}
+          className="nav-link flex items-center gap-1 py-4"
+        >
+          {item.name}
+        </Link>
+      )}
 
       {/* Simple Dropdown */}
       {isOpen && hasSubcategories && !hasMegaMenu && (
-        <div className="absolute top-full left-0 min-w-[200px] bg-card border border-border rounded-lg shadow-lg z-50 py-2 animate-fade-in">
+        <div className="absolute top-full left-0 min-w-[220px] bg-background border border-border rounded-lg shadow-xl z-[100] py-2 animate-fade-in">
           {item.subcategories.map((sub) => (
             <Link
               key={sub.name}
@@ -281,6 +297,7 @@ const Header = () => {
                 isOpen={openDropdown === item.name}
                 onMouseEnter={() => setOpenDropdown(item.name)}
                 onMouseLeave={() => setOpenDropdown(null)}
+                onClick={() => setOpenDropdown(openDropdown === item.name ? null : item.name)}
               />
             ))}
           </div>
