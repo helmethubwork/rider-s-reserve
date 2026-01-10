@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, Twitter, ChevronRight } from "lucide-react";
-import helmetHubLogo from "@/assets/helmet-hub-logo.png";
 const Footer = () => {
   return (
     <footer className="bg-background border-t border-border">
@@ -9,12 +8,35 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="space-y-6">
-            <Link to="/" className="inline-block">
-              <img 
-                src={helmetHubLogo} 
-                alt="Helmet Hub" 
-                className="h-10 w-auto object-contain"
-              />
+            <Link to="/" className="flex items-center gap-2 group">
+              {/* Helmet Icon */}
+              <svg 
+                viewBox="0 0 50 50" 
+                className="w-10 h-10 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)] transition-all duration-300"
+              >
+                <path 
+                  d="M25 5C14 5 6 14 6 25v10c0 3 2 5 5 5h3v3c0 1.5 1 2 2 2h18c1 0 2-0.5 2-2v-3h3c3 0 5-2 5-5V25C44 14 36 5 25 5z" 
+                  className="fill-primary"
+                />
+                <path 
+                  d="M10 22h30c1.5 0 2.5 1 2.5 2.5v5c0 1.5-1 2.5-2.5 2.5H10c-1.5 0-2.5-1-2.5-2.5v-5C7.5 23 8.5 22 10 22z" 
+                  className="fill-background/40"
+                />
+                <path 
+                  d="M12 24h8c0.5 0 1 0.5 1 1v2c0 0.5-0.5 1-1 1h-8c-0.5 0-1-0.5-1-1v-2c0-0.5 0.5-1 1-1z" 
+                  className="fill-primary/30"
+                />
+              </svg>
+              
+              {/* Text Logo */}
+              <div className="flex items-baseline">
+                <span className="text-2xl font-black text-primary tracking-tight italic">
+                  HELMET
+                </span>
+                <span className="text-2xl font-black text-foreground tracking-tight italic ml-1">
+                  HUB
+                </span>
+              </div>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Your trusted destination for premium motorcycle helmets and riding gear.
