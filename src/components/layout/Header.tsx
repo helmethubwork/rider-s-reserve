@@ -221,7 +221,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full">
       {/* Main Header */}
       <div className="bg-background py-4 border-b border-border/50">
         <div className="container mx-auto px-4">
