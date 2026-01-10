@@ -1,23 +1,36 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import helmet1 from "@/assets/products/helmet-1.jpg";
-import helmet2 from "@/assets/products/helmet-2.jpg";
-import helmet3 from "@/assets/products/helmet-3.jpg";
-import visor1 from "@/assets/products/visor-1.jpg";
-import intercom1 from "@/assets/products/intercom-1.jpg";
-import jacket1 from "@/assets/products/jacket-1.jpg";
 
 const instagramReels = [
-  { id: 1, image: helmet1, reelId: "C-C3abzBKYd" },
-  { id: 2, image: helmet2, reelId: "C6YW6r6LI9-" },
-  { id: 3, image: helmet3, reelId: "DTNVmDwgTon" },
-  { id: 4, image: visor1, reelId: "DRzgIPrjMNT" },
-  { id: 5, image: intercom1, reelId: "DRUl9StDEsX" },
-  { id: 6, image: jacket1, reelId: "DPngJf0Af1H" },
+  "C-C3abzBKYd",
+  "C6YW6r6LI9-",
+  "DTNVmDwgTon",
+  "DRzgIPrjMNT",
+  "DRUl9StDEsX",
+  "DPngJf0Af1H",
 ];
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.instagram.com/embed.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      if ((window as any).instgrm) {
+        (window as any).instgrm.Embeds.process();
+      }
+    };
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -30,7 +43,7 @@ const InstagramFeed = () => {
   };
 
   return (
-    <section className="py-12 md:py-16 bg-background">
+    <section className="py-12 md:py-16 bg-background overflow-hidden">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-center text-sm md:text-base tracking-[0.3em] text-foreground font-medium">
           JOIN OUR INSTA STORY:{" "}
@@ -45,7 +58,7 @@ const InstagramFeed = () => {
         </h2>
       </div>
 
-      {/* Instagram Thumbnails Carousel */}
+      {/* Instagram Video Embeds */}
       <div className="relative">
         {/* Left Arrow */}
         <button
@@ -68,35 +81,34 @@ const InstagramFeed = () => {
         {/* Scrollable Container */}
         <div 
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth px-2"
         >
-          {instagramReels.map((reel) => (
-            <a
-              key={reel.id}
-              href={`https://www.instagram.com/reel/${reel.reelId}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 w-[280px] md:w-[320px] aspect-[4/5] overflow-hidden group relative"
+          {instagramReels.map((reelId) => (
+            <div 
+              key={reelId} 
+              className="flex-shrink-0 w-[280px] md:w-[320px] aspect-[4/5] overflow-hidden relative instagram-video-container"
             >
-              <img
-                src={reel.image}
-                alt={`Instagram reel ${reel.id}`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              {/* Hover overlay with play icon */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg">
-                  <svg 
-                    className="w-6 h-6 text-foreground ml-1"
-                    fill="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                </div>
-              </div>
-            </a>
+              <blockquote
+                className="instagram-media"
+                data-instgrm-permalink={`https://www.instagram.com/reel/${reelId}/`}
+                data-instgrm-version="14"
+                style={{
+                  background: "transparent",
+                  border: 0,
+                  margin: 0,
+                  padding: 0,
+                  width: "100%",
+                  maxWidth: "100%",
+                }}
+              >
+                <a
+                  href={`https://www.instagram.com/reel/${reelId}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full h-full bg-muted/30"
+                />
+              </blockquote>
+            </div>
           ))}
         </div>
       </div>
@@ -104,6 +116,25 @@ const InstagramFeed = () => {
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .instagram-video-container {
+          position: relative;
+        }
+        .instagram-video-container iframe {
+          position: absolute !important;
+          top: -60px !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: calc(100% + 120px) !important;
+          border: 0 !important;
+        }
+        .instagram-video-container .instagram-media {
+          min-width: 100% !important;
+          width: 100% !important;
         }
       `}</style>
     </section>
