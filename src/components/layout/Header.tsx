@@ -84,15 +84,67 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
+// Helmet Icon SVG Component
+const HelmetIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 48 48" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    {/* Helmet outline - gray/muted */}
+    <path 
+      d="M12 32C12 32 10 30 10 26C10 22 12 18 14 16C16 14 20 12 24 12C28 12 32 14 34 16C36 18 38 22 38 26C38 30 36 32 36 32" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round"
+      className="text-muted-foreground"
+    />
+    {/* Visor line - gray */}
+    <path 
+      d="M14 26L12 32L14 36L18 38" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-muted-foreground"
+    />
+    {/* Top accent - primary yellow */}
+    <path 
+      d="M16 14C18 10 22 8 26 8C30 8 34 10 36 14" 
+      stroke="hsl(var(--primary))" 
+      strokeWidth="2.5" 
+      strokeLinecap="round"
+    />
+    {/* Side swoosh - primary yellow */}
+    <path 
+      d="M36 32C36 32 38 34 40 36C42 38 44 38 44 38" 
+      stroke="hsl(var(--primary))" 
+      strokeWidth="2.5" 
+      strokeLinecap="round"
+    />
+    {/* Bottom chin guard accent - primary yellow */}
+    <path 
+      d="M18 38C20 40 26 42 32 40C36 38 38 36 38 36" 
+      stroke="hsl(var(--primary))" 
+      strokeWidth="2.5" 
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
 // Logo Component
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-1">
-    <span className="text-2xl md:text-3xl font-bold text-primary italic tracking-wider">
-      HELMET
-    </span>
-    <span className="text-2xl md:text-3xl font-bold text-foreground italic tracking-wider">
-      HUB
-    </span>
+  <Link to="/" className="flex items-center gap-2">
+    <HelmetIcon className="w-10 h-10 md:w-12 md:h-12" />
+    <div className="flex items-center gap-1">
+      <span className="text-xl md:text-2xl lg:text-3xl font-bold text-primary italic tracking-wider">
+        HELMET
+      </span>
+      <span className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground italic tracking-wider">
+        HUB
+      </span>
+    </div>
   </Link>
 );
 
