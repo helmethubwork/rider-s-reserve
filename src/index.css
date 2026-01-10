@@ -110,9 +110,17 @@
     padding-top: var(--header-height);
   }
 
+  /* Tablet view */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+      --header-height: 120px;
+    }
+  }
+
+  /* Mobile view */
   @media (max-width: 768px) {
     :root {
-      --header-height: 100px;
+      --header-height: 70px;
     }
   }
 
