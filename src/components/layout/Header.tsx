@@ -84,34 +84,39 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Professional motorsports style
+// Logo Component - PowerSports style with racing stripes
 const Logo = () => (
-  <Link 
-    to="/" 
-    className="flex items-center gap-1 transition-opacity hover:opacity-90"
-  >
-    <span 
-      className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-primary"
-      style={{ 
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontStyle: 'italic',
-        letterSpacing: '0.08em',
-        fontWeight: 900,
-      }}
-    >
-      HELMET
-    </span>
-    <span 
-      className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground"
-      style={{ 
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontStyle: 'italic',
-        letterSpacing: '0.08em',
-        fontWeight: 900,
-      }}
-    >
-      HUB
-    </span>
+  <Link to="/" className="flex items-center gap-2 group">
+    {/* Racing stripes accent */}
+    <div className="hidden md:flex items-center gap-0.5 mr-1">
+      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+    </div>
+    <div className="flex items-baseline">
+      <span 
+        className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
+        style={{ 
+          fontStyle: 'italic',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        HELMET
+      </span>
+      <span 
+        className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight ml-1"
+        style={{ 
+          fontStyle: 'italic',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        HUB
+      </span>
+    </div>
+    {/* Racing stripes accent */}
+    <div className="hidden md:flex items-center gap-0.5 ml-1">
+      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
+    </div>
   </Link>
 );
 
@@ -160,7 +165,7 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave }: {
     >
       <Link
         to={item.href}
-        className={`nav-link flex items-center gap-1 py-4 ${isOpen ? 'text-primary border-b-2 border-primary' : ''}`}
+        className={`nav-link flex items-center gap-1 py-4 ${isOpen ? 'text-primary' : ''}`}
       >
         {item.name}
         {(hasSubcategories || hasMegaMenu) && (
@@ -207,7 +212,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50">
       {/* Main Header */}
-      <div className="bg-background py-4">
+      <div className="bg-background py-4 border-b border-border/50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Left - Search */}
@@ -249,7 +254,7 @@ const Header = () => {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="hidden md:block bg-background border-t border-border">
+      <nav className="hidden md:block bg-background border-b border-border/30">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-6 lg:gap-8">
             {navigationData.map((item) => (

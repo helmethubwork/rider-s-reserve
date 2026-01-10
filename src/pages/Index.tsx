@@ -8,6 +8,7 @@ import InstagramFeed from "@/components/InstagramFeed";
 import OffersCarousel from "@/components/OffersCarousel";
 import BrandShowcase from "@/components/BrandShowcase";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import NewArrivalsSlider from "@/components/NewArrivalsSlider";
 
 const Index = () => {
   return (
@@ -17,11 +18,14 @@ const Index = () => {
       {/* Hero Slider */}
       <HeroSlider />
 
-      {/* Category Grid - 4 columns */}
+      {/* Category Grid - 8 columns like powersports */}
       <CategoryGrid />
 
       {/* Featured Product Promos - 2 columns */}
       <FeaturedPromo />
+
+      {/* New Arrivals Slider */}
+      <NewArrivalsSlider />
 
       {/* Full Width Banner */}
       <FullWidthBanner

@@ -26,27 +26,28 @@ const FullWidthBanner = ({
         alt={title}
         className="absolute inset-0 w-full h-full object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/30 to-transparent" />
+      <div className="absolute inset-0 bg-background/50" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
 
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-end text-center p-8 pb-16">
         {subtitle && (
-          <p className="text-sm tracking-[0.3em] text-muted-foreground mb-2">
+          <p className="text-xs md:text-sm tracking-[0.3em] text-muted-foreground mb-3 uppercase">
             {subtitle}
           </p>
         )}
-        <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-2">
+        <h2 className="text-3xl md:text-5xl lg:text-7xl font-black text-foreground mb-3 tracking-tight">
           {title}
         </h2>
         {description && (
-          <p className="text-lg text-muted-foreground mb-6 max-w-2xl">
+          <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-2xl">
             {description}
           </p>
         )}
         {buttonText && buttonLink && (
           <Link
             to={buttonLink}
-            className="border-2 border-foreground text-foreground font-semibold px-8 py-3 text-sm tracking-wider hover:bg-foreground hover:text-background transition-colors"
+            className="inline-flex items-center gap-2 border-2 border-foreground text-foreground font-bold px-8 py-3 text-sm tracking-[0.15em] hover:bg-foreground hover:text-background transition-all duration-300"
           >
             {buttonText}
           </Link>
