@@ -185,18 +185,18 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
       {hasDropdown ? (
         <button
           onClick={handleClick}
-          className={`nav-link flex items-center gap-1.5 py-5 text-sm font-semibold ${isOpen ? 'text-primary' : ''}`}
+          className={`nav-link flex items-center gap-2 py-6 text-base font-semibold ${isOpen ? 'text-primary' : ''}`}
         >
           {item.name}
           <ChevronDown
-            size={16}
+            size={18}
             className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           />
         </button>
       ) : (
         <Link
           to={item.href}
-          className="nav-link flex items-center gap-1.5 py-5 text-sm font-semibold"
+          className="nav-link flex items-center gap-2 py-6 text-base font-semibold"
         >
           {item.name}
         </Link>
@@ -289,7 +289,7 @@ const Header = () => {
       {/* Navigation Bar */}
       <nav className="hidden md:block bg-background border-b border-border/30">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 lg:gap-8">
+          <div className="flex items-center justify-center gap-8 lg:gap-10">
             {navigationData.map((item) => (
               <NavDropdown
                 key={item.name}
