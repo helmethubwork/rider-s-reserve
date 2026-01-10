@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
+
 // Navigation data with mega menu structure
 const navigationData = [
   { name: "Home", href: "/", subcategories: [] },
@@ -84,39 +85,38 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - SVG helmet icon with theme colors
+// Logo Component - PowerSports style with racing stripes
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-2 md:gap-3 group">
-    {/* Helmet Icon */}
-    <svg 
-      viewBox="0 0 50 50" 
-      className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 group-hover:drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all duration-300"
-    >
-      {/* Helmet shell */}
-      <path 
-        d="M25 5C14 5 6 14 6 25v10c0 3 2 5 5 5h3v3c0 1.5 1 2 2 2h18c1 0 2-0.5 2-2v-3h3c3 0 5-2 5-5V25C44 14 36 5 25 5z" 
-        className="fill-primary"
-      />
-      {/* Visor */}
-      <path 
-        d="M10 22h30c1.5 0 2.5 1 2.5 2.5v5c0 1.5-1 2.5-2.5 2.5H10c-1.5 0-2.5-1-2.5-2.5v-5C7.5 23 8.5 22 10 22z" 
-        className="fill-background/40"
-      />
-      {/* Visor reflection */}
-      <path 
-        d="M12 24h8c0.5 0 1 0.5 1 1v2c0 0.5-0.5 1-1 1h-8c-0.5 0-1-0.5-1-1v-2c0-0.5 0.5-1 1-1z" 
-        className="fill-primary/30"
-      />
-    </svg>
-    
-    {/* Text Logo */}
+  <Link to="/" className="flex items-center gap-2 group">
+    {/* Racing stripes accent */}
+    <div className="hidden md:flex items-center gap-0.5 mr-1">
+      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+    </div>
     <div className="flex items-baseline">
-      <span className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight italic">
+      <span 
+        className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
+        style={{ 
+          fontStyle: 'italic',
+          letterSpacing: '-0.02em',
+        }}
+      >
         HELMET
       </span>
-      <span className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight italic ml-1">
+      <span 
+        className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight ml-1"
+        style={{ 
+          fontStyle: 'italic',
+          letterSpacing: '-0.02em',
+        }}
+      >
         HUB
       </span>
+    </div>
+    {/* Racing stripes accent */}
+    <div className="hidden md:flex items-center gap-0.5 ml-1">
+      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
     </div>
   </Link>
 );
