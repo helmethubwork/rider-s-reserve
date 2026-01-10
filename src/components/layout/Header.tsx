@@ -221,15 +221,14 @@ const Header = () => {
   };
 
   return (
-    <>
-      {/* Promo Banner - Scrolls away */}
+    <header className="sticky top-0 z-50 bg-background shadow-sm">
+      {/* Promo Banner - Fixed at top */}
       <div className="promo-banner">
         FREE SHIPPING ON ALL ORDERS!
       </div>
 
-      <header className="sticky top-0 z-50 bg-background shadow-sm">
-        {/* Main Header */}
-        <div className="py-4 border-b border-border/50">
+      {/* Main Header */}
+      <div className="py-4 border-b border-border/50">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between">
               {/* Left - Search */}
@@ -369,7 +368,6 @@ const Header = () => {
       {/* Search Modal */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
-    </>
   );
 };
 
