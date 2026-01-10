@@ -113,14 +113,15 @@
   /* Tablet view */
   @media (min-width: 769px) and (max-width: 1024px) {
     :root {
-      --header-height: 120px;
+      --header-height: 140px;
     }
   }
 
   /* Mobile view */
   @media (max-width: 768px) {
     :root {
-      --header-height: 100px;
+      /* Increased so the announcement bar never sits behind the fixed header */
+      --header-height: 180px;
     }
   }
 
