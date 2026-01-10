@@ -58,28 +58,30 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       {/* Search Container */}
       <div className="relative z-10 flex flex-col items-center pt-24 md:pt-32 px-4">
         <div className="w-full max-w-3xl">
-          {/* Search Input */}
-          <div className="flex items-center bg-background border border-border rounded-none">
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search"
-              className="flex-1 h-14 px-5 bg-transparent text-foreground text-base placeholder:text-muted-foreground focus:outline-none"
-            />
-            <button className="px-5 text-muted-foreground hover:text-foreground transition-colors">
-              <Search size={22} />
+          {/* Search Input with Close Button */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center flex-1 bg-background border border-border rounded-none">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search"
+                className="flex-1 h-14 px-5 bg-transparent text-foreground text-base placeholder:text-muted-foreground focus:outline-none"
+              />
+              <button className="px-5 text-muted-foreground hover:text-foreground transition-colors">
+                <Search size={22} />
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X size={24} />
             </button>
           </div>
-
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-24 md:top-32 right-4 md:right-8 lg:right-[calc(50%-400px)] p-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X size={24} />
-          </button>
 
           {/* Search Results */}
           {query.length > 1 && (
