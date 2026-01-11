@@ -26,7 +26,7 @@ const SalePage = () => {
   const [sortBy, setSortBy] = useState("featured");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [openFilters, setOpenFilters] = useState<string[]>(["brand", "model", "size", "price", "availability"]);
+  const [openFilters, setOpenFilters] = useState<string[]>([]);
 
   // Get sale products (products with originalPrice)
   const saleProducts = useMemo(() => {
