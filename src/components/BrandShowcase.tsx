@@ -44,33 +44,47 @@ const BrandShowcase = () => {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 320;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
-      setTimeout(checkScroll, 300);
+      setTimeout(checkScroll, 350);
     }
   };
 
   return (
-    <section className="py-16 md:py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-wide mb-3">
+    <section className="py-20 md:py-28 bg-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Section header */}
+        <div className="text-center mb-14">
+          <span className="text-primary text-sm font-bold tracking-[0.3em] uppercase mb-4 block">
+            Trusted Partners
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight mb-4">
             Brands We Collaborate With
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-            Helmet Hub has collaborated with the best in the market brands, giving you a perfect place to buy helmets and riding gear
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
+            Helmet Hub has partnered with the world's leading brands to bring you premium quality helmets and riding gear
           </p>
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <div className="w-16 h-1 bg-primary rounded-full" />
+            <div className="w-3 h-3 bg-primary rounded-full" />
+            <div className="w-16 h-1 bg-primary rounded-full" />
+          </div>
         </div>
 
         <div className="relative">
           {/* Left Arrow */}
           <button
             onClick={() => scroll('left')}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-foreground/90 hover:bg-foreground text-background rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-              !canScrollLeft ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'
+            className={`absolute -left-2 md:left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 md:w-14 md:h-14 bg-card/90 backdrop-blur-sm hover:bg-primary text-foreground hover:text-primary-foreground rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border border-border ${
+              !canScrollLeft ? 'opacity-40 cursor-not-allowed' : 'hover:scale-110 hover:shadow-xl'
             }`}
             disabled={!canScrollLeft}
           >
@@ -81,8 +95,7 @@ const BrandShowcase = () => {
           <div
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide px-14 md:px-16 py-4"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-hide px-16 md:px-20 py-4"
           >
             {brands.map((brand) => (
               <Link
@@ -90,13 +103,16 @@ const BrandShowcase = () => {
                 to={`/brands/${brand.slug}`}
                 className="flex-shrink-0 group"
               >
-                <div className="w-40 h-24 md:w-52 md:h-32 bg-card border-4 border-primary rounded-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:border-accent group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
+                <div className="brand-card w-44 h-28 md:w-56 md:h-36">
                   <img 
                     src={brand.logo} 
                     alt={`${brand.name} logo`}
-                    className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="max-w-[80%] max-h-[70%] object-contain transition-all duration-500 group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
                   />
                 </div>
+                <p className="text-center text-sm font-medium text-muted-foreground mt-3 group-hover:text-primary transition-colors">
+                  {brand.name}
+                </p>
               </Link>
             ))}
           </div>
@@ -104,8 +120,8 @@ const BrandShowcase = () => {
           {/* Right Arrow */}
           <button
             onClick={() => scroll('right')}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-foreground/90 hover:bg-foreground text-background rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-              !canScrollRight ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'
+            className={`absolute -right-2 md:right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 md:w-14 md:h-14 bg-card/90 backdrop-blur-sm hover:bg-primary text-foreground hover:text-primary-foreground rounded-full flex items-center justify-center transition-all duration-300 shadow-lg border border-border ${
+              !canScrollRight ? 'opacity-40 cursor-not-allowed' : 'hover:scale-110 hover:shadow-xl'
             }`}
             disabled={!canScrollRight}
           >

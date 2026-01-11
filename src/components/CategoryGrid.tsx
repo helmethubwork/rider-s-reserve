@@ -30,73 +30,98 @@ const CategoryCard = ({ category, isLarge = false }: { category: CategoryItem; i
   return (
     <Link
       to={category.href}
-      className={`relative block overflow-hidden group ${
-        isLarge ? "min-h-[400px] md:min-h-[500px]" : "min-h-[280px] md:min-h-[350px]"
+      className={`relative block overflow-hidden group rounded-2xl ${
+        isLarge ? "min-h-[420px] md:min-h-[520px]" : "min-h-[300px] md:min-h-[380px]"
       }`}
     >
+      {/* Image with zoom effect */}
       <img
         src={category.image}
         alt={category.name}
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 absolute inset-0"
       />
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20" />
+      
+      {/* Multi-layer gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Glowing border on hover */}
+      <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-primary/60 transition-all duration-500" 
+           style={{ boxShadow: 'inset 0 0 0 0 hsl(52 100% 50% / 0)' }} />
       
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-start justify-end p-6 md:p-8">
-        <span className="text-xs md:text-sm text-primary font-bold uppercase tracking-[0.2em] mb-2">
+        {/* Shop Now tag */}
+        <span className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm text-primary text-xs font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-full mb-4 border border-primary/30">
+          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
           Shop Now
         </span>
-        <h3 className={`font-black text-white uppercase tracking-wide mb-2 ${
+        
+        {/* Category name */}
+        <h3 className={`font-black text-foreground uppercase tracking-wide mb-2 transition-transform duration-300 group-hover:translate-x-2 ${
           isLarge ? "text-3xl md:text-5xl lg:text-6xl" : "text-2xl md:text-3xl lg:text-4xl"
         }`}>
           {category.name}
         </h3>
-        <p className="text-white/80 text-sm md:text-base max-w-xs">
+        
+        {/* Subtitle */}
+        <p className="text-muted-foreground text-sm md:text-base max-w-xs mb-4">
           {category.subtitle}
         </p>
         
         {/* Arrow indicator */}
-        <div className="mt-4 flex items-center gap-2 text-primary">
-          <span className="text-sm font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0">
-            Explore
+        <div className="flex items-center gap-3 text-primary overflow-hidden">
+          <span className="text-sm font-bold uppercase tracking-wider transform -translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
+            Explore Collection
           </span>
-          <ArrowRight size={20} className="transform group-hover:translate-x-2 transition-transform duration-300" />
+          <div className="w-10 h-10 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+            <ArrowRight size={18} className="transform group-hover:translate-x-0.5 transition-transform duration-300" />
+          </div>
         </div>
       </div>
 
-      {/* Hover border effect */}
-      <div className="absolute inset-0 border-4 border-primary/0 group-hover:border-primary transition-all duration-300" />
+      {/* Corner accent */}
+      <div className="absolute top-0 right-0 w-20 h-20 overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent transform rotate-45 translate-x-16 -translate-y-16 group-hover:translate-x-12 group-hover:-translate-y-12 transition-transform duration-500" />
+      </div>
     </Link>
   );
 };
 
 const CategoryGrid = () => {
   return (
-    <section className="py-8 md:py-12 bg-background">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-4xl font-black text-foreground uppercase tracking-wider">
+        {/* Section header */}
+        <div className="text-center mb-14">
+          <span className="text-primary text-sm font-bold tracking-[0.3em] uppercase mb-4 block">
+            Browse Categories
+          </span>
+          <h2 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tight">
             Shop By Category
           </h2>
-          <div className="w-24 h-1 bg-primary mx-auto mt-4" />
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <div className="w-16 h-1 bg-primary rounded-full" />
+            <div className="w-3 h-3 bg-primary rounded-full" />
+            <div className="w-16 h-1 bg-primary rounded-full" />
+          </div>
         </div>
         
         {/* First row - 2 large banners */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
           <CategoryCard category={categories[0]} isLarge={true} />
           <CategoryCard category={categories[1]} isLarge={true} />
         </div>
         
         {/* Second row - 3 medium banners */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
           <CategoryCard category={categories[2]} />
           <CategoryCard category={categories[3]} />
           <CategoryCard category={categories[4]} />
         </div>
         
         {/* Third row - 3 medium banners */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           <CategoryCard category={categories[5]} />
           <CategoryCard category={categories[6]} />
           <CategoryCard category={categories[7]} />
