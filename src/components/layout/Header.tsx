@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetIcon from "@/assets/helmet-icon-new.png";
+import helmetHubCombinedLogo from "@/assets/helmet-hub-combined.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -83,34 +83,16 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Helmet icon + Text
+// Logo Component - Combined logo (like reference)
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-3 group">
-    <img 
-      src={helmetIcon} 
-      alt="Helmet Hub helmet icon" 
-      className="h-14 md:h-16 lg:h-20 w-auto object-contain rounded-md p-1 bg-background/5 ring-1 ring-primary/30 shadow-lg transition-transform duration-300 group-hover:scale-105"
+  <Link to="/" className="flex items-center group">
+    <img
+      src={helmetHubCombinedLogo}
+      alt="Helmet Hub"
+      className="h-20 md:h-24 lg:h-28 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+      loading="eager"
+      decoding="async"
     />
-    <div className="flex flex-col leading-none">
-      <span 
-        className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        }}
-      >
-        HELMET
-      </span>
-      <span 
-        className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        }}
-      >
-        HUB
-      </span>
-    </div>
   </Link>
 );
 
