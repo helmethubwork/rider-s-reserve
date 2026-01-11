@@ -226,11 +226,16 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const { totalItems } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const [hideOnScroll, setHideOnScroll] = useState(false);
   const lastScrollYRef = useRef(0);
+
+  const toggleMobileCategory = (name: string) => {
+    setExpandedMobileCategory(expandedMobileCategory === name ? null : name);
+  };
 
   // Hide header when scrolling down, show when scrolling up
   useEffect(() => {
@@ -401,44 +406,57 @@ const Header = () => {
                     </Link>
                   ) : (
                     <>
-                      <div className="flex items-center justify-between px-4 py-3 text-primary text-sm font-bold uppercase tracking-wide border-b border-border/30 bg-secondary/30">
+                      <button
+                        onClick={() => toggleMobileCategory(item.name)}
+                        className="w-full flex items-center justify-between px-4 py-3 text-primary text-sm font-bold uppercase tracking-wide border-b border-border/30 bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors"
+                      >
                         <div className="flex items-center gap-3">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {item.name}
                         </div>
-                        <ChevronDown size={16} className="text-primary animate-bounce" />
-                      </div>
-                      <ul className="bg-card/50 border-b border-border/30">
-                        {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
-                          item.columns.map((col) => (
-                            col.items.map((subItem) => (
-                              <li key={subItem.name}>
+                        <ChevronDown 
+                          size={16} 
+                          className={`text-primary transition-transform duration-300 ${
+                            expandedMobileCategory === item.name ? 'rotate-180' : 'animate-bounce'
+                          }`} 
+                        />
+                      </button>
+                      
+                      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        expandedMobileCategory === item.name ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}>
+                        <ul className="bg-card/50 border-b border-border/30">
+                          {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
+                            item.columns.map((col) => (
+                              col.items.map((subItem) => (
+                                <li key={subItem.name}>
+                                  <Link
+                                    to={subItem.href}
+                                    className="flex items-center gap-3 pl-8 pr-4 py-2.5 text-foreground text-xs font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                  >
+                                    <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                                    {subItem.name}
+                                  </Link>
+                                </li>
+                              ))
+                            ))
+                          ) : (
+                            item.subcategories?.map((sub) => (
+                              <li key={sub.name}>
                                 <Link
-                                  to={subItem.href}
+                                  to={sub.href}
                                   className="flex items-center gap-3 pl-8 pr-4 py-2.5 text-foreground text-xs font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
                                   onClick={() => setMobileMenuOpen(false)}
                                 >
                                   <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-                                  {subItem.name}
+                                  {sub.name}
                                 </Link>
                               </li>
                             ))
-                          ))
-                        ) : (
-                          item.subcategories?.map((sub) => (
-                            <li key={sub.name}>
-                              <Link
-                                to={sub.href}
-                                className="flex items-center gap-3 pl-8 pr-4 py-2.5 text-foreground text-xs font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                              >
-                                <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-                                {sub.name}
-                              </Link>
-                            </li>
-                          ))
-                        )}
-                      </ul>
+                          )}
+                        </ul>
+                      </div>
                     </>
                   )}
                 </li>
