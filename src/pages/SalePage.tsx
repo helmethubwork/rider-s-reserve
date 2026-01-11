@@ -190,7 +190,7 @@ const SalePage = () => {
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${
+                    className={`text-black transition-transform ${
                       openFilters.includes("brand") ? "rotate-180" : ""
                     }`}
                   />
@@ -222,7 +222,7 @@ const SalePage = () => {
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${
+                    className={`text-black transition-transform ${
                       openFilters.includes("model") ? "rotate-180" : ""
                     }`}
                   />
@@ -251,7 +251,7 @@ const SalePage = () => {
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${
+                    className={`text-black transition-transform ${
                       openFilters.includes("size") ? "rotate-180" : ""
                     }`}
                   />
@@ -280,7 +280,7 @@ const SalePage = () => {
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${
+                    className={`text-black transition-transform ${
                       openFilters.includes("price") ? "rotate-180" : ""
                     }`}
                   />
@@ -309,7 +309,7 @@ const SalePage = () => {
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`transition-transform ${
+                    className={`text-black transition-transform ${
                       openFilters.includes("availability") ? "rotate-180" : ""
                     }`}
                   />
