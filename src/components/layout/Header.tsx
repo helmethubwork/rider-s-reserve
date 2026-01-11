@@ -82,29 +82,16 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Racing style text logo
+import helmetHubLogo from "@/assets/helmet-hub-logo.png";
+
+// Logo Component - Using exact logo image
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-1 group">
-    <div className="flex flex-col leading-none">
-      <span 
-        className="text-xl md:text-2xl lg:text-3xl font-black text-primary tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        }}
-      >
-        HELMET
-      </span>
-      <span 
-        className="text-xl md:text-2xl lg:text-3xl font-black text-white tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        }}
-      >
-        HUB
-      </span>
-    </div>
+  <Link to="/" className="flex items-center">
+    <img 
+      src={helmetHubLogo} 
+      alt="Helmet Hub" 
+      className="h-14 md:h-16 lg:h-20 w-auto"
+    />
   </Link>
 );
 
