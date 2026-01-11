@@ -185,7 +185,7 @@ const SalePage = () => {
                 onOpenChange={() => toggleFilter("brand")}
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
-                  <span className="text-sm font-medium tracking-[0.15em] uppercase">
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase text-black">
                     Brand
                   </span>
                   <ChevronDown
@@ -217,7 +217,7 @@ const SalePage = () => {
                 onOpenChange={() => toggleFilter("model")}
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
-                  <span className="text-sm font-medium tracking-[0.15em] uppercase">
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase text-black">
                     Model
                   </span>
                   <ChevronDown
@@ -246,7 +246,7 @@ const SalePage = () => {
                 onOpenChange={() => toggleFilter("size")}
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
-                  <span className="text-sm font-medium tracking-[0.15em] uppercase">
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase text-black">
                     Size
                   </span>
                   <ChevronDown
@@ -275,7 +275,7 @@ const SalePage = () => {
                 onOpenChange={() => toggleFilter("price")}
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
-                  <span className="text-sm font-medium tracking-[0.15em] uppercase">
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase text-black">
                     Price
                   </span>
                   <ChevronDown
@@ -304,7 +304,7 @@ const SalePage = () => {
                 onOpenChange={() => toggleFilter("availability")}
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
-                  <span className="text-sm font-medium tracking-[0.15em] uppercase">
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase text-black">
                     Availability
                   </span>
                   <ChevronDown
