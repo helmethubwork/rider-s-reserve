@@ -30,7 +30,6 @@ const ProductCard = ({
   isSoldOut = false,
 }: ProductCardProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showQuickView, setShowQuickView] = useState(false);
 
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -60,11 +59,11 @@ const ProductCard = ({
     : 0;
 
   return (
-    <div className="group bg-card rounded-xl relative overflow-hidden border border-border/30 transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:-translate-y-1">
+    <div className="group bg-card rounded-lg sm:rounded-xl relative overflow-hidden border border-border/30 transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:-translate-y-1 active:scale-[0.98]">
       {/* Badge */}
       {badge && (
-        <div className="absolute top-4 left-4 z-10">
-          <span className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-lg ${getBadgeStyles(badge)}`}>
+        <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
+          <span className={`text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg ${getBadgeStyles(badge)}`}>
             {badge}
           </span>
         </div>
@@ -72,8 +71,8 @@ const ProductCard = ({
 
       {/* Discount badge */}
       {discountPercent > 0 && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="bg-destructive text-white text-xs font-bold px-2 py-1 rounded-lg">
+        <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10">
+          <span className="bg-destructive text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
             -{discountPercent}%
           </span>
         </div>
@@ -86,84 +85,80 @@ const ProductCard = ({
             src={image}
             alt={name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
           />
         </Link>
 
         {/* Wishlist button */}
         <button
           onClick={() => setIsWishlisted(!isWishlisted)}
-          className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-primary-foreground opacity-0 group-hover:opacity-100 z-20"
+          className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 sm:w-10 h-8 sm:h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-primary-foreground sm:opacity-0 sm:group-hover:opacity-100 z-20 active:scale-95"
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart size={18} className={isWishlisted ? "fill-destructive text-destructive" : ""} />
+          <Heart size={16} className={`sm:w-[18px] sm:h-[18px] ${isWishlisted ? "fill-destructive text-destructive" : ""}`} />
         </button>
 
-        {/* Quick View Overlay */}
-        <div
-          className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent py-4 px-4 text-center transition-all duration-500 ${
-            showQuickView ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-          } group-hover:translate-y-0 group-hover:opacity-100`}
-          onMouseEnter={() => setShowQuickView(true)}
-          onMouseLeave={() => setShowQuickView(false)}
-        >
-          <button className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-6 py-2.5 rounded-lg text-sm hover:bg-accent transition-colors">
-            <Eye size={16} />
+        {/* Quick View Overlay - Desktop only */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent py-3 sm:py-4 px-4 text-center transition-all duration-500 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hidden sm:block">
+          <button className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm hover:bg-accent transition-colors">
+            <Eye size={14} className="sm:w-4 sm:h-4" />
             Quick View
           </button>
         </div>
 
-        {/* Color Variants */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-100">
+        {/* Color Variants - Hidden on mobile */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-100 hidden sm:flex">
           <span className="w-5 h-5 rounded-full bg-foreground border-2 border-background cursor-pointer hover:scale-125 transition-transform shadow-lg" />
           <span className="w-5 h-5 rounded-full bg-primary border-2 border-background cursor-pointer hover:scale-125 transition-transform shadow-lg" />
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
+      <div className="p-3 sm:p-5 space-y-1.5 sm:space-y-3">
         {/* Brand */}
-        <p className="text-xs text-primary font-bold tracking-wider uppercase">{brand}</p>
+        <p className="text-[10px] sm:text-xs text-primary font-bold tracking-wider uppercase">{brand}</p>
 
         {/* Name */}
-        <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-foreground text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
           {name}
         </h3>
 
         {/* Rating */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                size={14}
-                className={
+                size={10}
+                className={`sm:w-3.5 sm:h-3.5 ${
                   i < Math.floor(rating)
                     ? "text-primary fill-primary"
                     : "text-muted-foreground/40"
-                }
+                }`}
               />
             ))}
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-[10px] sm:text-xs text-muted-foreground">
             ({reviewCount})
           </span>
         </div>
 
         {/* Price */}
-        <div className="flex items-center gap-3 pt-1">
-          <span className="text-lg font-bold text-primary">
+        <div className="flex items-center gap-2 sm:gap-3 pt-0.5 sm:pt-1">
+          <span className="text-sm sm:text-lg font-bold text-primary">
             {formatPrice(price)}
           </span>
           {originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="text-xs sm:text-sm text-muted-foreground line-through">
               {formatPrice(originalPrice)}
             </span>
           )}
         </div>
 
-        {/* EMI Option */}
-        <div className="flex items-center gap-2 pt-1">
-          <Zap size={14} className="text-accent" />
-          <p className="text-xs text-muted-foreground">
+        {/* EMI Option - Hidden on small mobile */}
+        <div className="items-center gap-1.5 sm:gap-2 pt-0.5 sm:pt-1 hidden sm:flex">
+          <Zap size={12} className="sm:w-3.5 sm:h-3.5 text-accent" />
+          <p className="text-[10px] sm:text-xs text-muted-foreground">
             EMI from ₹{Math.round(price / 3)}/mo
           </p>
         </div>

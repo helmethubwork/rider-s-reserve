@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
-
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -86,16 +85,16 @@ const navigationData = [
 
 // Logo Component - PowerSports style with racing stripes
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-1 group">
+  <Link to="/" className="flex items-center gap-0.5 group">
     {/* Racing stripes accent - left */}
-    <div className="flex items-center gap-0.5 mr-1">
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
+    <div className="flex items-center gap-0.5 mr-0.5">
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
     </div>
     
     <div className="flex items-baseline">
       <span 
-        className="text-2xl md:text-4xl lg:text-5xl font-black text-primary tracking-tight"
+        className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black text-primary tracking-tight"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -104,7 +103,7 @@ const Logo = () => (
         HELMET
       </span>
       <span 
-        className="text-2xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight ml-1"
+        className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight ml-0.5 sm:ml-1"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -114,9 +113,9 @@ const Logo = () => (
       </span>
     </div>
     {/* Racing stripes accent - right */}
-    <div className="flex items-center gap-0.5 ml-1">
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
+    <div className="flex items-center gap-0.5 ml-0.5">
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
     </div>
   </Link>
 );
@@ -128,7 +127,6 @@ const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] })
       <div className="grid grid-cols-4 gap-16">
         {columns?.map((column, idx) => (
           <div key={idx}>
-            {/* Show title only for non-plain columns */}
             {!column.isPlain && (
               <h3 className="text-primary font-bold text-xs tracking-[0.2em] mb-5 uppercase">
                 {column.title}
@@ -232,29 +230,44 @@ const Header = () => {
   const { totalItems } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const toggleMobileCategory = (name: string) => {
     setExpandedMobileCategory(expandedMobileCategory === name ? null : name);
   };
 
   return (
-      <header className="relative z-50 bg-background shadow-sm transition-all duration-300">
-      <div className="py-4 border-b border-border/50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            {/* Left - Search */}
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setSearchOpen(true)}
-                className="p-2 text-foreground hover:text-primary transition-colors hidden md:block"
-              >
-                <Search size={22} />
-              </button>
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-all duration-300">
+      {/* Top bar */}
+      <div className="py-3 sm:py-4 border-b border-border/50">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between gap-2">
+            {/* Left - Menu & Search */}
+            <div className="flex items-center gap-1 sm:gap-4">
               {/* Mobile Menu Button */}
               <button
-                className="p-2 text-foreground md:hidden"
+                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all md:hidden active:scale-95"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+              <button 
+                onClick={() => setSearchOpen(true)}
+                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all hidden md:block"
+                aria-label="Search"
+              >
+                <Search size={22} />
               </button>
             </div>
 
@@ -262,21 +275,30 @@ const Header = () => {
             <Logo />
 
             {/* Right - Icons */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
               <button 
                 onClick={() => setSearchOpen(true)}
-                className="p-2 text-foreground hover:text-primary transition-colors md:hidden"
+                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all md:hidden active:scale-95"
+                aria-label="Search"
               >
                 <Search size={20} />
               </button>
-              <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
+              <Link 
+                to="/auth" 
+                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all hidden sm:block"
+                aria-label="Account"
+              >
                 <User size={22} />
               </Link>
-              <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
+              <Link 
+                to="/cart" 
+                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all relative active:scale-95"
+                aria-label="Cart"
+              >
                 <ShoppingCart size={22} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                    {totalItems}
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg">
+                    {totalItems > 9 ? '9+' : totalItems}
                   </span>
                 )}
               </Link>
@@ -285,7 +307,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
+      {/* Navigation Bar - Desktop */}
       <nav className="hidden md:block bg-background border-b border-border/30">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-8 lg:gap-10">
@@ -303,52 +325,81 @@ const Header = () => {
         </div>
       </nav>
 
-
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-background border-t border-border max-h-[70vh] overflow-y-auto">
-          <nav className="container mx-auto px-4 py-4 flex flex-col">
+        <div 
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Menu Drawer */}
+      <div className={`fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-background z-50 transform transition-transform duration-300 ease-out md:hidden shadow-2xl ${
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        {/* Mobile Menu Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <span className="text-lg font-bold text-foreground">Menu</span>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="p-2 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
+            aria-label="Close menu"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Mobile Menu Content */}
+        <nav className="overflow-y-auto h-[calc(100%-65px)] overscroll-contain">
+          <div className="py-2">
             {navigationData.map((item) => {
               const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
+              const isExpanded = expandedMobileCategory === item.name;
               
               return (
-                <div key={item.name} className="border-b border-border">
+                <div key={item.name} className="border-b border-border/50">
                   {!hasSubmenu ? (
                     <Link
                       to={item.href}
-                      className="block py-3 nav-link"
+                      className="flex items-center justify-between px-5 py-4 text-foreground font-medium hover:bg-secondary active:bg-secondary transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
+                      <ChevronRight size={18} className="text-muted-foreground" />
                     </Link>
                   ) : (
                     <>
                       <button
                         onClick={() => toggleMobileCategory(item.name)}
-                        className="w-full flex items-center justify-between py-3 nav-link"
+                        className="w-full flex items-center justify-between px-5 py-4 text-foreground font-medium hover:bg-secondary active:bg-secondary transition-colors"
                       >
                         {item.name}
                         <ChevronDown
-                          size={16}
-                          className={`transition-transform duration-200 ${
-                            expandedMobileCategory === item.name ? "rotate-180" : ""
+                          size={18}
+                          className={`text-muted-foreground transition-transform duration-300 ${
+                            isExpanded ? "rotate-180 text-primary" : ""
                           }`}
                         />
                       </button>
                       
-                      {expandedMobileCategory === item.name && (
-                        <div className="pb-3 pl-4 space-y-2">
+                      <div className={`overflow-hidden transition-all duration-300 ${
+                        isExpanded ? 'max-h-[500px]' : 'max-h-0'
+                      }`}>
+                        <div className="bg-secondary/30 py-2 px-5">
                           {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
                             item.columns.map((col, idx) => (
-                              <div key={idx} className="mb-4">
-                                <p className="text-primary text-xs font-bold tracking-wide mb-2">{col.title}</p>
+                              <div key={idx} className="mb-4 last:mb-0">
+                                <p className="text-primary text-xs font-bold tracking-wider uppercase py-2 border-b border-border/30">
+                                  {col.title}
+                                </p>
                                 {col.items.map((subItem) => (
                                   <Link
                                     key={subItem.name}
                                     to={subItem.href}
-                                    className="block py-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                                    className="flex items-center gap-2 py-3 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                   >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-border" />
                                     {subItem.name}
                                   </Link>
                                 ))}
@@ -359,23 +410,36 @@ const Header = () => {
                               <Link
                                 key={sub.name}
                                 to={sub.href}
-                                className="block py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                                className="flex items-center gap-2 py-3 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                                 onClick={() => setMobileMenuOpen(false)}
                               >
+                                <span className="w-1.5 h-1.5 rounded-full bg-border" />
                                 {sub.name}
                               </Link>
                             ))
                           )}
                         </div>
-                      )}
+                      </div>
                     </>
                   )}
                 </div>
               );
             })}
-          </nav>
-        </div>
-      )}
+          </div>
+
+          {/* Mobile Menu Footer */}
+          <div className="p-5 border-t border-border mt-4">
+            <Link
+              to="/auth"
+              className="flex items-center gap-3 py-3 text-foreground font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <User size={20} />
+              My Account
+            </Link>
+          </div>
+        </nav>
+      </div>
 
       {/* Search Modal */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
