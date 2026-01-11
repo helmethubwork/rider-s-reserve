@@ -24,8 +24,8 @@ const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps)
       <div className="container mx-auto px-3 sm:px-4 relative z-10">
         {/* Section header */}
         <div className="text-center mb-8 sm:mb-14">
-          <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6">
-            <Flame size={16} className="sm:w-[18px] sm:h-[18px] animate-pulse" />
+          <div className="inline-flex items-center gap-2 bg-red-500/20 text-red-400 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+            <Flame size={16} className="sm:w-[18px] sm:h-[18px] animate-pulse text-red-500" />
             <span className="text-xs sm:text-sm font-bold tracking-wider uppercase">Hot Deals</span>
           </div>
           <h2 
