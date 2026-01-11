@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { products, Product } from "@/data/products";
@@ -16,12 +17,14 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 const SalePage = () => {
+  const { toast } = useToast();
   const [sortBy, setSortBy] = useState("featured");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [openFilters, setOpenFilters] = useState<string[]>(["brand", "category", "price"]);
+  const [openFilters, setOpenFilters] = useState<string[]>(["brand", "model", "size", "price", "availability"]);
 
   // Get sale products (products with originalPrice)
   const saleProducts = useMemo(() => {
@@ -67,7 +70,6 @@ const SalePage = () => {
         });
         break;
       default:
-        // featured - keep original order
         break;
     }
 
@@ -129,6 +131,15 @@ const SalePage = () => {
       .join(" ");
   };
 
+  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast({
+      title: "Added to Cart",
+      description: `${product.name} added to your cart.`,
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
@@ -180,37 +191,79 @@ const SalePage = () => {
                 </CollapsibleContent>
               </Collapsible>
 
-              {/* Category Filter */}
+              {/* Model Filter */}
               <Collapsible
-                open={openFilters.includes("category")}
-                onOpenChange={() => toggleFilter("category")}
+                open={openFilters.includes("model")}
+                onOpenChange={() => toggleFilter("model")}
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
                   <span className="text-sm font-medium tracking-[0.15em] uppercase">
-                    Category
+                    Model
                   </span>
                   <ChevronDown
                     size={18}
                     className={`transition-transform ${
-                      openFilters.includes("category") ? "rotate-180" : ""
+                      openFilters.includes("model") ? "rotate-180" : ""
                     }`}
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-3 space-y-2">
-                  {categories.map((category) => (
-                    <label
-                      key={category}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <Checkbox
-                        checked={selectedCategories.includes(category)}
-                        onCheckedChange={() => toggleCategory(category)}
-                      />
-                      <span className="text-sm text-gray-700">
-                        {formatCategory(category)}
-                      </span>
-                    </label>
-                  ))}
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">Targo</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">Thunder</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">Storm</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">RPHA</span>
+                  </label>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Size Filter */}
+              <Collapsible
+                open={openFilters.includes("size")}
+                onOpenChange={() => toggleFilter("size")}
+              >
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-4 border-b border-gray-200 text-left">
+                  <span className="text-sm font-medium tracking-[0.15em] uppercase">
+                    Size
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    className={`transition-transform ${
+                      openFilters.includes("size") ? "rotate-180" : ""
+                    }`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-3 space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">S</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">M</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">L</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">XL</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox />
+                    <span className="text-sm text-gray-700">XXL</span>
+                  </label>
                 </CollapsibleContent>
               </Collapsible>
 
@@ -303,7 +356,11 @@ const SalePage = () => {
               {/* Products Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="group">
+                  <Link
+                    to={`/product/${product.id}`}
+                    key={product.id}
+                    className="group block"
+                  >
                     {/* Product Image */}
                     <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden mb-3">
                       <img
@@ -319,7 +376,7 @@ const SalePage = () => {
 
                     {/* Product Info */}
                     <div className="text-center">
-                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide mb-2 line-clamp-2">
+                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                         {product.name}
                       </h3>
 
@@ -346,17 +403,20 @@ const SalePage = () => {
                         <span className="text-xs text-gray-700">
                           or ₹{getEmiAmount(product.price).toLocaleString()}/Month
                         </span>
-                        <button className="text-xs bg-[#c8e621] text-black px-2 py-0.5 rounded hover:bg-[#b5d11e] transition-colors">
+                        <span className="text-xs bg-[#c8e621] text-black px-2 py-0.5 rounded">
                           Buy on EMI &gt;
-                        </button>
+                        </span>
                       </div>
                     </div>
 
                     {/* Add to Cart Button */}
-                    <button className="w-full mt-4 bg-[#c8e621] hover:bg-[#b5d11e] text-black font-medium py-2 rounded transition-colors">
+                    <button
+                      onClick={(e) => handleAddToCart(product, e)}
+                      className="w-full mt-4 bg-[#c8e621] hover:bg-[#b5d11e] text-black font-medium py-2 rounded transition-colors"
+                    >
                       Add to Cart
                     </button>
-                  </div>
+                  </Link>
                 ))}
               </div>
 
