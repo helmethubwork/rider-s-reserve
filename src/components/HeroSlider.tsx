@@ -46,7 +46,7 @@ const slides: Slide[] = [
   },
   {
     id: 4,
-    subtitle: "PREMIUM MOTORCYCLE ACCESSORIES FROM",
+    subtitle: "PREMIUM ACCESSORIES FROM",
     title: "LEGENDARY CUSTOMS",
     description: "Now Available",
     buttonText: "SHOP NOW",
@@ -59,6 +59,8 @@ const slides: Slide[] = [
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -88,10 +90,40 @@ const HeroSlider = () => {
     setTimeout(() => setIsAnimating(false), 800);
   };
 
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0) {
+        goToNextSlide();
+      } else {
+        goToPrevSlide();
+      }
+    }
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   const slide = slides[currentSlide];
 
   return (
-    <section className="relative h-[75vh] md:h-[85vh] lg:h-screen overflow-hidden bg-background">
+    <section 
+      className="relative h-[60vh] sm:h-[70vh] md:h-[85vh] lg:h-screen overflow-hidden bg-background"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Background Image with zoom effect */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] ease-out"
@@ -107,26 +139,26 @@ const HeroSlider = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
       </div>
 
-      {/* Decorative elements */}
+      {/* Decorative elements - hidden on mobile */}
       <div className="absolute top-20 right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse-glow hidden lg:block" />
       <div className="absolute bottom-40 left-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl hidden lg:block" />
 
       {/* Content */}
-      <div className="container mx-auto px-4 md:px-8 h-full flex items-center relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center relative z-10">
         <div className={`max-w-4xl ${slide.align === "center" ? "mx-auto text-center" : ""}`}>
           {/* Animated content */}
-          <div key={slide.id} className="space-y-6">
+          <div key={slide.id} className="space-y-4 sm:space-y-6">
             {/* Subtitle with decorative line */}
-            <div className="flex items-center gap-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div className="w-12 h-0.5 bg-primary hidden md:block" />
-              <p className="text-xs md:text-sm text-primary font-bold tracking-[0.4em] uppercase">
+            <div className="flex items-center gap-3 sm:gap-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div className="w-8 sm:w-12 h-0.5 bg-primary hidden sm:block" />
+              <p className="text-[10px] sm:text-xs md:text-sm text-primary font-bold tracking-[0.3em] sm:tracking-[0.4em] uppercase">
                 {slide.subtitle}
               </p>
             </div>
 
             {/* Main title with gradient accent */}
             <h1 
-              className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-foreground leading-[0.85] tracking-tighter animate-slide-up"
+              className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-foreground leading-[0.85] tracking-tighter animate-slide-up"
               style={{ animationDelay: '0.2s' }}
             >
               <span className="block">{slide.title.split(' ')[0]}</span>
@@ -138,7 +170,7 @@ const HeroSlider = () => {
             {/* Description */}
             {slide.description && (
               <p 
-                className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-lg animate-fade-in"
+                className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-lg animate-fade-in"
                 style={{ animationDelay: '0.4s' }}
               >
                 {slide.description}
@@ -146,55 +178,55 @@ const HeroSlider = () => {
             )}
 
             {/* CTA Button */}
-            <div className="pt-4 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <div className="pt-2 sm:pt-4 animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <Link
                 to={slide.buttonLink}
-                className="group inline-flex items-center gap-4 bg-primary text-primary-foreground font-bold px-10 py-5 text-sm tracking-[0.2em] rounded-lg hover:bg-accent transition-all duration-500 hover:gap-6 glow-hover"
+                className="group inline-flex items-center gap-3 sm:gap-4 bg-primary text-primary-foreground font-bold px-6 sm:px-10 py-3 sm:py-5 text-xs sm:text-sm tracking-[0.2em] rounded-lg hover:bg-accent transition-all duration-500 hover:gap-5 sm:hover:gap-6 glow-hover active:scale-95"
               >
                 {slide.buttonText}
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Arrows - Glass style */}
+      {/* Navigation Arrows - Hidden on small mobile */}
       <button
         onClick={goToPrevSlide}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-background/20 backdrop-blur-md border border-border/30 rounded-full text-foreground/60 hover:text-foreground hover:bg-background/40 hover:border-primary/50 transition-all duration-300 z-20 group"
+        className="absolute left-2 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 p-2 sm:p-4 bg-background/20 backdrop-blur-md border border-border/30 rounded-full text-foreground/60 hover:text-foreground hover:bg-background/40 hover:border-primary/50 transition-all duration-300 z-20 group hidden sm:flex items-center justify-center"
         aria-label="Previous slide"
       >
-        <ChevronLeft size={28} className="group-hover:-translate-x-1 transition-transform" />
+        <ChevronLeft size={24} className="sm:w-7 sm:h-7 group-hover:-translate-x-1 transition-transform" />
       </button>
       <button
         onClick={goToNextSlide}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 bg-background/20 backdrop-blur-md border border-border/30 rounded-full text-foreground/60 hover:text-foreground hover:bg-background/40 hover:border-primary/50 transition-all duration-300 z-20 group"
+        className="absolute right-2 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 p-2 sm:p-4 bg-background/20 backdrop-blur-md border border-border/30 rounded-full text-foreground/60 hover:text-foreground hover:bg-background/40 hover:border-primary/50 transition-all duration-300 z-20 group hidden sm:flex items-center justify-center"
         aria-label="Next slide"
       >
-        <ChevronRight size={28} className="group-hover:translate-x-1 transition-transform" />
+        <ChevronRight size={24} className="sm:w-7 sm:h-7 group-hover:translate-x-1 transition-transform" />
       </button>
 
       {/* Slide indicators - Modern pill style */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+      <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20">
         {slides.map((_, idx) => (
           <button
             key={idx}
             onClick={() => goToSlide(idx)}
             className={`transition-all duration-500 rounded-full ${
               idx === currentSlide 
-                ? "w-12 h-3 bg-primary shadow-lg" 
-                : "w-3 h-3 bg-foreground/20 hover:bg-foreground/40"
+                ? "w-8 sm:w-12 h-2 sm:h-3 bg-primary shadow-lg" 
+                : "w-2 sm:w-3 h-2 sm:h-3 bg-foreground/20 hover:bg-foreground/40"
             }`}
             style={{
-              boxShadow: idx === currentSlide ? '0 0 20px hsl(52 100% 50% / 0.5)' : 'none'
+              boxShadow: idx === currentSlide ? '0 0 20px hsl(66 100% 50% / 0.5)' : 'none'
             }}
             aria-label={`Go to slide ${idx + 1}`}
           />
         ))}
       </div>
 
-      {/* Slide counter */}
+      {/* Slide counter - Hidden on mobile */}
       <div className="absolute bottom-10 right-8 z-20 hidden md:flex items-center gap-3">
         <span className="text-4xl font-black text-primary">
           {String(currentSlide + 1).padStart(2, '0')}
@@ -205,12 +237,11 @@ const HeroSlider = () => {
         </span>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-10 left-8 z-20 hidden lg:flex flex-col items-center gap-2">
-        <div className="w-px h-16 bg-gradient-to-b from-transparent via-primary to-transparent" />
-        <span className="text-xs text-muted-foreground tracking-widest uppercase rotate-90 origin-center translate-y-8">
-          Scroll
-        </span>
+      {/* Swipe hint for mobile */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 sm:hidden">
+        <p className="text-[10px] text-muted-foreground/60 tracking-wider uppercase">
+          Swipe to explore
+        </p>
       </div>
     </section>
   );

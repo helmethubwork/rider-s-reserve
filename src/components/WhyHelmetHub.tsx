@@ -1,4 +1,4 @@
-import { Leaf, Package, ShieldCheck, Headphones, Truck, Award } from "lucide-react";
+import { Truck, ShieldCheck, Award } from "lucide-react";
 
 const features = [
   {
@@ -20,57 +20,57 @@ const features = [
 
 const WhyHelmetHub = () => {
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-background to-secondary/30 relative overflow-hidden">
+    <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-background to-secondary/30 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-full">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl" />
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-20 sm:w-32 h-20 sm:h-32 bg-primary/5 rounded-full blur-2xl" />
+        <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-32 sm:w-48 h-32 sm:h-48 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 relative z-10">
         {/* Section header */}
-        <div className="text-center mb-16">
-          <span className="text-primary text-sm font-bold tracking-[0.3em] uppercase mb-4 block">
+        <div className="text-center mb-10 sm:mb-16">
+          <span className="text-primary text-xs sm:text-sm font-bold tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-3 sm:mb-4 block">
             Why Choose Us
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight">
             The Helmet Hub Difference
           </h2>
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <div className="w-16 h-1 bg-primary rounded-full" />
-            <div className="w-3 h-3 bg-primary rounded-full" />
-            <div className="w-16 h-1 bg-primary rounded-full" />
+          <div className="flex items-center justify-center gap-2 mt-4 sm:mt-6">
+            <div className="w-10 sm:w-16 h-1 bg-primary rounded-full" />
+            <div className="w-2 sm:w-3 h-2 sm:h-3 bg-primary rounded-full" />
+            <div className="w-10 sm:w-16 h-1 bg-primary rounded-full" />
           </div>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="feature-card group"
+              className="feature-card group p-6 sm:p-8"
             >
               {/* Icon container */}
-              <div className="relative mb-6">
-                <div className="w-20 h-20 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:bg-primary group-hover:shadow-lg group-hover:scale-110">
-                  <feature.icon className="w-10 h-10 text-primary group-hover:text-primary-foreground transition-colors duration-500" strokeWidth={1.5} />
+              <div className="relative mb-4 sm:mb-6">
+                <div className="w-14 sm:w-20 h-14 sm:h-20 mx-auto bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:bg-primary group-hover:shadow-lg group-hover:scale-110">
+                  <feature.icon className="w-7 sm:w-10 h-7 sm:h-10 text-primary group-hover:text-primary-foreground transition-colors duration-500" strokeWidth={1.5} />
                 </div>
                 {/* Glow effect */}
-                <div className="absolute inset-0 w-20 h-20 mx-auto bg-primary/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 w-14 sm:w-20 h-14 sm:h-20 mx-auto bg-primary/20 rounded-xl sm:rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
               
               {/* Title */}
-              <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors duration-300">
+              <h3 className="text-base sm:text-xl font-bold text-foreground mb-2 sm:mb-3 group-hover:text-primary transition-colors duration-300">
                 {feature.title}
               </h3>
               
               {/* Description */}
-              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              <p className="text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed">
                 {feature.description}
               </p>
 
               {/* Bottom accent line */}
-              <div className="w-0 h-1 bg-primary rounded-full mx-auto mt-6 group-hover:w-16 transition-all duration-500" />
+              <div className="w-0 h-1 bg-primary rounded-full mx-auto mt-4 sm:mt-6 group-hover:w-12 sm:group-hover:w-16 transition-all duration-500" />
             </div>
           ))}
         </div>
