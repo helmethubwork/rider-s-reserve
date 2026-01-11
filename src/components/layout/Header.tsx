@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetHubLogo from "@/assets/helmet-hub-final-logo.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -83,22 +82,45 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Styled logo with helmet and speed lines
+// Logo Component - PowerSports style with racing stripes
 const Logo = () => (
-  <Link to="/" className="flex items-center group">
-    <img
-      src={helmetHubLogo}
-      alt="Helmet Hub - Complete Riding Solution"
-      className="h-16 md:h-20 lg:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-      loading="eager"
-      decoding="async"
-    />
+  <Link to="/" className="flex items-center gap-2 group">
+    {/* Racing stripes accent */}
+    <div className="hidden md:flex items-center gap-0.5 mr-1">
+      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+    </div>
+    <div className="flex items-baseline">
+      <span 
+        className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
+        style={{ 
+          fontStyle: 'italic',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        HELMET
+      </span>
+      <span 
+        className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight ml-1"
+        style={{ 
+          fontStyle: 'italic',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        HUB
+      </span>
+    </div>
+    {/* Racing stripes accent */}
+    <div className="hidden md:flex items-center gap-0.5 ml-1">
+      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
+    </div>
   </Link>
 );
 
 // Mega Menu Component
 const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] }) => (
-  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-[hsl(222,47%,11%)] border-b border-border py-10 z-[100] animate-fade-in shadow-2xl">
+  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-10 z-50 animate-fade-in">
     <div className="container mx-auto px-8">
       <div className="grid grid-cols-4 gap-16">
         {columns?.map((column, idx) => (
@@ -179,7 +201,7 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
 
       {/* Simple Dropdown */}
       {isOpen && hasSubcategories && !hasMegaMenu && (
-        <div className="absolute top-full left-0 min-w-[220px] bg-[hsl(222,47%,11%)] border border-border rounded-lg shadow-2xl z-[200] py-2 animate-fade-in">
+        <div className="absolute top-full left-0 min-w-[220px] bg-background border border-border rounded-lg shadow-xl z-[100] py-2 animate-fade-in">
           {item.subcategories.map((sub) => (
             <Link
               key={sub.name}
@@ -212,18 +234,18 @@ const Header = () => {
   };
 
   return (
-    <header className="relative z-50 bg-background transition-all duration-300">
-      {/* Main Header - Logo centered with search/icons on sides */}
-      <div className="py-6 md:py-8">
+    <header className="relative z-50 bg-background shadow-sm transition-all duration-300">
+      {/* Main Header */}
+      <div className="py-4 border-b border-border/50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Left - Search */}
-            <div className="flex items-center gap-4 w-24 md:w-32">
+            <div className="flex items-center gap-4">
               <button 
                 onClick={() => setSearchOpen(true)}
                 className="p-2 text-foreground hover:text-primary transition-colors hidden md:block"
               >
-                <Search size={24} strokeWidth={1.5} />
+                <Search size={22} />
               </button>
               {/* Mobile Menu Button */}
               <button
@@ -235,12 +257,10 @@ const Header = () => {
             </div>
 
             {/* Center - Logo */}
-            <div className="flex-1 flex justify-center">
-              <Logo />
-            </div>
+            <Logo />
 
             {/* Right - Icons */}
-            <div className="flex items-center gap-3 md:gap-5 w-24 md:w-32 justify-end">
+            <div className="flex items-center gap-2 md:gap-4">
               <button 
                 onClick={() => setSearchOpen(true)}
                 className="p-2 text-foreground hover:text-primary transition-colors md:hidden"
@@ -248,10 +268,10 @@ const Header = () => {
                 <Search size={20} />
               </button>
               <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
-                <User size={24} strokeWidth={1.5} />
+                <User size={22} />
               </Link>
               <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
-                <ShoppingCart size={24} strokeWidth={1.5} />
+                <ShoppingCart size={22} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
                     {cartCount}
@@ -263,10 +283,10 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar - Darker strip below logo */}
-      <nav className="hidden md:block bg-secondary/80 border-y border-border/20">
+      {/* Navigation Bar */}
+      <nav className="hidden md:block bg-background border-b border-border/30">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-8 lg:gap-12">
+          <div className="flex items-center justify-center gap-8 lg:gap-10">
             {navigationData.map((item) => (
               <NavDropdown
                 key={item.name}
