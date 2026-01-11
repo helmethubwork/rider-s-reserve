@@ -86,9 +86,9 @@ const navigationData = [
 const Logo = () => (
   <Link to="/" className="flex items-center gap-2 group">
     {/* Racing stripes accent */}
-    <div className="hidden md:flex items-center gap-0.5 mr-1">
-      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
-      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
+    <div className="flex items-center gap-0.5 mr-1">
+      <div className="w-1 h-6 md:h-8 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-6 md:h-8 bg-primary/60 transform -skew-x-12" />
     </div>
     
     <div className="flex items-baseline">
@@ -112,9 +112,9 @@ const Logo = () => (
       </span>
     </div>
     {/* Racing stripes accent */}
-    <div className="hidden md:flex items-center gap-0.5 ml-1">
-      <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
-      <div className="w-1 h-8 bg-primary transform -skew-x-12" />
+    <div className="flex items-center gap-0.5 ml-1">
+      <div className="w-1 h-6 md:h-8 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1 h-6 md:h-8 bg-primary transform -skew-x-12" />
     </div>
   </Link>
 );
