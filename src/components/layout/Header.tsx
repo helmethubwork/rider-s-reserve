@@ -89,7 +89,7 @@ const Logo = () => (
     <img 
       src={helmetIcon} 
       alt="Helmet Hub helmet icon" 
-      className="h-14 md:h-16 lg:h-20 w-auto object-contain bg-transparent transition-transform duration-300 group-hover:scale-105"
+      className="h-14 md:h-16 lg:h-20 w-auto object-contain rounded-md p-1 bg-background/5 ring-1 ring-primary/30 shadow-lg transition-transform duration-300 group-hover:scale-105"
     />
     <div className="flex flex-col leading-none">
       <span 
