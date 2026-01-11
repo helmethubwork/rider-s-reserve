@@ -82,7 +82,26 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - PowerSports style with racing stripes
+// Helmet Icon Component
+const HelmetIcon = ({ className = "" }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 40 32" 
+    className={className}
+    fill="currentColor"
+  >
+    {/* Modern racing helmet silhouette */}
+    <path d="M38 16c0-8.8-7.2-14-16-14C13 2 6 6.5 4 13c-1 3.2-1 6.5 0 9.5C5.5 27 10 30 16 30h18c2.2 0 4-1.8 4-4v-6c0-1.5 0-2.8 0-4z" />
+    {/* Visor cutout */}
+    <path 
+      d="M8 14c0-4 4-8 10-8 4 0 8 2 10 5l-2 1c-1.5-2-4-3.5-7-3.5-4 0-7 2.5-7 5.5 0 1.5.5 2.5 1.5 3.5L12 19c-2.5-1.5-4-3-4-5z"
+      className="fill-background"
+    />
+    {/* Vent detail */}
+    <rect x="28" y="20" width="6" height="2" rx="1" className="fill-background/50" />
+  </svg>
+);
+
+// Logo Component - PowerSports style with racing stripes and helmet
 const Logo = () => (
   <Link to="/" className="flex items-center gap-2 group">
     {/* Racing stripes accent */}
@@ -90,6 +109,10 @@ const Logo = () => (
       <div className="w-1 h-8 bg-primary transform -skew-x-12" />
       <div className="w-1 h-8 bg-primary/60 transform -skew-x-12" />
     </div>
+    
+    {/* Helmet Icon */}
+    <HelmetIcon className="w-8 h-8 md:w-10 md:h-10 text-primary mr-1" />
+    
     <div className="flex items-baseline">
       <span 
         className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
