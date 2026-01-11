@@ -12,7 +12,7 @@ const stores = [
     state: "Telangana",
     phone: "+91 7842646888",
     timing: "10:00 AM - 9:00 PM",
-    mapUrl: "https://maps.google.com/?q=Telecom+Nagar+Gachibowli+Hyderabad",
+    mapUrl: "https://maps.app.goo.gl/EdQLQeCDzA9V9kix8",
   },
   {
     id: "kondapur",
