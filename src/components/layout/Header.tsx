@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
+import { useCart } from "@/contexts/CartContext";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -227,7 +228,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
-  const [cartCount] = useState(0);
+  const { totalItems } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const toggleMobileCategory = (name: string) => {
@@ -273,9 +274,9 @@ const Header = () => {
               </Link>
               <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
                 <ShoppingCart size={22} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
-                    {cartCount}
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+                    {totalItems}
                   </span>
                 )}
               </Link>
