@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { products, categories } from "@/data/products";
@@ -119,8 +120,8 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     suggestions.length > 0
   );
 
-  return (
-    <div className="fixed inset-0 z-[100] animate-fade-in">
+  const modal = (
+    <div className="fixed inset-0 z-[9999] animate-fade-in">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
@@ -277,6 +278,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                                 src={product.image}
                                 alt={product.name}
                                 className="w-14 h-14 object-contain bg-secondary/50 rounded-lg"
+                                loading="lazy"
                               />
                               <span className="text-foreground text-sm font-medium hover:text-primary transition-colors">
                                 {product.name}
@@ -288,9 +290,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     )}
 
                     {filteredProducts.length === 0 && (
-                      <div className="text-foreground/70 text-sm">
-                        No products found
-                      </div>
+                      <div className="text-foreground/70 text-sm">No products found</div>
                     )}
                   </div>
                 </div>
@@ -311,6 +311,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(modal, document.body);
 };
 
 export default SearchModal;
