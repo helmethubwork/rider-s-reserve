@@ -44,25 +44,50 @@ const ExchangeReturnsPage = () => {
       <main className="flex-1 pt-0 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-navy-900 tracking-wide mb-4 uppercase">
-              Exchange, Returns & Cancellation
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-navy-900 tracking-wide mb-6 uppercase">
+              Exchange, Returns, Refund & Cancellation Policy
             </h1>
             
-            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-4 mb-8">
-              <h2 className="text-lg font-semibold text-primary">Exchange Policy</h2>
-              <p>
-                We offer size exchanges within 7 days of delivery. Products must be unused, unworn, with all original tags and packaging intact.
-              </p>
+            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-8">
+              <div>
+                <h2 className="text-lg font-bold text-primary mb-3">Exchange Policy:</h2>
+                <p className="mb-4">
+                  Your favorite gear purchased from us doesn't fit well? No problem, we are happy to exchange it for the right size.
+                </p>
+                <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                  <li>Please note that products purchased can be exchanged for size only. Product must be unused with all the tags and packing material must be intact. Products sent without proper packaging and without the helmet box and tags will be returned to the customer as is.</li>
+                  <li>Customer must fill the form below and then ship the product within 48hrs of receiving the product.</li>
+                  <li>Please ship the product to the address mentioned in the invoice received with the product.</li>
+                  <li>The cost of sending the product will be compensated to the customer in the form of store credit only at actuals but upto a maximum of Rs. 500. No cash compensation will be made.</li>
+                  <li>Helmet Hub will send the replacement free of cost.</li>
+                </ul>
+                <p className="text-destructive mt-4">
+                  * Please note that products that are on sale or purchased using a discount, luggage and all accessories cannot be exchanged.*
+                </p>
+                <p className="text-destructive mt-3">
+                  *The Store credit issued to the customer must be used within 30 days. The credit won't be reissued once it has expired.
+                </p>
+                <p className="text-destructive mt-3">
+                  *The Store credit can be used only on specific collections like helmets, jackets, gloves, pants, boots, intercoms and luggage. It cannot be used to buy accessories.
+                </p>
+                <p className="text-destructive mt-3">
+                  *The store credit for the shipping cost will be issued after the exchanged item is shipped. It is the customer's responsibility to send the shipping invoice to us within 7 days of the exchange to get the store credit. Store credit will not be issued if we do not get the shipping invoice within 7 days of the exchange.
+                </p>
+              </div>
 
-              <h2 className="text-lg font-semibold text-primary mt-4">Returns Policy</h2>
-              <p>
-                Returns are accepted within 7 days of delivery for manufacturing defects only. Products on sale or purchased with discounts are not eligible for returns.
-              </p>
+              <div>
+                <h2 className="text-lg font-bold text-primary mb-3">Returns & Refund Policy:</h2>
+                <p>
+                  Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.
+                </p>
+              </div>
 
-              <h2 className="text-lg font-semibold text-primary mt-4">Cancellation Policy</h2>
-              <p>
-                Orders can be cancelled within 24 hours of placing the order. Once shipped, cancellation is not possible.
-              </p>
+              <div>
+                <h2 className="text-lg font-bold text-primary mb-3">Cancellation Policy:</h2>
+                <p>
+                  We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.
+                </p>
+              </div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200">
