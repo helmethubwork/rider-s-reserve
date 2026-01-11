@@ -399,7 +399,6 @@ const Header = () => {
                                     key={subItem.name}
                                     to={subItem.href}
                                     className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2.5 text-xs font-medium text-foreground/90 hover:bg-secondary/60 active:bg-secondary transition-colors"
-                                    onClick={() => setMobileMenuOpen(false)}
                                   >
                                     <span className="w-1 h-1 rounded-full bg-primary" />
                                     {subItem.name}
@@ -413,7 +412,6 @@ const Header = () => {
                                 key={sub.name}
                                 to={sub.href}
                                 className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2.5 text-xs font-medium text-foreground/90 hover:bg-secondary/60 active:bg-secondary transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
                               >
                                 <span className="w-1 h-1 rounded-full bg-primary" />
                                 {sub.name}
