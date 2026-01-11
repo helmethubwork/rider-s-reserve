@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetHubLogo from "@/assets/helmet-hub-logo-download.png";
+import helmetHubLogo from "@/assets/helmet-hub-logo-themed.png";
 // Navigation data with mega menu structure
 const navigationData = [
   { name: "Home", href: "/", subcategories: [] },
@@ -88,7 +88,7 @@ const Logo = () => (
     <img 
       src={helmetHubLogo} 
       alt="Helmet Hub" 
-      className="h-10 md:h-12 lg:h-14 w-auto object-contain"
+      className="h-12 md:h-16 lg:h-20 w-auto object-contain"
     />
   </Link>
 );
