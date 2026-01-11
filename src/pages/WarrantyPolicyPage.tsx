@@ -9,7 +9,7 @@ const WarrantyPolicyPage = () => {
       <main className="flex-1 pt-0 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-navy-900 tracking-wide mb-4 uppercase">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-4 uppercase">
               Warranty Policy
             </h1>
             
