@@ -106,12 +106,16 @@ const Footer = () => {
                 <MapPin size={18} className="text-primary mt-0.5 flex-shrink-0" />
                 <span>HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.</span>
               </li>
-              <li className="flex items-center gap-3 text-muted-foreground text-sm">
-                <Phone size={18} className="text-primary flex-shrink-0" />
-                <a className="hover:text-primary transition-colors" href="">
-                  +91 7842646888
-+91 9063880550
-                </a>
+              <li className="flex items-start gap-3 text-muted-foreground text-sm">
+                <Phone size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                <div className="flex flex-col">
+                  <a className="hover:text-primary transition-colors" href="tel:+917842646888">
+                    +91 7842646888
+                  </a>
+                  <a className="hover:text-primary transition-colors" href="tel:+919063880550">
+                    +91 9063880550
+                  </a>
+                </div>
               </li>
               <li className="flex items-center gap-3 text-muted-foreground text-sm">
                 <Mail size={18} className="text-primary flex-shrink-0" />
