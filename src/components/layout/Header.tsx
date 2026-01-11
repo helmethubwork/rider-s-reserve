@@ -84,16 +84,16 @@ const navigationData = [
 
 // Logo Component - PowerSports style with racing stripes
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-2 group">
-    {/* Racing stripes accent */}
+  <Link to="/" className="flex items-center gap-1 group">
+    {/* Racing stripes accent - left */}
     <div className="flex items-center gap-0.5 mr-1">
-      <div className="w-1 h-6 md:h-8 bg-primary transform -skew-x-12" />
-      <div className="w-1 h-6 md:h-8 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12 shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary/60 transform -skew-x-12" />
     </div>
     
     <div className="flex items-baseline">
       <span 
-        className="text-2xl md:text-3xl lg:text-4xl font-black text-primary tracking-tight"
+        className="text-2xl md:text-4xl lg:text-5xl font-black text-primary tracking-tight drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -102,7 +102,7 @@ const Logo = () => (
         HELMET
       </span>
       <span 
-        className="text-2xl md:text-3xl lg:text-4xl font-black text-foreground tracking-tight ml-1"
+        className="text-2xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight ml-1"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -111,10 +111,10 @@ const Logo = () => (
         HUB
       </span>
     </div>
-    {/* Racing stripes accent */}
+    {/* Racing stripes accent - right */}
     <div className="flex items-center gap-0.5 ml-1">
-      <div className="w-1 h-6 md:h-8 bg-primary/60 transform -skew-x-12" />
-      <div className="w-1 h-6 md:h-8 bg-primary transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12 shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
     </div>
   </Link>
 );
