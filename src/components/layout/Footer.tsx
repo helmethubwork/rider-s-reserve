@@ -104,7 +104,9 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-muted-foreground text-sm">
                 <MapPin size={18} className="text-primary mt-0.5 flex-shrink-0" />
-                <span>HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.</span>
+                <a href="https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.
+                </a>
               </li>
               <li className="flex items-start gap-3 text-muted-foreground text-sm">
                 <Phone size={18} className="text-primary flex-shrink-0 mt-0.5" />
