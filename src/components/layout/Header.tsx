@@ -87,8 +87,8 @@ const Logo = () => (
   <Link to="/" className="flex items-center gap-1 group">
     {/* Racing stripes accent - left */}
     <div className="flex items-center gap-0.5 mr-1">
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary/60 transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white/60 transform -skew-x-12" />
     </div>
     
     <div className="flex items-baseline">
@@ -113,8 +113,8 @@ const Logo = () => (
     </div>
     {/* Racing stripes accent - right */}
     <div className="flex items-center gap-0.5 ml-1">
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary/60 transform -skew-x-12" />
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white/60 transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
     </div>
   </Link>
 );
