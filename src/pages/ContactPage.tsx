@@ -88,8 +88,7 @@ const ContactPage = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
                       <p className="text-gray-600">​1st Branch: HELMET HUB, 1st Floor, Besides Little Gon, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.<br />
-                        2nd Branch HELMET HUB, 1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur, Hyd-500084. T.G.<br />
-                        ​
+                        2nd Branch: HELMET HUB, 1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur, Hyd-500084. T.G.
                       </p>
                     </div>
                   </div>
