@@ -50,7 +50,7 @@ const ExchangeReturnsPage = () => {
             
             <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-8">
               <div>
-                <h2 className="text-lg font-bold text-primary mb-3">Exchange Policy:</h2>
+                <h2 className="text-lg font-bold text-destructive mb-3">Exchange Policy:</h2>
                 <p className="mb-4">
                   Your favorite gear purchased from us doesn't fit well? No problem, we are happy to exchange it for the right size.
                 </p>
@@ -76,14 +76,14 @@ const ExchangeReturnsPage = () => {
               </div>
 
               <div>
-                <h2 className="text-lg font-bold text-primary mb-3">Returns & Refund Policy:</h2>
+                <h2 className="text-lg font-bold text-destructive mb-3">Returns & Refund Policy:</h2>
                 <p>
                   Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-lg font-bold text-primary mb-3">Cancellation Policy:</h2>
+                <h2 className="text-lg font-bold text-destructive mb-3">Cancellation Policy:</h2>
                 <p>
                   We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.
                 </p>
