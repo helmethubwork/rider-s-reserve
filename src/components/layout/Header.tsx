@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetHubLogo from "@/assets/helmet-hub-logo.png";
+import helmetHubLogo from "@/assets/helmet-hub-logo-exact.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -83,13 +83,13 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Racing style image logo
+// Logo Component - Exact logo from reference
 const Logo = () => (
   <Link to="/" className="flex items-center group">
     <img 
       src={helmetHubLogo} 
       alt="Helmet Hub" 
-      className="h-14 md:h-16 lg:h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+      className="h-20 md:h-24 lg:h-28 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
     />
   </Link>
 );
@@ -210,18 +210,18 @@ const Header = () => {
   };
 
   return (
-    <header className="relative z-50 bg-background shadow-sm transition-all duration-300">
-      {/* Main Header */}
-      <div className="py-4 border-b border-border/50">
+    <header className="relative z-50 bg-background transition-all duration-300">
+      {/* Main Header - Logo centered with search/icons on sides */}
+      <div className="py-6 md:py-8">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Left - Search */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-24 md:w-32">
               <button 
                 onClick={() => setSearchOpen(true)}
                 className="p-2 text-foreground hover:text-primary transition-colors hidden md:block"
               >
-                <Search size={22} />
+                <Search size={24} strokeWidth={1.5} />
               </button>
               {/* Mobile Menu Button */}
               <button
@@ -233,10 +233,12 @@ const Header = () => {
             </div>
 
             {/* Center - Logo */}
-            <Logo />
+            <div className="flex-1 flex justify-center">
+              <Logo />
+            </div>
 
             {/* Right - Icons */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-5 w-24 md:w-32 justify-end">
               <button 
                 onClick={() => setSearchOpen(true)}
                 className="p-2 text-foreground hover:text-primary transition-colors md:hidden"
@@ -244,10 +246,10 @@ const Header = () => {
                 <Search size={20} />
               </button>
               <Link to="/auth" className="p-2 text-foreground hover:text-primary transition-colors">
-                <User size={22} />
+                <User size={24} strokeWidth={1.5} />
               </Link>
               <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
-                <ShoppingCart size={22} />
+                <ShoppingCart size={24} strokeWidth={1.5} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
                     {cartCount}
@@ -259,10 +261,10 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <nav className="hidden md:block bg-background border-b border-border/30">
+      {/* Navigation Bar - Darker strip below logo */}
+      <nav className="hidden md:block bg-secondary/80 border-y border-border/20">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-8 lg:gap-10">
+          <div className="flex items-center justify-center gap-8 lg:gap-12">
             {navigationData.map((item) => (
               <NavDropdown
                 key={item.name}
