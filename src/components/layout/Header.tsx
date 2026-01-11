@@ -345,41 +345,41 @@ const Header = () => {
         </div>
 
         {/* Mobile Menu Content */}
-        <nav className="overflow-y-auto h-[calc(100%-56px)] overscroll-contain">
-          <div className="py-2">
+        <nav className="overflow-y-auto h-[calc(100%-56px)] overscroll-contain bg-background">
+          <div className="p-2">
             {navigationData.map((item) => {
               const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
 
               return (
-                <div key={item.name} className="border-b border-border/30 last:border-b-0">
+                <div key={item.name} className="py-1">
                   {!hasSubmenu ? (
                     <Link
                       to={item.href}
-                      className="mx-2 my-1 flex items-center justify-between rounded-lg bg-secondary/30 px-4 py-3.5 text-foreground text-sm font-semibold hover:bg-secondary/60 active:bg-secondary transition-colors"
+                      className="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3.5 text-foreground text-sm font-semibold shadow-sm hover:bg-secondary/60 active:bg-secondary transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
                       <ChevronRight size={16} className="text-muted-foreground" />
                     </Link>
                   ) : (
-                    <div className="py-1">
-                      <div className="mx-2 my-1 flex items-center justify-between rounded-lg bg-secondary/60 px-4 py-3 text-sm font-bold text-primary uppercase tracking-wider">
+                    <div>
+                      <div className="flex items-center justify-between rounded-xl border border-border/60 bg-secondary px-4 py-3 text-sm font-bold text-foreground uppercase tracking-wider">
                         {item.name}
                         <ChevronDown size={16} className="text-primary" />
                       </div>
 
-                      <div className="mx-2 mb-2 rounded-lg bg-card/60 border border-border/40 py-1 pl-4 pr-2">
+                      <div className="mt-2 rounded-xl border border-border/60 bg-card/80 py-1 pl-4 pr-2">
                         {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
                           item.columns.map((col, idx) => (
                             <div key={idx} className="mb-3 last:mb-1">
-                              <p className="text-primary text-[11px] font-bold tracking-wider uppercase py-2 border-b border-border/30">
+                              <p className="text-primary text-[11px] font-bold tracking-wider uppercase py-2 border-b border-border/40">
                                 {col.title}
                               </p>
                               {col.items.map((subItem) => (
                                 <Link
                                   key={subItem.name}
                                   to={subItem.href}
-                                  className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2.5 text-xs font-medium text-foreground/90 hover:bg-secondary/60 active:bg-secondary transition-colors"
+                                  className="-mx-2 flex items-center gap-2 rounded-lg px-2 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary/60 active:bg-secondary transition-colors"
                                   onClick={() => setMobileMenuOpen(false)}
                                 >
                                   <span className="w-1 h-1 rounded-full bg-primary" />
@@ -393,7 +393,7 @@ const Header = () => {
                             <Link
                               key={sub.name}
                               to={sub.href}
-                              className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2.5 text-xs font-medium text-foreground/90 hover:bg-secondary/60 active:bg-secondary transition-colors"
+                              className="-mx-2 flex items-center gap-2 rounded-lg px-2 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary/60 active:bg-secondary transition-colors"
                               onClick={() => setMobileMenuOpen(false)}
                             >
                               <span className="w-1 h-1 rounded-full bg-primary" />
