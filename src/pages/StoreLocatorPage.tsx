@@ -7,7 +7,7 @@ const stores = [
     id: "gachibowli",
     storeName: "HELMET HUB",
     branchName: "Gachibowli Branch",
-    address: "1st Floor, Besides Little Gon, Opp. Omega Hospital, Telecom Nagar, Gachibowli",
+    address: "1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli",
     city: "Hyderabad - 500033",
     state: "Telangana",
     phone: "+91 7842646888",
