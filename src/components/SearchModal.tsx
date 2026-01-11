@@ -110,48 +110,72 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     <div className="fixed inset-0 z-[100] animate-fade-in">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-muted/90"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
       
       {/* Search Container - Fixed header with scrollable results */}
       <div className="relative z-10 flex flex-col h-full">
         {/* Fixed Search Header */}
-        <div className="sticky top-0 bg-muted/90 pt-12 md:pt-16 px-4 pb-0 z-10">
-          <div className="w-full max-w-4xl mx-auto">
-            {/* Search Input with Close Button */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center flex-1 bg-background border border-border">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search"
-                  className="flex-1 h-14 px-5 bg-transparent text-foreground text-base placeholder:text-muted-foreground focus:outline-none"
-                />
-                <button className="px-5 text-muted-foreground hover:text-foreground transition-colors">
-                  <Search size={22} />
-                </button>
-              </div>
-
-              {/* Close Button - Primary colored like reference */}
+        <div className="sticky top-0 bg-background/95 backdrop-blur-md pt-4 md:pt-8 px-4 pb-4 z-10 border-b border-border shadow-lg">
+          <div className="w-full max-w-3xl mx-auto">
+            {/* Close Button - Top Right */}
+            <div className="flex justify-end mb-4">
               <button
                 onClick={onClose}
-                className="p-2 text-primary hover:text-primary/80 transition-colors"
+                className="p-2 text-muted-foreground hover:text-primary hover:bg-secondary rounded-full transition-all"
+                aria-label="Close search"
               >
                 <X size={24} />
               </button>
             </div>
+            
+            {/* Search Input */}
+            <div className="relative">
+              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search products, brands, categories..."
+                className="w-full h-14 pl-12 pr-4 bg-secondary border border-border rounded-xl text-foreground text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              />
+              {query.length > 0 && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+            
+            {/* Quick Links */}
+            {query.length === 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="text-xs text-muted-foreground">Popular:</span>
+                {["Helmets", "Gloves", "Jackets", "LS2", "MT"].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => setQuery(term)}
+                    className="text-xs px-3 py-1.5 bg-secondary hover:bg-primary hover:text-primary-foreground rounded-full text-foreground transition-colors"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Scrollable Results Area */}
-        <div className="flex-1 overflow-y-auto px-4">
-          <div className="w-full max-w-4xl mx-auto">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="w-full max-w-3xl mx-auto">
             {/* Search Results - Two Column Layout */}
             {hasResults && (
-              <div className="bg-background border border-t-0 border-border">
+              <div className="bg-background border border-border rounded-xl overflow-hidden shadow-xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-border">
                   {/* Left Column - Suggestions, Pages, Collections */}
                   <div className="p-6 space-y-6">
@@ -262,8 +286,9 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
             {/* No results message */}
             {query.length > 1 && !hasResults && (
-              <div className="bg-background border border-t-0 border-border p-8 text-center text-muted-foreground">
-                No results found for "{query}"
+              <div className="bg-background border border-border rounded-xl p-8 text-center">
+                <p className="text-muted-foreground mb-2">No results found for "<span className="text-foreground font-medium">{query}</span>"</p>
+                <p className="text-sm text-muted-foreground">Try searching with different keywords</p>
               </div>
             )}
           </div>
