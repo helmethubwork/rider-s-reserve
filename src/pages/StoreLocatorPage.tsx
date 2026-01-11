@@ -23,7 +23,7 @@ const stores = [
     state: "Telangana",
     phone: "+91 9063880550",
     timing: "10:00 AM - 9:00 PM",
-    mapUrl: "https://maps.google.com/?q=Sriram+Nagar+Kondapur+Hyderabad",
+    mapUrl: "https://maps.app.goo.gl/SdvvxNUsxgEFq1Js7",
   },
 ];
 
