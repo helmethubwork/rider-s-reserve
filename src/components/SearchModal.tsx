@@ -175,22 +175,22 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
           <div className="w-full max-w-3xl mx-auto">
             {/* Search Results - Two Column Layout */}
             {hasResults && (
-              <div className="bg-background border border-border rounded-xl overflow-hidden shadow-xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-border">
+              <div className="bg-card border border-border rounded-xl overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
                   {/* Left Column - Suggestions, Pages, Collections */}
-                  <div className="p-6 space-y-6">
+                  <div className="p-5 sm:p-6 space-y-5 bg-card">
                     {/* Suggestions */}
                     {suggestions.length > 0 && (
                       <div>
-                        <h3 className="text-xs font-semibold tracking-[0.2em] text-muted-foreground mb-4">
-                          SUGGESTIONS
+                        <h3 className="text-xs font-bold tracking-[0.2em] text-primary mb-3 uppercase">
+                          Suggestions
                         </h3>
-                        <ul className="space-y-3">
+                        <ul className="space-y-2">
                           {suggestions.map((suggestion, idx) => (
                             <li key={idx}>
                               <button
                                 onClick={() => setQuery(suggestion)}
-                                className="text-muted-foreground hover:text-foreground transition-colors text-left"
+                                className="text-foreground hover:text-primary transition-colors text-left text-sm font-medium"
                               >
                                 {highlightMatch(suggestion, query)}
                               </button>
@@ -203,16 +203,16 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     {/* Pages */}
                     {filteredPages.length > 0 && (
                       <div>
-                        <h3 className="text-xs font-semibold tracking-[0.2em] text-muted-foreground mb-4">
-                          PAGES
+                        <h3 className="text-xs font-bold tracking-[0.2em] text-primary mb-3 uppercase">
+                          Pages
                         </h3>
-                        <ul className="space-y-3">
+                        <ul className="space-y-2">
                           {filteredPages.map((page) => (
                             <li key={page.href}>
                               <Link
                                 to={page.href}
                                 onClick={onClose}
-                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                className="text-foreground hover:text-primary transition-colors text-sm font-medium"
                               >
                                 {highlightMatch(page.name, query)}
                               </Link>
@@ -225,16 +225,16 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     {/* Collections */}
                     {filteredCollections.length > 0 && (
                       <div>
-                        <h3 className="text-xs font-semibold tracking-[0.2em] text-muted-foreground mb-4">
-                          COLLECTIONS
+                        <h3 className="text-xs font-bold tracking-[0.2em] text-primary mb-3 uppercase">
+                          Collections
                         </h3>
-                        <ul className="space-y-3">
+                        <ul className="space-y-2">
                           {filteredCollections.map((collection) => (
                             <li key={collection.slug}>
                               <Link
                                 to={`/category/${collection.slug}`}
                                 onClick={onClose}
-                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                className="text-foreground hover:text-primary transition-colors text-sm font-medium"
                               >
                                 {highlightMatch(collection.name, query)}
                               </Link>
@@ -246,26 +246,26 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                   </div>
 
                   {/* Right Column - Products */}
-                  <div className="p-6">
+                  <div className="p-5 sm:p-6 bg-card">
                     {filteredProducts.length > 0 && (
                       <div>
-                        <h3 className="text-xs font-semibold tracking-[0.2em] text-muted-foreground mb-4">
-                          PRODUCTS
+                        <h3 className="text-xs font-bold tracking-[0.2em] text-primary mb-3 uppercase">
+                          Products
                         </h3>
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           {filteredProducts.map((product) => (
                             <Link
                               key={product.id}
                               to={`/product/${product.id}`}
                               onClick={onClose}
-                              className="flex items-center gap-4 hover:bg-secondary/50 p-2 -mx-2 transition-colors"
+                              className="flex items-center gap-3 hover:bg-secondary/50 p-2 -mx-2 rounded-lg transition-colors"
                             >
                               <img
                                 src={product.image}
                                 alt={product.name}
-                                className="w-16 h-16 object-contain bg-secondary/30"
+                                className="w-14 h-14 object-contain bg-secondary/50 rounded-lg"
                               />
-                              <span className="text-foreground hover:text-primary transition-colors">
+                              <span className="text-foreground text-sm font-medium hover:text-primary transition-colors">
                                 {product.name}
                               </span>
                             </Link>
@@ -275,7 +275,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                     )}
 
                     {filteredProducts.length === 0 && (
-                      <div className="text-muted-foreground text-sm">
+                      <div className="text-foreground/70 text-sm">
                         No products found
                       </div>
                     )}
