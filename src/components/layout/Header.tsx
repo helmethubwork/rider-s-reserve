@@ -361,7 +361,7 @@ const Header = () => {
                   {!hasSubmenu ? (
                     <Link
                       to={item.href}
-                      className="flex items-center justify-between px-4 py-3.5 text-foreground text-sm font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
+                      className="mx-2 my-1 flex items-center justify-between rounded-lg bg-secondary/30 px-4 py-3.5 text-foreground text-sm font-semibold hover:bg-secondary/60 active:bg-secondary transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
@@ -371,8 +371,8 @@ const Header = () => {
                     <>
                       <button
                         onClick={() => toggleMobileCategory(item.name)}
-                        className={`w-full flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-colors ${
-                          isExpanded ? 'bg-secondary/50 text-primary' : 'text-foreground hover:bg-secondary/50'
+                        className={`mx-2 my-1 w-[calc(100%-1rem)] flex items-center justify-between rounded-lg bg-secondary/30 px-4 py-3.5 text-sm font-semibold transition-colors hover:bg-secondary/60 active:bg-secondary ${
+                          isExpanded ? 'text-primary' : 'text-foreground'
                         }`}
                       >
                         {item.name}
