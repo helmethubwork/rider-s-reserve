@@ -19,7 +19,7 @@ const ShippingPolicyPage = () => {
               </p>
 
               <div className="mt-12 pt-8 border-t border-gray-200">
-                <h2 className="text-xl font-semibold text-primary mb-4">Delivery Timeline</h2>
+                <h2 className="text-xl font-semibold text-destructive mb-4">Delivery Timeline</h2>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
                   <li>Metro cities: 3-5 business days</li>
                   <li>Other cities: 5-7 business days</li>
@@ -28,7 +28,7 @@ const ShippingPolicyPage = () => {
               </div>
 
               <div className="mt-8">
-                <h2 className="text-xl font-semibold text-primary mb-4">Tracking Your Order</h2>
+                <h2 className="text-xl font-semibold text-destructive mb-4">Tracking Your Order</h2>
                 <p>
                   Once your order is shipped, you will receive a tracking number via email and SMS. You can use this tracking number to monitor the status of your delivery on our Track Orders page.
                 </p>
