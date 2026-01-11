@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetIcon from "@/assets/helmet-icon.png";
+import helmetIcon from "@/assets/helmet-icon-cropped.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -85,11 +85,11 @@ const navigationData = [
 
 // Logo Component - Helmet icon + Text
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-2 group">
+  <Link to="/" className="flex items-center gap-3 group">
     <img 
       src={helmetIcon} 
-      alt="Helmet" 
-      className="h-16 md:h-20 lg:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+      alt="Helmet Hub helmet icon" 
+      className="h-14 md:h-16 lg:h-20 w-auto object-contain bg-transparent transition-transform duration-300 group-hover:scale-105"
     />
     <div className="flex flex-col leading-none">
       <span 
