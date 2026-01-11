@@ -7,32 +7,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 const ContactPage = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     subject: "",
-    message: "",
+    message: ""
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
       title: "Message Sent",
-      description: "Thank you for contacting us. We'll get back to you soon!",
+      description: "Thank you for contacting us. We'll get back to you soon!"
     });
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: ""
+    });
   };
-
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-white">
+  return <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
       <main className="flex-1 py-16 md:py-24">
@@ -81,9 +87,9 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
-                      <p className="text-gray-600">
-                        123 Racing Street, Powai<br />
-                        Mumbai, Maharashtra 400076<br />
+                      <p className="text-gray-600">​1st Branch: HELMET HUB, 1st Floor, Besides Little Gon, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.
+2nd Branch: HELMET HUB, 1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur, Hyd-500084. T.G.<br />
+                        ​<br />
                         India
                       </p>
                     </div>
@@ -111,72 +117,38 @@ const ContactPage = () => {
                     <Label htmlFor="name" className="text-gray-700">
                       Your Name <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="name" value={formData.name} onChange={e => handleInputChange("name", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-gray-700">
                       Email Address <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-gray-700">
                       Phone Number
                     </Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange("phone", e.target.value)}
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} className="bg-white border-gray-300" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="subject" className="text-gray-700">
                       Subject <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="subject"
-                      value={formData.subject}
-                      onChange={(e) => handleInputChange("subject", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="subject" value={formData.subject} onChange={e => handleInputChange("subject", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="message" className="text-gray-700">
                       Message <span className="text-red-500">*</span>
                     </Label>
-                    <Textarea
-                      id="message"
-                      value={formData.message}
-                      onChange={(e) => handleInputChange("message", e.target.value)}
-                      required
-                      rows={5}
-                      className="bg-white border-gray-300 resize-none"
-                    />
+                    <Textarea id="message" value={formData.message} onChange={e => handleInputChange("message", e.target.value)} required rows={5} className="bg-white border-gray-300 resize-none" />
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3"
-                  >
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3">
                     Send Message
                   </Button>
                 </form>
@@ -187,8 +159,6 @@ const ContactPage = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ContactPage;
