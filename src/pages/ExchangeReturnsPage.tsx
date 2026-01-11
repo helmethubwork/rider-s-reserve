@@ -48,26 +48,25 @@ const ExchangeReturnsPage = () => {
               Exchange, Returns & Cancellation
             </h1>
             
-            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-16">
-              <h2 className="text-xl font-semibold text-primary">Exchange Policy</h2>
+            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-4 mb-8">
+              <h2 className="text-lg font-semibold text-primary">Exchange Policy</h2>
               <p>
                 We offer size exchanges within 7 days of delivery. Products must be unused, unworn, with all original tags and packaging intact.
               </p>
 
-              <h2 className="text-xl font-semibold text-primary mt-8">Returns Policy</h2>
+              <h2 className="text-lg font-semibold text-primary mt-4">Returns Policy</h2>
               <p>
                 Returns are accepted within 7 days of delivery for manufacturing defects only. Products on sale or purchased with discounts are not eligible for returns.
               </p>
 
-              <h2 className="text-xl font-semibold text-primary mt-8">Cancellation Policy</h2>
+              <h2 className="text-lg font-semibold text-primary mt-4">Cancellation Policy</h2>
               <p>
                 Orders can be cancelled within 24 hours of placing the order. Once shipped, cancellation is not possible.
               </p>
             </div>
 
-            {/* Exchange Request Form */}
-            <div className="bg-gray-50 rounded-lg p-8 md:p-12 border border-gray-200">
-              <h2 className="text-2xl md:text-3xl font-serif text-center text-navy-900 mb-8">
+            <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200">
+              <h2 className="text-xl md:text-2xl font-serif text-center text-navy-900 mb-6">
                 Product Exchange Request Form
               </h2>
               
