@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
 
 const brands = [
-  { name: "AXOR", slug: "axor" },
+  { name: "AGV", slug: "agv" },
+  { name: "HJC", slug: "hjc" },
+  { name: "SHOEI", slug: "shoei" },
+  { name: "ARAI", slug: "arai" },
   { name: "LS2", slug: "ls2" },
+  { name: "MT", slug: "mt" },
   { name: "KORDA", slug: "korda" },
-  { name: "MT HELMETS", slug: "mt-helmets" },
-  { name: "MORE BRANDS", slug: "brands" },
+  { name: "ALPINESTARS", slug: "alpinestars" },
+  { name: "AXOR", slug: "axor" },
+  { name: "STUDDS", slug: "studds" },
 ];
 
 const BrandShowcase = () => {
@@ -21,7 +26,7 @@ const BrandShowcase = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3">
           {brands.map((brand) => (
             <Link
               key={brand.name}
