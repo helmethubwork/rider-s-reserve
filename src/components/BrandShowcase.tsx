@@ -2,15 +2,25 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
+// Brand logos
+import axorLogo from "@/assets/brands/axor-logo.png";
+import ls2Logo from "@/assets/brands/ls2-logo.png";
+import mtLogo from "@/assets/brands/mt-logo.png";
+import kordaLogo from "@/assets/brands/korda-logo.png";
+import axxisLogo from "@/assets/brands/axxis-logo.png";
+import nhkLogo from "@/assets/brands/nhk-logo.png";
+import studdsLogo from "@/assets/brands/studds-logo.png";
+import rynoxLogo from "@/assets/brands/rynox-logo.png";
+
 const brands = [
-  { name: "AXOR", slug: "axor" },
-  { name: "LS2", slug: "ls2" },
-  { name: "MT", slug: "mt" },
-  { name: "KORDA", slug: "korda" },
-  { name: "AXXIS", slug: "axxis" },
-  { name: "NHK", slug: "nhk" },
-  { name: "STUDDS", slug: "studds" },
-  { name: "RYNOX", slug: "rynox" },
+  { name: "AXOR", slug: "axor", logo: axorLogo },
+  { name: "LS2", slug: "ls2", logo: ls2Logo },
+  { name: "MT", slug: "mt", logo: mtLogo },
+  { name: "KORDA", slug: "korda", logo: kordaLogo },
+  { name: "AXXIS", slug: "axxis", logo: axxisLogo },
+  { name: "NHK", slug: "nhk", logo: nhkLogo },
+  { name: "STUDDS", slug: "studds", logo: studdsLogo },
+  { name: "RYNOX", slug: "rynox", logo: rynoxLogo },
 ];
 
 const BrandShowcase = () => {
@@ -80,10 +90,12 @@ const BrandShowcase = () => {
                 to={`/brands/${brand.slug}`}
                 className="flex-shrink-0 group"
               >
-                <div className="w-40 h-24 md:w-52 md:h-32 bg-card border-4 border-primary rounded-sm flex items-center justify-center transition-all duration-300 group-hover:border-accent group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
-                  <span className="text-lg md:text-2xl font-black text-foreground tracking-wider group-hover:text-primary transition-colors italic">
-                    {brand.name}
-                  </span>
+                <div className="w-40 h-24 md:w-52 md:h-32 bg-card border-4 border-primary rounded-sm flex items-center justify-center p-4 transition-all duration-300 group-hover:border-accent group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
+                  <img 
+                    src={brand.logo} 
+                    alt={`${brand.name} logo`}
+                    className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
                 </div>
               </Link>
             ))}
