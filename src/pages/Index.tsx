@@ -8,7 +8,6 @@ import OffersCarousel from "@/components/OffersCarousel";
 import BrandShowcase from "@/components/BrandShowcase";
 import WhyHelmetHub from "@/components/WhyHelmetHub";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import NewArrivalsSlider from "@/components/NewArrivalsSlider";
 
 const Index = () => {
   return (
@@ -21,14 +20,11 @@ const Index = () => {
       {/* Offers Carousel */}
       <OffersCarousel />
 
-      {/* Category Grid - 8 columns like powersports */}
+      {/* Category Grid - Enhanced big banners */}
       <CategoryGrid />
 
       {/* Featured Product Promos - 2 columns */}
       <FeaturedPromo />
-
-      {/* New Arrivals Slider */}
-      <NewArrivalsSlider />
 
       {/* Instagram Feed */}
       <InstagramFeed />
