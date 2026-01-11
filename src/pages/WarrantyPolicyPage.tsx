@@ -18,7 +18,7 @@ const WarrantyPolicyPage = () => {
                 Each product/brand has a specific warranty policy which can be found under the "Warranty" section on that specific product page at helmethub.com.
               </p>
               
-              <h2 className="text-xl font-semibold text-primary mt-10 mb-4">
+              <h2 className="text-xl font-semibold text-destructive mt-10 mb-4">
                 Warranty Terms & Conditions: General
               </h2>
               
@@ -33,7 +33,7 @@ const WarrantyPolicyPage = () => {
               </ul>
 
               <div className="mt-12 pt-8 border-t border-gray-200">
-                <h2 className="text-xl font-semibold text-primary mb-4">How to Claim Warranty</h2>
+                <h2 className="text-xl font-semibold text-destructive mb-4">How to Claim Warranty</h2>
                 <ol className="list-decimal list-inside space-y-2 text-gray-700">
                   <li>Contact our support team with your order details</li>
                   <li>Provide clear photos of the defect</li>
