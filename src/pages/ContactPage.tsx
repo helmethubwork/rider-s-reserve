@@ -41,7 +41,7 @@ const ContactPage = () => {
   return <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
-      <main className="flex-1 py-16 md:py-24">
+      <main className="flex-1 py-8 md:py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-center text-navy-900 tracking-wide mb-12 md:mb-16 uppercase">
