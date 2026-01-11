@@ -116,7 +116,7 @@ const Logo = () => (
 
 // Mega Menu Component
 const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] }) => (
-  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-10 z-50 animate-fade-in">
+  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-[hsl(222,47%,11%)] border-b border-border py-10 z-[100] animate-fade-in shadow-2xl">
     <div className="container mx-auto px-8">
       <div className="grid grid-cols-4 gap-16">
         {columns?.map((column, idx) => (
@@ -197,7 +197,7 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
 
       {/* Simple Dropdown */}
       {isOpen && hasSubcategories && !hasMegaMenu && (
-        <div className="absolute top-full left-0 min-w-[220px] bg-background border border-border rounded-lg shadow-xl z-[100] py-2 animate-fade-in">
+        <div className="absolute top-full left-0 min-w-[220px] bg-[hsl(222,47%,11%)] border border-border rounded-lg shadow-2xl z-[200] py-2 animate-fade-in">
           {item.subcategories.map((sub) => (
             <Link
               key={sub.name}
