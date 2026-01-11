@@ -11,7 +11,8 @@ import {
 const stores = [
   {
     id: "gachibowli",
-    name: "Gachibowli Branch",
+    storeName: "HELMET HUB",
+    branchName: "Gachibowli Branch",
     address: "1st Floor, Besides Little Gon, Opp. Omega Hospital, Telecom Nagar, Gachibowli",
     city: "Hyderabad - 500033",
     state: "Telangana",
@@ -21,7 +22,8 @@ const stores = [
   },
   {
     id: "kondapur",
-    name: "Kondapur Branch",
+    storeName: "HELMET HUB",
+    branchName: "Kondapur Branch",
     address: "1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur",
     city: "Hyderabad - 500084",
     state: "Telangana",
@@ -60,8 +62,9 @@ const StoreLocatorPage = () => {
                         <div className="divide-y divide-border">
                           {stores.map((store) => (
                             <div key={store.id} className="p-6 bg-background hover:bg-secondary/30 transition-colors">
-                              <h3 className="text-primary font-bold text-lg mb-3 italic">
-                                {store.name}
+                              <h3 className="text-lg mb-1">
+                                <span className="text-primary font-black italic tracking-wide">{store.storeName}</span>
+                                <span className="text-muted-foreground font-medium text-base ml-2">– {store.branchName}</span>
                               </h3>
                               <div className="space-y-2 text-muted-foreground">
                                 <div className="flex items-start gap-3">
