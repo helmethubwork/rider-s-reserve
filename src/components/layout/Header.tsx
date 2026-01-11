@@ -113,7 +113,7 @@ const Logo = () => (
     </div>
     {/* Racing stripes accent - right */}
     <div className="flex items-center gap-0.5 ml-1">
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white/60 transform -skew-x-12" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
       <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
     </div>
   </Link>
