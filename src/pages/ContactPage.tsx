@@ -99,8 +99,8 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Business Hours</h3>
-                      <p className="text-gray-600">Monday - Saturday: 10:00 AM - 8:00 PM</p>
-                      <p className="text-gray-600">Sunday: 11:00 AM - 6:00 PM</p>
+                      <p className="text-gray-600">Monday - Sunday: 10:00 AM - 11:00 PM</p>
+                      
                     </div>
                   </div>
                 </div>
