@@ -304,10 +304,6 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Promo Banner */}
-      <div className="promo-banner">
-        FREE SHIPPING ON ALL ORDERS!
-      </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
