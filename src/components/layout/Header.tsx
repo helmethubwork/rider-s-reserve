@@ -329,7 +329,7 @@ const Header = () => {
       )}
 
       {/* Mobile Menu Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-[280px] max-w-[85vw] bg-background border-r border-border z-[70] transform transition-transform duration-300 ease-out md:hidden shadow-2xl ${
+      <div className={`fixed top-0 left-0 h-[100dvh] w-[280px] max-w-[85vw] bg-background border-r border-border z-[70] transform transition-transform duration-300 ease-out md:hidden shadow-2xl flex flex-col ${
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         {/* Mobile Menu Header */}
@@ -345,7 +345,7 @@ const Header = () => {
         </div>
 
         {/* Mobile Menu Content */}
-        <nav className="overflow-y-auto h-[calc(100%-56px)] overscroll-contain bg-background">
+        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background">
           <ul className="py-2">
             {navigationData.map((item) => {
               const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
