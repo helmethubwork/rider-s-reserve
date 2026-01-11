@@ -104,15 +104,15 @@ const BrandShowcase = () => {
                 to={`/brands/${brand.slug}`}
                 className="flex-shrink-0 group"
               >
-                <div className="brand-card w-28 sm:w-44 md:w-56 h-20 sm:h-28 md:h-36">
+                <div className="brand-card w-36 sm:w-44 md:w-56 h-28 sm:h-32 md:h-36">
                   <img 
                     src={brand.logo} 
                     alt={`${brand.name} logo`}
-                    className="max-w-[75%] sm:max-w-[80%] max-h-[60%] sm:max-h-[70%] object-contain transition-all duration-500 group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
+                    className="max-w-[85%] sm:max-w-[80%] max-h-[75%] sm:max-h-[70%] object-contain transition-all duration-500 group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
                     loading="lazy"
                   />
                 </div>
-                <p className="text-center text-xs sm:text-sm font-medium text-muted-foreground mt-2 sm:mt-3 group-hover:text-primary transition-colors">
+                <p className="text-center text-sm sm:text-sm font-semibold text-muted-foreground mt-2 sm:mt-3 group-hover:text-primary transition-colors">
                   {brand.name}
                 </p>
               </Link>

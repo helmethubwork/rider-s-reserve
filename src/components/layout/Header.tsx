@@ -334,72 +334,74 @@ const Header = () => {
       )}
 
       {/* Mobile Menu Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-background z-50 transform transition-transform duration-300 ease-out md:hidden shadow-2xl ${
+      <div className={`fixed top-0 left-0 h-full w-[280px] max-w-[85vw] bg-background border-r border-border z-50 transform transition-transform duration-300 ease-out md:hidden shadow-2xl ${
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         {/* Mobile Menu Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <span className="text-lg font-bold text-foreground">Menu</span>
+        <div className="flex items-center justify-between px-4 py-3 bg-secondary border-b border-border">
+          <span className="text-base font-bold text-primary uppercase tracking-wider">Menu</span>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="p-2 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
+            className="p-2 text-foreground hover:text-primary hover:bg-background rounded-full transition-all active:scale-95"
             aria-label="Close menu"
           >
-            <X size={22} />
+            <X size={20} />
           </button>
         </div>
 
         {/* Mobile Menu Content */}
-        <nav className="overflow-y-auto h-[calc(100%-65px)] overscroll-contain">
-          <div className="py-2">
+        <nav className="overflow-y-auto h-[calc(100%-56px)] overscroll-contain">
+          <div className="py-1">
             {navigationData.map((item) => {
               const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
               const isExpanded = expandedMobileCategory === item.name;
               
               return (
-                <div key={item.name} className="border-b border-border/50">
+                <div key={item.name} className="border-b border-border/30 last:border-b-0">
                   {!hasSubmenu ? (
                     <Link
                       to={item.href}
-                      className="flex items-center justify-between px-5 py-4 text-foreground font-medium hover:bg-secondary active:bg-secondary transition-colors"
+                      className="flex items-center justify-between px-4 py-3.5 text-foreground text-sm font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
-                      <ChevronRight size={18} className="text-muted-foreground" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </Link>
                   ) : (
                     <>
                       <button
                         onClick={() => toggleMobileCategory(item.name)}
-                        className="w-full flex items-center justify-between px-5 py-4 text-foreground font-medium hover:bg-secondary active:bg-secondary transition-colors"
+                        className={`w-full flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-colors ${
+                          isExpanded ? 'bg-secondary/50 text-primary' : 'text-foreground hover:bg-secondary/50'
+                        }`}
                       >
                         {item.name}
                         <ChevronDown
-                          size={18}
-                          className={`text-muted-foreground transition-transform duration-300 ${
-                            isExpanded ? "rotate-180 text-primary" : ""
+                          size={16}
+                          className={`transition-transform duration-200 ${
+                            isExpanded ? "rotate-180 text-primary" : "text-muted-foreground"
                           }`}
                         />
                       </button>
                       
-                      <div className={`overflow-hidden transition-all duration-300 ${
-                        isExpanded ? 'max-h-[500px]' : 'max-h-0'
+                      <div className={`overflow-hidden transition-all duration-200 ${
+                        isExpanded ? 'max-h-[600px]' : 'max-h-0'
                       }`}>
-                        <div className="bg-secondary/30 py-2 px-5">
+                        <div className="bg-secondary/20 py-1 pl-4 pr-2">
                           {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
                             item.columns.map((col, idx) => (
-                              <div key={idx} className="mb-4 last:mb-0">
-                                <p className="text-primary text-xs font-bold tracking-wider uppercase py-2 border-b border-border/30">
+                              <div key={idx} className="mb-3 last:mb-1">
+                                <p className="text-primary text-[11px] font-bold tracking-wider uppercase py-2 border-b border-border/20">
                                   {col.title}
                                 </p>
                                 {col.items.map((subItem) => (
                                   <Link
                                     key={subItem.name}
                                     to={subItem.href}
-                                    className="flex items-center gap-2 py-3 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                                    className="flex items-center gap-2 py-2.5 text-xs text-muted-foreground hover:text-primary active:text-primary transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                   >
-                                    <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                                    <span className="w-1 h-1 rounded-full bg-primary/40" />
                                     {subItem.name}
                                   </Link>
                                 ))}
@@ -410,10 +412,10 @@ const Header = () => {
                               <Link
                                 key={sub.name}
                                 to={sub.href}
-                                className="flex items-center gap-2 py-3 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                                className="flex items-center gap-2 py-2.5 text-xs text-muted-foreground hover:text-primary active:text-primary transition-colors"
                                 onClick={() => setMobileMenuOpen(false)}
                               >
-                                <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                                <span className="w-1 h-1 rounded-full bg-primary/40" />
                                 {sub.name}
                               </Link>
                             ))
