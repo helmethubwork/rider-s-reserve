@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 
 const instagramReels = [
   "C-C3abzBKYd",
@@ -34,7 +34,7 @@ const InstagramFeed = () => {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 320;
+      const scrollAmount = 340;
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -43,19 +43,32 @@ const InstagramFeed = () => {
   };
 
   return (
-    <section className="py-12 md:py-16 bg-background overflow-hidden">
-      <div className="container mx-auto px-4 mb-8">
-        <h2 className="text-center text-sm md:text-base tracking-[0.3em] text-foreground font-medium">
-          JOIN OUR INSTA STORY:{" "}
+    <section className="py-16 md:py-24 bg-secondary/30 overflow-hidden relative">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-50">
+        <div className="absolute top-10 right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-20 w-60 h-60 bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 mb-10 relative z-10">
+        {/* Section header */}
+        <div className="text-center">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-6 py-3 rounded-full mb-6 shadow-lg">
+            <Instagram size={20} />
+            <span className="text-sm font-bold tracking-wider uppercase">Follow Us</span>
+          </div>
+          <h2 className="text-2xl md:text-4xl font-black text-foreground tracking-tight mb-2">
+            Join Our Insta Story
+          </h2>
           <a 
             href="https://www.instagram.com/helmethub46" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-primary hover:underline"
+            className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors font-bold text-lg"
           >
             @HELMETHUB46
           </a>
-        </h2>
+        </div>
       </div>
 
       {/* Instagram Video Embeds */}
@@ -63,30 +76,30 @@ const InstagramFeed = () => {
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-background/90 backdrop-blur-sm hover:bg-primary rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-5 h-5 text-black" />
+          <ChevronLeft className="w-6 h-6 text-foreground" />
         </button>
 
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-background/90 backdrop-blur-sm hover:bg-primary rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border"
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-5 h-5 text-black" />
+          <ChevronRight className="w-6 h-6 text-foreground" />
         </button>
 
         {/* Scrollable Container */}
         <div 
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth px-2"
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-8"
         >
           {instagramReels.map((reelId) => (
             <div 
               key={reelId} 
-              className="flex-shrink-0 w-[280px] md:w-[320px] aspect-[4/5] overflow-hidden relative instagram-video-container"
+              className="flex-shrink-0 w-[300px] md:w-[340px] aspect-[4/5] overflow-hidden relative instagram-video-container rounded-xl border border-border/50 shadow-lg"
             >
               <blockquote
                 className="instagram-media"
@@ -105,7 +118,7 @@ const InstagramFeed = () => {
                   href={`https://www.instagram.com/reel/${reelId}/`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full h-full bg-muted/30"
+                  className="block w-full h-full bg-card"
                 />
               </blockquote>
             </div>
@@ -114,17 +127,10 @@ const InstagramFeed = () => {
       </div>
 
       <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
         .instagram-video-container {
           position: relative;
           overflow: hidden;
-          background: #000;
+          background: hsl(var(--card));
         }
         .instagram-video-container iframe {
           position: absolute !important;
@@ -133,15 +139,15 @@ const InstagramFeed = () => {
           width: 100% !important;
           height: calc(100% + 240px) !important;
           border: 0 !important;
-          background: #000 !important;
+          background: hsl(var(--card)) !important;
         }
         .instagram-video-container .instagram-media {
           min-width: 100% !important;
           width: 100% !important;
-          background: #000 !important;
+          background: hsl(var(--card)) !important;
         }
         .instagram-video-container .instagram-media-rendered {
-          background: #000 !important;
+          background: hsl(var(--card)) !important;
         }
       `}</style>
     </section>
