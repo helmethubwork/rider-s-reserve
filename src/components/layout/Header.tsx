@@ -387,21 +387,21 @@ const Header = () => {
                       <div className={`overflow-hidden transition-all duration-200 ${
                         isExpanded ? 'max-h-[600px]' : 'max-h-0'
                       }`}>
-                        <div className="bg-secondary/20 py-1 pl-4 pr-2">
+                        <div className="mx-2 mb-2 rounded-lg bg-card/60 border border-border/40 py-1 pl-4 pr-2">
                           {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
                             item.columns.map((col, idx) => (
                               <div key={idx} className="mb-3 last:mb-1">
-                                <p className="text-primary text-[11px] font-bold tracking-wider uppercase py-2 border-b border-border/20">
+                                <p className="text-primary text-[11px] font-bold tracking-wider uppercase py-2 border-b border-border/30">
                                   {col.title}
                                 </p>
                                 {col.items.map((subItem) => (
                                   <Link
                                     key={subItem.name}
                                     to={subItem.href}
-                                    className="flex items-center gap-2 py-2.5 text-xs text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                                    className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2.5 text-xs font-medium text-foreground/90 hover:bg-secondary/60 active:bg-secondary transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                   >
-                                    <span className="w-1 h-1 rounded-full bg-primary/40" />
+                                    <span className="w-1 h-1 rounded-full bg-primary" />
                                     {subItem.name}
                                   </Link>
                                 ))}
@@ -412,10 +412,10 @@ const Header = () => {
                               <Link
                                 key={sub.name}
                                 to={sub.href}
-                                className="flex items-center gap-2 py-2.5 text-xs text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                                className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2.5 text-xs font-medium text-foreground/90 hover:bg-secondary/60 active:bg-secondary transition-colors"
                                 onClick={() => setMobileMenuOpen(false)}
                               >
-                                <span className="w-1 h-1 rounded-full bg-primary/40" />
+                                <span className="w-1 h-1 rounded-full bg-primary" />
                                 {sub.name}
                               </Link>
                             ))
