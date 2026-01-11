@@ -11,7 +11,7 @@ const stores = [
     city: "Hyderabad - 500033",
     state: "Telangana",
     phone: "+91 7842646888",
-    timing: "10:00 AM - 9:00 PM",
+    timing: "10:00 AM - 11:00 PM",
     mapUrl: "https://maps.app.goo.gl/EdQLQeCDzA9V9kix8",
   },
   {
@@ -22,7 +22,7 @@ const stores = [
     city: "Hyderabad - 500084",
     state: "Telangana",
     phone: "+91 9063880550",
-    timing: "10:00 AM - 9:00 PM",
+    timing: "10:00 AM - 11:00 PM",
     mapUrl: "https://maps.app.goo.gl/SdvvxNUsxgEFq1Js7",
   },
 ];
