@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
@@ -229,6 +229,44 @@ const Header = () => {
   const { totalItems } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const [hideOnScroll, setHideOnScroll] = useState(false);
+  const lastScrollYRef = useRef(0);
+
+  // Hide header when scrolling down, show when scrolling up
+  useEffect(() => {
+    const onScroll = () => {
+      // Keep header visible while the mobile drawer is open
+      if (mobileMenuOpen) {
+        lastScrollYRef.current = window.scrollY;
+        setHideOnScroll(false);
+        return;
+      }
+
+      const current = window.scrollY;
+      const last = lastScrollYRef.current;
+      const delta = current - last;
+
+      // ignore tiny scroll jitter
+      if (Math.abs(delta) < 8) return;
+
+      if (current <= 0) {
+        setHideOnScroll(false);
+      } else if (delta > 0) {
+        // scrolling down
+        setHideOnScroll(true);
+      } else {
+        // scrolling up
+        setHideOnScroll(false);
+      }
+
+      lastScrollYRef.current = current;
+    };
+
+    lastScrollYRef.current = window.scrollY;
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [mobileMenuOpen]);
+
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -242,7 +280,7 @@ const Header = () => {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-all duration-300">
+    <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-transform duration-300 will-change-transform ${hideOnScroll ? '-translate-y-full' : 'translate-y-0'}`}>
       {/* Top bar */}
       <div className="py-3 sm:py-4 border-b border-border/50">
         <div className="container mx-auto px-3 sm:px-4">
