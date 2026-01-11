@@ -20,50 +20,63 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const queryLower = query.toLowerCase();
+  const normalizedQuery = query.trim();
+  const queryLower = normalizedQuery.toLowerCase();
+
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   // Filter products
-  const filteredProducts = query.length > 1
-    ? products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(queryLower) ||
-          product.category.toLowerCase().includes(queryLower) ||
-          product.brand.toLowerCase().includes(queryLower)
-      ).slice(0, 4)
+  const filteredProducts = normalizedQuery.length > 0
+    ? products
+        .filter(
+          (product) =>
+            product.name.toLowerCase().includes(queryLower) ||
+            product.category.toLowerCase().includes(queryLower) ||
+            product.brand.toLowerCase().includes(queryLower)
+        )
+        .slice(0, 4)
     : [];
 
   // Filter pages
-  const filteredPages = query.length > 1
+  const filteredPages = normalizedQuery.length > 0
     ? pages.filter((page) => page.name.toLowerCase().includes(queryLower))
     : [];
 
   // Filter collections (categories)
-  const filteredCollections = query.length > 1
+  const filteredCollections = normalizedQuery.length > 0
     ? categories.filter((cat) => cat.name.toLowerCase().includes(queryLower))
     : [];
 
   // Generate search suggestions based on query
-  const suggestions = query.length > 1
+  const suggestions = normalizedQuery.length > 0
     ? [
         ...new Set([
+          // Brand + query (e.g. "ls2 helmets")
           ...products
             .filter((p) => p.brand.toLowerCase().includes(queryLower))
-            .map((p) => p.brand.toLowerCase() + " " + query),
+            .map((p) => `${p.brand.toLowerCase()} ${normalizedQuery}`.trim()),
+
+          // Product name prefix (first two words)
           ...products
             .filter((p) => p.name.toLowerCase().includes(queryLower))
             .map((p) => p.name.toLowerCase().split(" ").slice(0, 2).join(" ")),
-          query,
         ]),
       ].slice(0, 3)
     : [];
 
-  // Highlight matching text
-  const highlightMatch = (text: string, query: string) => {
-    if (!query) return text;
-    const parts = text.split(new RegExp(`(${query})`, "gi"));
+  // Highlight matching text (safe for regex characters)
+  const highlightMatch = (text: string, rawQuery: string) => {
+    const q = rawQuery.trim();
+    if (!q) return text;
+
+    const safe = escapeRegExp(q);
+    const parts = text.split(new RegExp(`(${safe})`, "gi"));
+
     return parts.map((part, i) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span key={i} className="font-bold text-foreground">{part}</span>
+      part.toLowerCase() === q.toLowerCase() ? (
+        <span key={i} className="font-bold text-foreground">
+          {part}
+        </span>
       ) : (
         <span key={i}>{part}</span>
       )
@@ -99,7 +112,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
 
   if (!isOpen) return null;
 
-  const hasResults = query.length > 1 && (
+  const hasResults = normalizedQuery.length > 0 && (
     filteredProducts.length > 0 ||
     filteredPages.length > 0 ||
     filteredCollections.length > 0 ||
@@ -175,10 +188,10 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
           <div className="w-full max-w-3xl mx-auto">
             {/* Search Results - Two Column Layout */}
             {hasResults && (
-              <div className="bg-card border border-border rounded-xl overflow-hidden shadow-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+              <div className="mt-4 bg-card/95 border-2 border-border/70 rounded-xl overflow-hidden shadow-2xl ring-1 ring-border/40">
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/60">
                   {/* Left Column - Suggestions, Pages, Collections */}
-                  <div className="p-5 sm:p-6 space-y-5 bg-card">
+                  <div className="p-5 sm:p-6 space-y-5 bg-card/90">
                     {/* Suggestions */}
                     {suggestions.length > 0 && (
                       <div>
@@ -246,7 +259,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                   </div>
 
                   {/* Right Column - Products */}
-                  <div className="p-5 sm:p-6 bg-card">
+                  <div className="p-5 sm:p-6 bg-card/90">
                     {filteredProducts.length > 0 && (
                       <div>
                         <h3 className="text-xs font-bold tracking-[0.2em] text-primary mb-3 uppercase">
@@ -285,9 +298,11 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
             )}
 
             {/* No results message */}
-            {query.length > 1 && !hasResults && (
-              <div className="bg-background border border-border rounded-xl p-8 text-center">
-                <p className="text-muted-foreground mb-2">No results found for "<span className="text-foreground font-medium">{query}</span>"</p>
+            {normalizedQuery.length > 0 && !hasResults && (
+              <div className="bg-card border border-border rounded-xl p-8 text-center">
+                <p className="text-muted-foreground mb-2">
+                  No results found for "<span className="text-foreground font-medium">{normalizedQuery}</span>"
+                </p>
                 <p className="text-sm text-muted-foreground">Try searching with different keywords</p>
               </div>
             )}
