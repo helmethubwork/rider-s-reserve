@@ -141,14 +141,7 @@ const Footer = () => {
             <p className="text-muted-foreground text-xs text-center md:text-left">
               © 2024 Helmet Hub. All rights reserved.
             </p>
-            <div className="flex gap-6">
-              <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors text-xs">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors text-xs">
-                Terms of Service
-              </Link>
-            </div>
+            
           </div>
         </div>
       </div>
