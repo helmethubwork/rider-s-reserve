@@ -65,7 +65,8 @@ const navigationData = [
     name: "Store Locator",
     href: "/stores",
     subcategories: [
-      { name: "Telangana", href: "/stores?city=telangana" },
+      { name: "Gachibowli Branch", href: "/stores?branch=gachibowli" },
+      { name: "Kondapur Branch", href: "/stores?branch=kondapur" },
     ],
   },
   { name: "Track Orders", href: "/track-order", subcategories: [] },
