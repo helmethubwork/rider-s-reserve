@@ -14,6 +14,8 @@ import WarrantyPolicyPage from "./pages/WarrantyPolicyPage";
 import ExchangeReturnsPage from "./pages/ExchangeReturnsPage";
 import ContactPage from "./pages/ContactPage";
 import StoreLocatorPage from "./pages/StoreLocatorPage";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ const App = () => (
           <Route path="/exchange-returns" element={<ExchangeReturnsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/stores" element={<StoreLocatorPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
