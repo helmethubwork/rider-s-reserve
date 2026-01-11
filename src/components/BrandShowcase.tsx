@@ -96,7 +96,7 @@ const BrandShowcase = () => {
           <div
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex gap-3 sm:gap-5 md:gap-6 overflow-x-auto scrollbar-hide px-12 sm:px-16 md:px-20 py-4"
+            className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide px-12 sm:px-16 md:px-20 py-6"
           >
             {brands.map((brand) => (
               <Link
@@ -104,15 +104,15 @@ const BrandShowcase = () => {
                 to={`/brands/${brand.slug}`}
                 className="flex-shrink-0 group"
               >
-                <div className="brand-card w-36 sm:w-44 md:w-56 h-28 sm:h-32 md:h-36">
+                <div className="w-44 sm:w-56 md:w-72 lg:w-80 h-36 sm:h-44 md:h-52 lg:h-56 bg-gradient-to-br from-card via-card to-secondary border-2 border-primary/40 rounded-2xl flex items-center justify-center p-6 transition-all duration-500 hover:border-primary hover:shadow-[0_0_40px_rgba(200,255,50,0.25)] hover:scale-105 group-hover:bg-secondary/80">
                   <img 
                     src={brand.logo} 
                     alt={`${brand.name} logo`}
-                    className="max-w-[85%] sm:max-w-[80%] max-h-[75%] sm:max-h-[70%] object-contain transition-all duration-500 group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
+                    className="max-w-[90%] max-h-[85%] object-contain transition-all duration-500 group-hover:scale-110 filter brightness-90 group-hover:brightness-110"
                     loading="lazy"
                   />
                 </div>
-                <p className="text-center text-sm sm:text-sm font-semibold text-muted-foreground mt-2 sm:mt-3 group-hover:text-primary transition-colors">
+                <p className="text-center text-sm sm:text-base md:text-lg font-bold text-muted-foreground mt-3 sm:mt-4 group-hover:text-primary transition-colors tracking-wide">
                   {brand.name}
                 </p>
               </Link>
