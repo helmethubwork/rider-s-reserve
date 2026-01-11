@@ -406,7 +406,7 @@ const Header = () => {
                           <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           {item.name}
                         </div>
-                        <ChevronDown size={16} className="text-primary" />
+                        <ChevronDown size={16} className="text-primary animate-bounce" />
                       </div>
                       <ul className="bg-card/50 border-b border-border/30">
                         {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
