@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
+import helmetHubLogo from "@/assets/helmet-hub-logo.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -82,29 +83,14 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Racing style text logo
+// Logo Component - Racing style image logo
 const Logo = () => (
-  <Link to="/" className="flex items-center gap-1 group">
-    <div className="flex flex-col leading-none">
-      <span 
-        className="text-xl md:text-2xl lg:text-3xl font-black text-primary tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        }}
-      >
-        HELMET
-      </span>
-      <span 
-        className="text-xl md:text-2xl lg:text-3xl font-black text-white tracking-tight"
-        style={{ 
-          fontStyle: 'italic',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-        }}
-      >
-        HUB
-      </span>
-    </div>
+  <Link to="/" className="flex items-center group">
+    <img 
+      src={helmetHubLogo} 
+      alt="Helmet Hub" 
+      className="h-14 md:h-16 lg:h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+    />
   </Link>
 );
 
