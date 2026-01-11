@@ -176,6 +176,9 @@ const SalePage = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters Sidebar */}
             <aside className="lg:w-64 flex-shrink-0">
+              <h2 className="text-sm font-medium tracking-[0.15em] uppercase text-gray-900 pb-4 border-b border-gray-200">
+                Filters
+              </h2>
               {/* Brand Filter */}
               <Collapsible
                 open={openFilters.includes("brand")}
