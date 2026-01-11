@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, Twitter, ChevronRight } from "lucide-react";
+import { Instagram, Facebook, Mail, Phone, MapPin, Twitter, ChevronRight } from "lucide-react";
 const Footer = () => {
   return <footer className="bg-background border-t border-border">
       {/* Main Footer */}
@@ -40,12 +40,8 @@ const Footer = () => {
               <a href="#" className="p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded">
                 <Facebook size={18} />
               </a>
-              <a href="#" className="p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded">
-                <Twitter size={18} />
-              </a>
-              <a href="#" className="p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded">
-                <Youtube size={18} />
-              </a>
+              
+              
             </div>
           </div>
 
