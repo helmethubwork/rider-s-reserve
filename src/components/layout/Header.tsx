@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
-import CustomOrdersBanner from "@/components/CustomOrdersBanner";
+
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -237,10 +237,6 @@ const Header = () => {
   };
 
   return (
-    <>
-      {/* Custom Orders Banner */}
-      <CustomOrdersBanner />
-      
       <header className="relative z-50 bg-background shadow-sm transition-all duration-300">
       <div className="py-4 border-b border-border/50">
         <div className="container mx-auto px-4">
@@ -384,7 +380,6 @@ const Header = () => {
       {/* Search Modal */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
-    </>
   );
 };
 
