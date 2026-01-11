@@ -54,10 +54,13 @@ const StoreLocatorPage = () => {
             {/* Store Cards */}
             <div className="border border-t-0 border-border rounded-b-lg overflow-hidden divide-y divide-border">
               {stores.map((store) => (
-                <div key={store.id} className="p-6 bg-background hover:bg-secondary/30 transition-colors">
-                  <h3 className="text-lg mb-3">
-                    <span className="text-primary font-black italic tracking-wide">{store.storeName}</span>
-                    <span className="text-muted-foreground font-medium text-base ml-2">– {store.branchName}</span>
+              <div key={store.id} className="p-6 bg-background hover:bg-secondary/30 transition-colors">
+                  <h3 className="text-lg mb-3 flex items-baseline flex-wrap gap-x-2">
+                    <span className="inline-flex items-baseline">
+                      <span className="text-primary font-black italic tracking-tight" style={{ letterSpacing: '-0.02em' }}>HELMET</span>
+                      <span className="text-foreground font-black italic tracking-tight ml-1" style={{ letterSpacing: '-0.02em' }}>HUB</span>
+                    </span>
+                    <span className="text-muted-foreground font-medium text-base">– {store.branchName}</span>
                   </h3>
                   <div className="space-y-2 text-muted-foreground">
                     <div className="flex items-start gap-3">
