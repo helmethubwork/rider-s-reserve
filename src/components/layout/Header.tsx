@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetHubCombinedLogo from "@/assets/helmet-hub-combined.png";
+import helmetHubLogo from "@/assets/helmet-hub-logo-styled.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -83,13 +83,13 @@ const navigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Combined logo (like reference)
+// Logo Component - Styled logo with helmet and speed lines
 const Logo = () => (
   <Link to="/" className="flex items-center group">
     <img
-      src={helmetHubCombinedLogo}
-      alt="Helmet Hub"
-      className="h-20 md:h-24 lg:h-28 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+      src={helmetHubLogo}
+      alt="Helmet Hub - Complete Riding Solution"
+      className="h-16 md:h-20 lg:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
       loading="eager"
       decoding="async"
     />
