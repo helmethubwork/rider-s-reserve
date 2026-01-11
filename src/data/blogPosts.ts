@@ -1,6 +1,7 @@
 import waterproofBootsImg from "@/assets/blog/waterproof-boots.jpg";
 import motorcycleGlovesImg from "@/assets/blog/motorcycle-gloves.jpg";
 import helmetCertificationsImg from "@/assets/blog/helmet-certifications.jpg";
+import helmetFineImg from "@/assets/blog/helmet-fine.jpg";
 
 export interface BlogPost {
   id: string;
@@ -10,11 +11,59 @@ export interface BlogPost {
   content: string;
   image: string;
   date: string;
-  author: string;
   category: string;
 }
 
 export const blogPosts: BlogPost[] = [
+  {
+    id: "4",
+    slug: "fine-for-not-wearing-helmet-in-indian-metro-cities",
+    title: "Fine for Not Wearing a Helmet While Riding in Indian Metro Cities",
+    excerpt: "India was witness to 53 road accidents per hour which resulted in 19 deaths every hour during 2022. Furthermore, the same year recorded the deaths of 52,000+ people due to not wearing a helmet.",
+    content: `India was witness to 53 road accidents per hour which resulted in 19 deaths every hour during the year 2022 according to a report released by The Ministry of Road Transport and Highway. Furthermore, the same year recorded the deaths of 52,000+ people due to not wearing a helmet.
+
+In the bustling streets of India, the decision to wear a helmet while riding a two-wheeler extends far beyond personal choice; it's a matter of life and death.
+
+**Why is a helmet needed?**
+
+A helmet is a vital piece of equipment to have if you own or ride a two-wheeler. Apart from protecting you from any possible head trauma if caught in an accident, wearing a helmet also provides you with several other benefits:
+
+- Provides protection to the eyes from debris, wind, dust, and headlights
+- Enhanced control and attention on the road
+- Ear protection from strong winds and blaring horns
+- Protection from rain and scorching heat
+- Prevention of fatal brain and facial injuries
+- Compliance with the law
+
+**What is the Law about wearing a Helmet?**
+
+The Motor Vehicles Act of 1988 states that individuals must wear a helmet if driving or riding a two-wheeler on the road. Refusing to comply will attract a fine of up to Rs.1000 or even lead to imprisonment.
+
+Section 129 states that helmets worn should be of good quality and both driver and pillion riders should wear helmets with straps. Anyone found not wearing a helmet will be fined Rs. 1000 and may also be at risk of their driver's license being canceled for 3 months as per section 194D.
+
+**City-wise Helmet Fines:**
+
+**Mumbai, Maharashtra** - Rs. 500 for first offense, Rs. 1500 for repeated offenses plus 3-month license suspension
+
+**Delhi** - Rs. 1000 and/or 3-month license suspension
+
+**Chennai, Tamil Nadu** - Rs. 1000 and 3-month license suspension
+
+**Kolkata, West Bengal** - Rs. 1000 for both driver and pillion rider. Rs. 500 for helmets without ISI mark
+
+**Bangalore, Karnataka** - Rs. 500 per violation point (CCTV monitored)
+
+**Hyderabad, Telangana** - Rs. 100 for first offense, Rs. 300 for second offense
+
+**Ahmedabad, Gujarat** - Rs. 500 to Rs. 1000 based on frequency
+
+**Jaipur, Rajasthan** - Rs. 1000
+
+The laws in place are curated with the sole purpose of safeguarding citizens from possible injury. Being the home to the largest population in the world, driving on Indian roads is certainly not an easy task. Always wear a helmet when riding!`,
+    image: helmetFineImg,
+    date: "Feb 10, 2024",
+    category: "Safety Laws"
+  },
   {
     id: "1",
     slug: "waterproof-motorcycle-boots-why-they-still-get-wet",
@@ -41,7 +90,6 @@ Over time, waterproof membranes can become saturated or damaged, reducing their 
 - Invest in quality waterproof socks as an extra layer`,
     image: waterproofBootsImg,
     date: "Aug 26, 2025",
-    author: "Helmet Hub Team",
     category: "Gear Tips"
   },
   {
@@ -81,7 +129,6 @@ Many riders think city speeds are "safe" speeds. However, studies show that most
 - CE certification for guaranteed protection`,
     image: motorcycleGlovesImg,
     date: "Aug 05, 2025",
-    author: "Helmet Hub Team",
     category: "Safety"
   },
   {
@@ -131,7 +178,6 @@ Many riders think city speeds are "safe" speeds. However, studies show that most
 **Remember:** A certified helmet is only effective if it fits properly. Always try before you buy!`,
     image: helmetCertificationsImg,
     date: "Aug 01, 2025",
-    author: "Helmet Hub Team",
     category: "Education"
   }
 ];

@@ -103,12 +103,6 @@ const BlogPostPage = () => {
                 })}
               </div>
 
-              {/* Author */}
-              <div className="mt-10 pt-8 border-t border-gray-200">
-                <p className="text-sm text-gray-500">
-                  Written by <span className="font-medium text-gray-900">{post.author}</span>
-                </p>
-              </div>
             </article>
 
             {/* Related Posts */}
