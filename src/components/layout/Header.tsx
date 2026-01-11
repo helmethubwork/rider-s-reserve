@@ -401,9 +401,12 @@ const Header = () => {
                     </Link>
                   ) : (
                     <>
-                      <div className="flex items-center gap-3 px-4 py-3 text-primary text-sm font-bold uppercase tracking-wide border-b border-border/30 bg-secondary/30">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        {item.name}
+                      <div className="flex items-center justify-between px-4 py-3 text-primary text-sm font-bold uppercase tracking-wide border-b border-border/30 bg-secondary/30">
+                        <div className="flex items-center gap-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          {item.name}
+                        </div>
+                        <ChevronDown size={16} className="text-primary" />
                       </div>
                       <ul className="bg-card/50 border-b border-border/30">
                         {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
