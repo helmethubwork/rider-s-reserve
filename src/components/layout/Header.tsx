@@ -87,13 +87,13 @@ const Logo = () => (
   <Link to="/" className="flex items-center gap-1 group">
     {/* Racing stripes accent - left */}
     <div className="flex items-center gap-0.5 mr-1">
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12 shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
       <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary/60 transform -skew-x-12" />
     </div>
     
     <div className="flex items-baseline">
       <span 
-        className="text-2xl md:text-4xl lg:text-5xl font-black text-primary tracking-tight drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]"
+        className="text-2xl md:text-4xl lg:text-5xl font-black text-primary tracking-tight"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -114,7 +114,7 @@ const Logo = () => (
     {/* Racing stripes accent - right */}
     <div className="flex items-center gap-0.5 ml-1">
       <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary/60 transform -skew-x-12" />
-      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12 shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+      <div className="w-1.5 h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
     </div>
   </Link>
 );
