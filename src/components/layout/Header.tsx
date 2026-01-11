@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
-import helmetIcon from "@/assets/helmet-icon-cropped.png";
+import helmetIcon from "@/assets/helmet-icon-new.png";
 
 // Navigation data with mega menu structure
 const navigationData = [
