@@ -18,9 +18,11 @@ import {
 } from "@/components/ui/collapsible";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const SalePage = () => {
   const { toast } = useToast();
+  const { addToCart } = useCart();
   const [sortBy, setSortBy] = useState("featured");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -134,6 +136,15 @@ const SalePage = () => {
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    addToCart({
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      color: "Default",
+      size: "M",
+      brand: product.brand,
+    });
     toast({
       title: "Added to Cart",
       description: `${product.name} added to your cart.`,

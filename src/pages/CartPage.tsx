@@ -2,19 +2,11 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  brand: string;
-}
+import { useCart } from "@/contexts/CartContext";
+import { Link } from "react-router-dom";
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
 
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -23,8 +15,6 @@ const CartPage = () => {
       minimumFractionDigits: 0,
     }).format(value);
   };
-
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,7 +26,7 @@ const CartPage = () => {
             Your Cart
           </h1>
 
-          {cartItems.length === 0 ? (
+          {items.length === 0 ? (
             <div className="text-center py-20">
               <ShoppingCart size={64} className="mx-auto text-muted-foreground mb-4" />
               <h2 className="text-xl font-semibold text-foreground mb-2">
@@ -46,16 +36,16 @@ const CartPage = () => {
                 Add some awesome gear to get started!
               </p>
               <Button asChild>
-                <a href="/category/helmets">Shop Helmets</a>
+                <Link to="/sale">Shop Sale</Link>
               </Button>
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
-                {cartItems.map((item) => (
+                {items.map((item) => (
                   <div
-                    key={item.id}
+                    key={`${item.id}-${item.color}-${item.size}`}
                     className="flex gap-4 bg-card rounded-lg p-4 border border-border"
                   >
                     <img
@@ -66,20 +56,32 @@ const CartPage = () => {
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground uppercase">{item.brand}</p>
                       <h3 className="font-semibold text-foreground">{item.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Color: {item.color} | Size: {item.size}
+                      </p>
                       <p className="text-primary font-bold mt-1">
                         {formatPrice(item.price)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <button className="text-muted-foreground hover:text-destructive transition-colors">
+                      <button 
+                        onClick={() => removeFromCart(item.id)}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
                         <Trash2 size={18} />
                       </button>
                       <div className="flex items-center gap-2 bg-secondary rounded-lg">
-                        <button className="p-2 hover:text-primary transition-colors">
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="p-2 hover:text-primary transition-colors"
+                        >
                           <Minus size={14} />
                         </button>
                         <span className="w-8 text-center font-medium">{item.quantity}</span>
-                        <button className="p-2 hover:text-primary transition-colors">
+                        <button 
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="p-2 hover:text-primary transition-colors"
+                        >
                           <Plus size={14} />
                         </button>
                       </div>
@@ -96,24 +98,24 @@ const CartPage = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
+                    <span>{formatPrice(totalPrice)}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Shipping</span>
-                    <span>{subtotal >= 5000 ? "FREE" : formatPrice(99)}</span>
+                    <span>{totalPrice >= 5000 ? "FREE" : formatPrice(99)}</span>
                   </div>
                   <div className="border-t border-border pt-3 flex justify-between font-bold text-foreground">
                     <span>Total</span>
                     <span className="text-primary">
-                      {formatPrice(subtotal + (subtotal >= 5000 ? 0 : 99))}
+                      {formatPrice(totalPrice + (totalPrice >= 5000 ? 0 : 99))}
                     </span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg">
+                <Button className="w-full bg-[#c8e621] hover:bg-[#b5d11e] text-black" size="lg">
                   Proceed to Checkout
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-4">
-                  Secure payment via Razorpay
+                  Shipping, taxes, and discount codes calculated at checkout.
                 </p>
               </div>
             </div>
