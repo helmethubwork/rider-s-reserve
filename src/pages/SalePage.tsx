@@ -35,12 +35,18 @@ const SalePage = () => {
 
   // Get unique brands and categories
   const brands = useMemo(() => {
-    return [...new Set(saleProducts.map((p) => p.brand))];
-  }, [saleProducts]);
+    const allBrands = [...new Set(products.map((p) => p.brand))];
+    return allBrands;
+  }, []);
 
   const categories = useMemo(() => {
     return [...new Set(saleProducts.map((p) => p.category))];
   }, [saleProducts]);
+
+  const models = ["Targo", "Thunder", "Storm", "RPHA", "K5", "Pista GP", "Storm Evo"];
+  const sizes = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+  const priceRanges = ["Under ₹5,000", "₹5,000 - ₹10,000", "₹10,000 - ₹20,000", "Above ₹20,000"];
+  const availabilityOptions = ["In Stock", "Pre-order"];
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -219,22 +225,15 @@ const SalePage = () => {
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-3 space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">Targo</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">Thunder</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">Storm</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">RPHA</span>
-                  </label>
+                  {models.map((model) => (
+                    <label
+                      key={model}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Checkbox />
+                      <span className="text-sm text-gray-700">{model}</span>
+                    </label>
+                  ))}
                 </CollapsibleContent>
               </Collapsible>
 
@@ -255,26 +254,15 @@ const SalePage = () => {
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-3 space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">S</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">M</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">L</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">XL</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">XXL</span>
-                  </label>
+                  {sizes.map((size) => (
+                    <label
+                      key={size}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Checkbox />
+                      <span className="text-sm text-gray-700">{size}</span>
+                    </label>
+                  ))}
                 </CollapsibleContent>
               </Collapsible>
 
@@ -295,22 +283,15 @@ const SalePage = () => {
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-3 space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">Under ₹5,000</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">₹5,000 - ₹10,000</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">₹10,000 - ₹20,000</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">Above ₹20,000</span>
-                  </label>
+                  {priceRanges.map((range) => (
+                    <label
+                      key={range}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Checkbox />
+                      <span className="text-sm text-gray-700">{range}</span>
+                    </label>
+                  ))}
                 </CollapsibleContent>
               </Collapsible>
 
@@ -331,14 +312,15 @@ const SalePage = () => {
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-3 space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">In Stock</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <Checkbox />
-                    <span className="text-sm text-gray-700">Pre-order</span>
-                  </label>
+                  {availabilityOptions.map((option) => (
+                    <label
+                      key={option}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Checkbox />
+                      <span className="text-sm text-gray-700">{option}</span>
+                    </label>
+                  ))}
                 </CollapsibleContent>
               </Collapsible>
             </aside>
