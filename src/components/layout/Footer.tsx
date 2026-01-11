@@ -10,8 +10,8 @@ const Footer = () => {
             <Link to="/" className="inline-flex items-center gap-1">
               {/* Racing stripes accent */}
               <div className="flex items-center gap-0.5 mr-1">
+                <div className="w-1 h-6 bg-white transform -skew-x-12" />
                 <div className="w-1 h-6 bg-primary transform -skew-x-12" />
-                <div className="w-1 h-6 bg-primary/60 transform -skew-x-12" />
               </div>
               <span className="text-2xl font-black text-primary tracking-tight" style={{
               fontStyle: 'italic'
@@ -25,8 +25,8 @@ const Footer = () => {
               </span>
               {/* Racing stripes accent */}
               <div className="flex items-center gap-0.5 ml-1">
-                <div className="w-1 h-6 bg-primary/60 transform -skew-x-12" />
                 <div className="w-1 h-6 bg-primary transform -skew-x-12" />
+                <div className="w-1 h-6 bg-white transform -skew-x-12" />
               </div>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
