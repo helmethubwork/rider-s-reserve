@@ -85,10 +85,10 @@ const Footer = () => {
               href: "/contact"
             }, {
               name: "Shipping Policy",
-              href: "/shipping"
+              href: "/shipping-policy"
             }, {
               name: "Returns & Refunds",
-              href: "/returns"
+              href: "/exchange-returns"
             }].map(link => <li key={link.name}>
                   <Link to={link.href} className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-1 group">
                     <ChevronRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
