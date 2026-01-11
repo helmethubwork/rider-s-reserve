@@ -2,9 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const AuthPage = () => {
@@ -13,7 +11,6 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,86 +27,99 @@ const AuthPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <section className="py-12 md:py-20">
+      <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
-            <div className="bg-card rounded-2xl p-8 border border-border">
-              <div className="text-center mb-8">
-                <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-                  {isLogin ? "Welcome Back" : "Create Account"}
-                </h1>
-                <p className="text-muted-foreground">
-                  {isLogin
-                    ? "Sign in to access your preorders"
-                    : "Join us to start your riding journey"}
-                </p>
+            {/* Title */}
+            <h1 className="text-center text-3xl md:text-4xl font-bold text-foreground tracking-wide mb-12">
+              {isLogin ? "LOGIN" : "CREATE ACCOUNT"}
+            </h1>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label 
+                    htmlFor="name" 
+                    className="block text-xs font-medium tracking-[0.2em] text-muted-foreground"
+                  >
+                    FULL NAME
+                  </label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder=""
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required={!isLogin}
+                    className="h-12 border-foreground/30 focus:border-foreground rounded-none bg-transparent"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label 
+                  htmlFor="email" 
+                  className="block text-xs font-medium tracking-[0.2em] text-muted-foreground"
+                >
+                  EMAIL
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder=""
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-12 border-foreground/30 focus:border-foreground rounded-none bg-transparent"
+                />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="John Rider"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required={!isLogin}
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="rider@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                  />
-                </div>
-
-                {isLogin && (
-                  <div className="text-right">
-                    <a href="#" className="text-sm text-primary hover:underline">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label 
+                    htmlFor="password" 
+                    className="block text-xs font-medium tracking-[0.2em] text-muted-foreground"
+                  >
+                    PASSWORD
+                  </label>
+                  {isLogin && (
+                    <a 
+                      href="#" 
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
                       Forgot password?
                     </a>
-                  </div>
-                )}
-
-                <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                  {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-muted-foreground">
-                  {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-                  <button
-                    type="button"
-                    onClick={() => setIsLogin(!isLogin)}
-                    className="text-primary hover:underline font-medium"
-                  >
-                    {isLogin ? "Sign Up" : "Sign In"}
-                  </button>
-                </p>
+                  )}
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder=""
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="h-12 border-foreground/30 focus:border-foreground rounded-none bg-transparent"
+                />
               </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-semibold tracking-[0.15em] rounded-none mt-8" 
+                disabled={loading}
+              >
+                {loading ? "PLEASE WAIT..." : isLogin ? "SIGN IN" : "CREATE ACCOUNT"}
+              </Button>
+            </form>
+
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+              >
+                {isLogin ? "Create account" : "Already have an account? Sign in"}
+              </button>
             </div>
           </div>
         </div>
