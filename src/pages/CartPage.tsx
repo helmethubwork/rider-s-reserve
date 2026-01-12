@@ -111,7 +111,7 @@ const CartPage = () => {
                     </span>
                   </div>
                 </div>
-                <Button className="w-full bg-[#c8e621] hover:bg-[#b5d11e] text-black" size="lg">
+                <Button className="w-full" size="lg">
                   Proceed to Checkout
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-4">

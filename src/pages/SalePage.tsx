@@ -365,7 +365,7 @@ const SalePage = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {/* Sale Badge */}
-                      <span className="absolute top-3 right-3 bg-[#c8e621] text-black text-xs font-medium px-2 py-1 rounded">
+                      <span className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
                         {getSaleBadge(product)}
                       </span>
                     </div>
@@ -399,7 +399,7 @@ const SalePage = () => {
                         <span className="text-xs text-gray-700">
                           or ₹{getEmiAmount(product.price).toLocaleString()}/Month
                         </span>
-                        <span className="text-xs bg-[#c8e621] text-black px-2 py-0.5 rounded">
+                        <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
                           Buy on EMI &gt;
                         </span>
                       </div>
@@ -408,7 +408,7 @@ const SalePage = () => {
                     {/* Add to Cart Button */}
                     <button
                       onClick={(e) => handleAddToCart(product, e)}
-                      className="w-full mt-4 bg-[#c8e621] hover:bg-[#b5d11e] text-black font-medium py-2 rounded transition-colors"
+                      className="w-full mt-4 bg-primary hover:bg-accent text-primary-foreground font-medium py-2 rounded transition-colors"
                     >
                       Add to Cart
                     </button>

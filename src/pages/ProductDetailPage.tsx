@@ -163,7 +163,7 @@ const ProductDetailPage = () => {
               {/* EMI Box */}
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="bg-[#c8e621] text-black text-xs font-bold px-2 py-0.5 rounded">
+                  <span className="bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded">
                     NEW
                   </span>
                   <div>
@@ -180,8 +180,8 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
                 <Button
-                  variant="outline"
-                  className="bg-[#c8e621] hover:bg-[#b5d11e] text-black border-0 font-medium text-xs"
+                  variant="default"
+                  className="font-medium text-xs"
                 >
                   BUY ON EMI
                 </Button>
@@ -221,8 +221,8 @@ const ProductDetailPage = () => {
                       onClick={() => setSelectedSize(size)}
                       className={`w-12 h-12 border rounded font-medium transition-colors ${
                         selectedSize === size
-                          ? "border-primary bg-primary text-white"
-                          : "border-gray-300 hover:border-gray-400 text-gray-700"
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-gray-300 hover:border-primary text-gray-700"
                       }`}
                     >
                       {size}
@@ -246,7 +246,8 @@ const ProductDetailPage = () => {
               {/* Add to Cart Button */}
               <Button
                 onClick={handleAddToCart}
-                className="w-full bg-[#c8e621] hover:bg-[#b5d11e] text-black font-medium tracking-[0.15em] uppercase py-6 text-base"
+                className="w-full py-6 text-base"
+                size="lg"
               >
                 Add to Cart
               </Button>

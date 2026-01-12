@@ -31,15 +31,15 @@ const CartDrawer = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-md bg-[#1a1a2e] border-l border-gray-700 p-0 flex flex-col">
-        <SheetHeader className="p-6 border-b border-gray-700">
+      <SheetContent className="w-full sm:max-w-md bg-card border-l border-border p-0 flex flex-col">
+        <SheetHeader className="p-6 border-b border-border">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-2xl font-serif italic text-[#c8e621] tracking-wide">
+            <SheetTitle className="text-2xl font-serif italic text-primary tracking-wide">
               CART
             </SheetTitle>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <X size={24} />
             </button>
@@ -48,7 +48,7 @@ const CartDrawer = ({
 
         <div className="flex-1 overflow-y-auto p-6">
           {items.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">Your cart is empty</p>
+            <p className="text-muted-foreground text-center py-8">Your cart is empty</p>
           ) : (
             <div className="space-y-6">
               {items.map((item) => (
@@ -64,14 +64,14 @@ const CartDrawer = ({
 
                   {/* Product Info */}
                   <div className="flex-1">
-                    <h3 className="text-[#c8e621] font-medium text-sm mb-1">
+                    <h3 className="text-primary font-medium text-sm mb-1">
                       {item.name}
                     </h3>
-                    <p className="text-gray-400 text-xs">
-                      <span className="text-gray-300">Color:</span> {item.color}
+                    <p className="text-muted-foreground text-xs">
+                      <span className="text-foreground/70">Color:</span> {item.color}
                     </p>
-                    <p className="text-gray-400 text-xs mb-3">
-                      <span className="text-gray-300">Size:</span> {item.size}
+                    <p className="text-muted-foreground text-xs mb-3">
+                      <span className="text-foreground/70">Size:</span> {item.size}
                     </p>
 
                     {/* Quantity Selector */}
@@ -82,16 +82,16 @@ const CartDrawer = ({
                             ? onUpdateQuantity(item.id, item.quantity - 1)
                             : onRemoveItem(item.id)
                         }
-                        className="w-8 h-8 bg-[#c8e621] text-black flex items-center justify-center hover:bg-[#b5d11e] transition-colors"
+                        className="w-8 h-8 bg-primary text-primary-foreground flex items-center justify-center hover:bg-accent transition-colors"
                       >
                         <Minus size={14} />
                       </button>
-                      <span className="w-10 h-8 bg-[#c8e621] text-black flex items-center justify-center text-sm font-medium">
+                      <span className="w-10 h-8 bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 bg-[#c8e621] text-black flex items-center justify-center hover:bg-[#b5d11e] transition-colors"
+                        className="w-8 h-8 bg-primary text-primary-foreground flex items-center justify-center hover:bg-accent transition-colors"
                       >
                         <Plus size={14} />
                       </button>
@@ -100,7 +100,7 @@ const CartDrawer = ({
 
                   {/* Price */}
                   <div className="text-right">
-                    <p className="text-[#c8e621] font-medium">
+                    <p className="text-primary font-medium">
                       Rs. {(item.price * item.quantity).toLocaleString()}.00
                     </p>
                   </div>
@@ -112,23 +112,23 @@ const CartDrawer = ({
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="p-6 border-t border-gray-700 bg-[#1a1a2e]">
+          <div className="p-6 border-t border-border bg-card">
             {/* Subtotal */}
             <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-300 tracking-[0.2em] text-sm uppercase">
+              <span className="text-foreground/70 tracking-[0.2em] text-sm uppercase">
                 Subtotal
               </span>
-              <span className="text-[#c8e621] font-medium">
+              <span className="text-primary font-medium">
                 Rs. {subtotal.toLocaleString()}.00
               </span>
             </div>
 
-            <p className="text-gray-400 text-xs text-center mb-4">
+            <p className="text-muted-foreground text-xs text-center mb-4">
               Shipping, taxes, and discount codes calculated at checkout.
             </p>
 
             <Button
-              className="w-full bg-[#c8e621] hover:bg-[#b5d11e] text-black font-medium tracking-[0.15em] uppercase py-6"
+              className="w-full py-6"
               onClick={() => {
                 // Handle checkout
               }}
