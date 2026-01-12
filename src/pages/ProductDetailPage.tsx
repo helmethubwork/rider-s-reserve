@@ -328,14 +328,14 @@ const ProductDetailPage = () => {
                 {/* Add to Cart Button */}
                 <Button
                   onClick={handleAddToCart}
-                  className={`flex-1 h-14 text-base font-bold transition-all ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`}
+                  className={`flex-1 h-14 text-sm sm:text-base font-bold transition-all whitespace-nowrap min-w-0 ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`}
                   size="lg"
                   disabled={product.stock === 0}
                 >
                   {isAdded ? (
                     <>
-                      <Check size={20} className="mr-2" />
-                      Added to Cart
+                      <Check size={18} className="mr-1 sm:mr-2 flex-shrink-0" />
+                      <span className="truncate">Added</span>
                     </>
                   ) : (
                     'Add To Cart'
