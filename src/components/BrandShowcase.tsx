@@ -11,6 +11,7 @@ import axxisLogo from "@/assets/brands/axxis-logo.png";
 import nhkLogo from "@/assets/brands/nhk-logo.png";
 import studdsLogo from "@/assets/brands/studds-logo.png";
 import rynoxLogo from "@/assets/brands/rynox-logo.png";
+import raidaLogo from "@/assets/brands/raida-logo.png";
 
 const brands = [
   { name: "AXOR", slug: "axor", logo: axorLogo },
@@ -21,6 +22,7 @@ const brands = [
   { name: "NHK", slug: "nhk", logo: nhkLogo },
   { name: "STUDDS", slug: "studds", logo: studdsLogo },
   { name: "RYNOX", slug: "rynox", logo: rynoxLogo },
+  { name: "RAIDA", slug: "raida", logo: raidaLogo },
 ];
 
 const BrandShowcase = () => {
