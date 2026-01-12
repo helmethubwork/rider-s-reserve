@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { products } from "@/data/products";
+import { products, categories } from "@/data/products";
 import { Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -94,8 +94,11 @@ const ProductDetailPage = () => {
                 Home
               </Link>
               <span className="text-muted-foreground">/</span>
-              <Link to="/sale" className="text-muted-foreground hover:text-primary transition-colors uppercase">
-                Our Bestsellers
+              <Link 
+                to={`/category/${product.category}`} 
+                className="text-muted-foreground hover:text-primary transition-colors uppercase"
+              >
+                {categories.find(c => c.slug === product.category)?.name || product.category}
               </Link>
               <span className="text-muted-foreground">/</span>
               <span className="text-foreground font-medium uppercase truncate max-w-[200px] sm:max-w-none">
