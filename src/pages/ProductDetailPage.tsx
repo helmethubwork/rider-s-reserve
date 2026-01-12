@@ -84,10 +84,6 @@ const ProductDetailPage = () => {
       });
     }
     setIsAdded(true);
-    toast({
-      title: "Added to Cart",
-      description: `${quantity} x ${product.name} added to your cart.`,
-    });
     setTimeout(() => setIsAdded(false), 2000);
   };
 
