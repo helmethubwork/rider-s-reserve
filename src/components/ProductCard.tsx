@@ -90,18 +90,6 @@ const ProductCard = ({
           loading="lazy"
         />
 
-        {/* Wishlist button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsWishlisted(!isWishlisted);
-          }}
-          className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 sm:w-10 h-8 sm:h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-primary-foreground sm:opacity-0 sm:group-hover:opacity-100 z-20 active:scale-95"
-          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart size={16} className={`sm:w-[18px] sm:h-[18px] ${isWishlisted ? "fill-destructive text-destructive" : ""}`} />
-        </button>
 
         {/* Quick View Overlay - Desktop only */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent py-3 sm:py-4 px-4 text-center transition-all duration-500 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hidden sm:block">
