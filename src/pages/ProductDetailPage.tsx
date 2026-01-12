@@ -5,12 +5,10 @@ import Footer from "@/components/layout/Footer";
 import { products } from "@/data/products";
 import { Star, Truck, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { toast } = useToast();
   const { addToCart } = useCart();
   const product = products.find((p) => p.id === id);
 
@@ -77,10 +75,6 @@ const ProductDetailPage = () => {
       color: selectedColor,
       size: selectedSize,
       brand: product.brand,
-    });
-    toast({
-      title: "Added to Cart",
-      description: `${product.name} (${selectedColor}, ${selectedSize}) added to your cart.`,
     });
   };
 
