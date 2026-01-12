@@ -1,20 +1,25 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { products, categories } from "@/data/products";
-import { Star, Truck } from "lucide-react";
+import { Star, Truck, Minus, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { toast } = useToast();
   const product = products.find((p) => p.id === id);
 
   const [selectedColor, setSelectedColor] = useState("Fluorescent Yellow");
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [isAdded, setIsAdded] = useState(false);
 
   // Demo colors and sizes
   const colors = [
@@ -67,15 +72,40 @@ const ProductDetailPage = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      image: product.image,
-      price: product.price,
-      color: selectedColor,
-      size: selectedSize,
-      brand: product.brand,
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        color: selectedColor,
+        size: selectedSize,
+        brand: product.brand,
+      });
+    }
+    setIsAdded(true);
+    toast({
+      title: "Added to Cart",
+      description: `${quantity} x ${product.name} added to your cart.`,
     });
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate("/cart");
+  };
+
+  const incrementQuantity = () => {
+    if (quantity < product.stock) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
   };
 
   // Demo thumbnails (using same image)
@@ -251,18 +281,74 @@ const ProductDetailPage = () => {
               </button>
 
               {/* Shipping */}
-              <div className="flex items-center gap-2 text-sm text-gray-700 mb-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <Truck size={18} />
                 <span>Worldwide Shipping Available</span>
               </div>
 
-              {/* Add to Cart Button */}
+              {/* Stock Urgency */}
+              {product.stock > 0 && product.stock <= 10 && (
+                <div className="mb-4">
+                  <p className="text-destructive text-sm font-medium">
+                    Hurry, {product.stock} item(s) left in stock!
+                  </p>
+                  <div className="h-1.5 bg-secondary rounded-full mt-2 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-destructive via-primary to-accent rounded-full"
+                      style={{ width: `${Math.min((product.stock / 10) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Quantity Selector and Add to Cart */}
+              <div className="flex gap-3 mb-3">
+                {/* Quantity Selector */}
+                <div className="flex items-center border border-border rounded-lg">
+                  <button
+                    onClick={decrementQuantity}
+                    disabled={quantity <= 1}
+                    className="w-12 h-12 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Minus size={18} />
+                  </button>
+                  <span className="w-12 text-center font-medium text-foreground">{quantity}</span>
+                  <button
+                    onClick={incrementQuantity}
+                    disabled={quantity >= product.stock}
+                    className="w-12 h-12 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+
+                {/* Add to Cart Button */}
+                <Button
+                  onClick={handleAddToCart}
+                  className={`flex-1 py-6 text-base transition-all ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`}
+                  size="lg"
+                  disabled={product.stock === 0}
+                >
+                  {isAdded ? (
+                    <>
+                      <Check size={20} className="mr-2" />
+                      Added
+                    </>
+                  ) : (
+                    'Add To Cart'
+                  )}
+                </Button>
+              </div>
+
+              {/* Buy Now Button */}
               <Button
-                onClick={handleAddToCart}
-                className="w-full py-6 text-base"
+                onClick={handleBuyNow}
+                variant="secondary"
+                className="w-full py-6 text-base bg-secondary hover:bg-secondary/80"
                 size="lg"
+                disabled={product.stock === 0}
               >
-                Add to Cart
+                Buy Now
               </Button>
 
               {/* Product Description */}
