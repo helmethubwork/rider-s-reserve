@@ -237,10 +237,10 @@ const ProductDetailPage = () => {
                 <span className="text-lg">📏</span>
               </button>
 
-              {/* Free Shipping */}
+              {/* Shipping */}
               <div className="flex items-center gap-2 text-sm text-gray-700 mb-6">
                 <Truck size={18} />
-                <span>Free Shipping Across India</span>
+                <span>Worldwide Shipping Available</span>
               </div>
 
               {/* Add to Cart Button */}
