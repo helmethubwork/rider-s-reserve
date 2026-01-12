@@ -59,7 +59,10 @@ const ProductCard = ({
     : 0;
 
   return (
-    <div className="group bg-card rounded-lg sm:rounded-xl relative overflow-hidden border border-border/30 transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:-translate-y-1 active:scale-[0.98]">
+    <Link 
+      to={`/product/${id}`}
+      className="group block bg-card rounded-lg sm:rounded-xl relative overflow-hidden border border-border/30 transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:-translate-y-1 active:scale-[0.98]"
+    >
       {/* Badge */}
       {badge && (
         <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
@@ -80,18 +83,20 @@ const ProductCard = ({
 
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden bg-secondary/30">
-        <Link to={`/product/${id}`}>
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            loading="lazy"
-          />
-        </Link>
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          loading="lazy"
+        />
 
         {/* Wishlist button */}
         <button
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsWishlisted(!isWishlisted);
+          }}
           className="absolute top-2 sm:top-4 right-2 sm:right-4 w-8 sm:w-10 h-8 sm:h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-primary-foreground sm:opacity-0 sm:group-hover:opacity-100 z-20 active:scale-95"
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
@@ -166,7 +171,7 @@ const ProductCard = ({
 
       {/* Bottom glow on hover */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-    </div>
+    </Link>
   );
 };
 
