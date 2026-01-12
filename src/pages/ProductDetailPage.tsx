@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { products } from "@/data/products";
-import { Star, Truck, ChevronLeft } from "lucide-react";
+import { Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 
@@ -82,20 +82,30 @@ const ProductDetailPage = () => {
   const thumbnails = [product.image, product.image, product.image, product.image];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 pt-0 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
-          <Link
-            to="/sale"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-primary mb-6 transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back to Sale
-          </Link>
+      <main className="flex-1 pb-12">
+        {/* Breadcrumb Bar */}
+        <div className="bg-secondary py-3 mb-8">
+          <div className="container mx-auto px-4">
+            <nav className="flex items-center gap-2 text-sm">
+              <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
+                Home
+              </Link>
+              <span className="text-muted-foreground">/</span>
+              <Link to="/sale" className="text-muted-foreground hover:text-primary transition-colors uppercase">
+                Our Bestsellers
+              </Link>
+              <span className="text-muted-foreground">/</span>
+              <span className="text-foreground font-medium uppercase truncate max-w-[200px] sm:max-w-none">
+                {product.name}
+              </span>
+            </nav>
+          </div>
+        </div>
 
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Left: Image Gallery */}
             <div className="flex gap-4">
