@@ -15,8 +15,8 @@
     --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary - Rich Golden Yellow */
-    --primary: 45 100% 51%;
+    /* Primary - Vibrant Yellow */
+    --primary: 50 100% 50%;
     --primary-foreground: 222 47% 11%;
 
     /* Secondary - Dark Blue Gray */
@@ -27,8 +27,8 @@
     --muted: 222 30% 25%;
     --muted-foreground: 215 20% 65%;
 
-    /* Accent - Warm Gold */
-    --accent: 48 96% 53%;
+    /* Accent - Bright Yellow */
+    --accent: 52 100% 55%;
     --accent-foreground: 222 47% 11%;
 
     /* Destructive */
@@ -38,32 +38,32 @@
     /* Borders & Inputs */
     --border: 222 30% 25%;
     --input: 222 30% 25%;
-    --ring: 45 100% 51%;
+    --ring: 50 100% 50%;
 
     --radius: 0.75rem;
 
     /* Custom Brand Colors */
     --brand-navy: 222 47% 11%;
     --brand-navy-light: 222 47% 14%;
-    --brand-yellow: 45 100% 51%;
-    --brand-yellow-glow: 48 96% 58%;
+    --brand-yellow: 50 100% 50%;
+    --brand-yellow-glow: 52 100% 60%;
     --brand-gray: 222 30% 25%;
     --brand-light-gray: 215 20% 65%;
 
     /* Shadows & Effects */
-    --shadow-glow: 0 0 30px hsl(45 100% 51% / 0.3);
+    --shadow-glow: 0 0 30px hsl(50 100% 50% / 0.3);
     --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.4);
     --shadow-elevated: 0 20px 60px hsl(0 0% 0% / 0.5);
 
     /* Sidebar */
     --sidebar-background: 222 47% 9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary: 50 100% 50%;
     --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 222 47% 18%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 30% 25%;
-    --sidebar-ring: 45 100% 51%;
+    --sidebar-ring: 50 100% 50%;
   }
 
   .dark {
@@ -73,27 +73,27 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
-    --primary: 45 100% 51%;
+    --primary: 50 100% 50%;
     --primary-foreground: 222 47% 11%;
     --secondary: 222 47% 18%;
     --secondary-foreground: 210 40% 98%;
     --muted: 222 30% 25%;
     --muted-foreground: 215 20% 65%;
-    --accent: 48 96% 53%;
+    --accent: 52 100% 55%;
     --accent-foreground: 222 47% 11%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 222 30% 25%;
     --input: 222 30% 25%;
-    --ring: 45 100% 51%;
+    --ring: 50 100% 50%;
     --sidebar-background: 222 47% 9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary: 50 100% 50%;
     --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 222 47% 18%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 30% 25%;
-    --sidebar-ring: 45 100% 51%;
+    --sidebar-ring: 50 100% 50%;
   }
 }
 
@@ -136,7 +136,7 @@
   }
   
   .glow-hover:hover {
-    box-shadow: 0 0 30px hsl(45 100% 51% / 0.4);
+    box-shadow: 0 0 30px hsl(50 100% 50% / 0.4);
   }
 
   /* Glassmorphism cards */
@@ -166,7 +166,7 @@
 
   .category-card:hover::after {
     @apply border-primary/80;
-    box-shadow: inset 0 0 60px hsl(45 100% 51% / 0.1);
+    box-shadow: inset 0 0 60px hsl(50 100% 50% / 0.1);
   }
 
   /* Product card with lift effect */
@@ -177,18 +177,18 @@
   .product-card:hover {
     @apply shadow-2xl border-primary/30;
     transform: translateY(-8px);
-    box-shadow: 0 25px 50px -12px hsl(0 0% 0% / 0.5), 0 0 40px hsl(45 100% 51% / 0.15);
+    box-shadow: 0 25px 50px -12px hsl(0 0% 0% / 0.5), 0 0 40px hsl(50 100% 50% / 0.15);
   }
 
   /* Premium buttons */
   .btn-primary {
     @apply bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg transition-all duration-300;
-    box-shadow: 0 4px 20px hsl(45 100% 51% / 0.3);
+    box-shadow: 0 4px 20px hsl(50 100% 50% / 0.3);
   }
 
   .btn-primary:hover {
     @apply bg-accent scale-105;
-    box-shadow: 0 8px 30px hsl(45 100% 51% / 0.5);
+    box-shadow: 0 8px 30px hsl(50 100% 50% / 0.5);
   }
 
   .btn-outline {
@@ -205,7 +205,7 @@
 
   .btn-outline-yellow:hover {
     @apply bg-primary text-primary-foreground;
-    box-shadow: 0 0 30px hsl(45 100% 51% / 0.4);
+    box-shadow: 0 0 30px hsl(50 100% 50% / 0.4);
   }
 
   /* Navigation */
@@ -234,7 +234,7 @@
   /* Badges */
   .badge-sale {
     @apply bg-gradient-to-r from-primary to-accent text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider;
-    box-shadow: 0 4px 15px hsl(45 100% 51% / 0.3);
+    box-shadow: 0 4px 15px hsl(50 100% 50% / 0.3);
   }
 
   .badge-preorder {
@@ -276,7 +276,7 @@
 
   .feature-card:hover {
     @apply border-primary/50 bg-card;
-    box-shadow: 0 20px 60px hsl(0 0% 0% / 0.3), 0 0 40px hsl(45 100% 51% / 0.1);
+    box-shadow: 0 20px 60px hsl(0 0% 0% / 0.3), 0 0 40px hsl(50 100% 50% / 0.1);
     transform: translateY(-4px);
   }
 
@@ -287,7 +287,7 @@
 
   .brand-card:hover {
     @apply border-primary bg-secondary;
-    box-shadow: 0 0 40px hsl(45 100% 51% / 0.3);
+    box-shadow: 0 0 40px hsl(50 100% 50% / 0.3);
     transform: scale(1.05);
   }
 
@@ -361,10 +361,10 @@
 
   @keyframes pulseGlow {
     0%, 100% {
-      box-shadow: 0 0 20px hsl(45 100% 51% / 0.2);
+      box-shadow: 0 0 20px hsl(50 100% 50% / 0.2);
     }
     50% {
-      box-shadow: 0 0 50px hsl(45 100% 51% / 0.5);
+      box-shadow: 0 0 50px hsl(50 100% 50% / 0.5);
     }
   }
 
@@ -391,7 +391,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      hsl(45 100% 51% / 0.1),
+      hsl(50 100% 50% / 0.1),
       transparent
     );
     background-size: 200% 100%;
