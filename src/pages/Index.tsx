@@ -7,7 +7,6 @@ import InstagramFeed from "@/components/InstagramFeed";
 import OffersCarousel from "@/components/OffersCarousel";
 import BrandShowcase from "@/components/BrandShowcase";
 import WhyHelmetHub from "@/components/WhyHelmetHub";
-import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Index = () => {
   return (
@@ -34,9 +33,6 @@ const Index = () => {
 
       {/* Why Helmet Hub */}
       <WhyHelmetHub />
-
-      {/* WhatsApp Button */}
-      <WhatsAppButton />
 
       <Footer />
     </div>
