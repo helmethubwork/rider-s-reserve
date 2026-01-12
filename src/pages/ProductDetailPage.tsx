@@ -32,11 +32,11 @@ const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl font-bold text-foreground mb-4">
               Product Not Found
             </h1>
             <Link to="/sale" className="text-primary hover:underline">
@@ -60,10 +60,10 @@ const ProductDetailPage = () => {
             size={16}
             className={
               star <= Math.floor(rating)
-                ? "fill-yellow-400 text-yellow-400"
+                ? "fill-primary text-primary"
                 : star - 0.5 <= rating
-                ? "fill-yellow-400/50 text-yellow-400"
-                : "text-gray-300"
+                ? "fill-primary/50 text-primary"
+                : "text-muted-foreground"
             }
           />
         ))}
@@ -139,19 +139,19 @@ const ProductDetailPage = () => {
         </div>
 
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Left: Image Gallery */}
-            <div className="flex gap-4">
+            <div className="flex flex-col-reverse sm:flex-row gap-4">
               {/* Thumbnails */}
-              <div className="flex flex-col gap-3">
+              <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
                 {thumbnails.map((thumb, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`w-16 h-16 border-2 rounded overflow-hidden transition-colors ${
+                    className={`w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border-2 rounded-lg overflow-hidden transition-all ${
                       selectedImageIndex === index
-                        ? "border-primary"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-primary ring-2 ring-primary/30"
+                        : "border-border hover:border-primary/50"
                     }`}
                   >
                     <img
@@ -164,86 +164,94 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Main Image */}
-              <div className="flex-1 aspect-square bg-gray-50 rounded-lg overflow-hidden">
+              <div className="flex-1 aspect-square bg-card rounded-xl overflow-hidden border border-border">
                 <img
                   src={thumbnails[selectedImageIndex]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>
             </div>
 
             {/* Right: Product Info */}
-            <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-normal text-navy-900 tracking-wide uppercase mb-4">
+            <div className="space-y-6">
+              {/* Brand Badge */}
+              <span className="inline-block text-xs font-bold text-primary tracking-widest uppercase">
+                {product.brand}
+              </span>
+
+              {/* Product Name */}
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-tight uppercase leading-tight">
                 {product.name}
               </h1>
 
               {/* Rating */}
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-3">
                 {renderStars(product.rating)}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   {product.reviewCount} reviews
                 </span>
               </div>
 
               {/* Price */}
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-baseline gap-3">
                 {product.originalPrice && (
-                  <span className="text-lg text-gray-400 line-through">
+                  <span className="text-lg text-muted-foreground line-through">
                     Rs. {product.originalPrice.toLocaleString()}.00
                   </span>
                 )}
-                <span className="text-xl text-destructive font-medium">
+                <span className="text-2xl md:text-3xl text-primary font-bold">
                   Rs. {product.price.toLocaleString()}.00
                 </span>
+                {product.originalPrice && (
+                  <span className="text-sm bg-destructive/20 text-destructive px-2 py-1 rounded font-medium">
+                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                  </span>
+                )}
               </div>
 
-              <p className="text-sm text-gray-600 mb-6">
+              <p className="text-sm text-muted-foreground">
                 Tax included. Free Shipping
               </p>
 
               {/* EMI Box */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+              <div className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded">
-                    NEW
+                  <span className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
+                    EMI
                   </span>
                   <div>
-                    <p className="text-sm">
-                      or Pay{" "}
-                      <span className="text-destructive font-medium">
+                    <p className="text-sm text-foreground">
+                      Pay{" "}
+                      <span className="text-primary font-bold">
                         ₹{getEmiAmount(product.price).toLocaleString()}
                       </span>{" "}
-                      now, & rest later at
+                      now, rest later
                     </p>
-                    <p className="text-xs text-gray-500">
-                      <span className="font-medium">0% EMI</span> on UPI via PAY LATER
+                    <p className="text-xs text-muted-foreground">
+                      0% EMI on UPI via PAY LATER
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="default"
-                  className="font-medium text-xs"
-                >
+                <Button variant="outline" size="sm">
                   BUY ON EMI
                 </Button>
               </div>
 
               {/* Color Selector */}
-              <div className="mb-6">
-                <p className="text-sm font-medium tracking-[0.15em] uppercase mb-3">
-                  Color <span className="font-normal text-gray-500">— {selectedColor}</span>
+              <div>
+                <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
+                  Color <span className="font-normal text-muted-foreground">— {selectedColor}</span>
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {colors.map((color) => (
                     <button
                       key={color.name}
                       onClick={() => setSelectedColor(color.name)}
                       className={`w-10 h-10 rounded-full border-2 transition-all ${
                         selectedColor === color.name
-                          ? "border-primary ring-2 ring-primary ring-offset-2"
-                          : "border-gray-300 hover:border-gray-400"
+                          ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
+                          : "border-border hover:border-primary/50"
                       }`}
                       style={{ backgroundColor: color.hex }}
                       title={color.name}
@@ -253,19 +261,19 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Size Selector */}
-              <div className="mb-6">
-                <p className="text-sm font-medium tracking-[0.15em] uppercase mb-3">
+              <div>
+                <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
                   Size
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {sizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`w-12 h-12 border rounded font-medium transition-colors ${
+                      className={`w-12 h-12 border-2 rounded-lg font-medium transition-all ${
                         selectedSize === size
                           ? "border-primary bg-primary text-primary-foreground"
-                          : "border-gray-300 hover:border-primary text-gray-700"
+                          : "border-border hover:border-primary text-foreground"
                       }`}
                     >
                       {size}
@@ -275,26 +283,25 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Size Chart Link */}
-              <button className="text-sm font-medium tracking-[0.1em] uppercase mb-6 flex items-center gap-2 hover:text-primary transition-colors">
-                Size Chart
-                <span className="text-lg">📏</span>
+              <button className="text-sm font-medium tracking-wide uppercase flex items-center gap-2 text-primary hover:text-accent transition-colors">
+                📏 Size Chart
               </button>
 
               {/* Shipping */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                <Truck size={18} />
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Truck size={20} className="text-primary" />
                 <span>Worldwide Shipping Available</span>
               </div>
 
               {/* Stock Urgency */}
               {product.stock > 0 && product.stock <= 10 && (
-                <div className="mb-4">
-                  <p className="text-destructive text-sm font-medium">
-                    Hurry, {product.stock} item(s) left in stock!
+                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+                  <p className="text-destructive text-sm font-medium mb-2">
+                    🔥 Hurry, only {product.stock} item(s) left in stock!
                   </p>
-                  <div className="h-1.5 bg-secondary rounded-full mt-2 overflow-hidden">
+                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-destructive via-primary to-accent rounded-full"
+                      className="h-full bg-gradient-to-r from-destructive via-primary to-accent rounded-full transition-all"
                       style={{ width: `${Math.min((product.stock / 10) * 100, 100)}%` }}
                     />
                   </div>
@@ -302,21 +309,21 @@ const ProductDetailPage = () => {
               )}
 
               {/* Quantity Selector and Add to Cart */}
-              <div className="flex gap-3 mb-3">
+              <div className="flex gap-3">
                 {/* Quantity Selector */}
-                <div className="flex items-center border border-border rounded-lg">
+                <div className="flex items-center border-2 border-border rounded-lg bg-card">
                   <button
                     onClick={decrementQuantity}
                     disabled={quantity <= 1}
-                    className="w-12 h-12 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-12 h-14 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-l-lg"
                   >
                     <Minus size={18} />
                   </button>
-                  <span className="w-12 text-center font-medium text-foreground">{quantity}</span>
+                  <span className="w-12 text-center font-bold text-foreground text-lg">{quantity}</span>
                   <button
                     onClick={incrementQuantity}
                     disabled={quantity >= product.stock}
-                    className="w-12 h-12 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-12 h-14 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-r-lg"
                   >
                     <Plus size={18} />
                   </button>
@@ -325,14 +332,14 @@ const ProductDetailPage = () => {
                 {/* Add to Cart Button */}
                 <Button
                   onClick={handleAddToCart}
-                  className={`flex-1 py-6 text-base transition-all ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`}
+                  className={`flex-1 h-14 text-base font-bold transition-all ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`}
                   size="lg"
                   disabled={product.stock === 0}
                 >
                   {isAdded ? (
                     <>
                       <Check size={20} className="mr-2" />
-                      Added
+                      Added to Cart
                     </>
                   ) : (
                     'Add To Cart'
@@ -343,8 +350,8 @@ const ProductDetailPage = () => {
               {/* Buy Now Button */}
               <Button
                 onClick={handleBuyNow}
-                variant="secondary"
-                className="w-full py-6 text-base bg-secondary hover:bg-secondary/80"
+                variant="outline"
+                className="w-full h-14 text-base font-bold"
                 size="lg"
                 disabled={product.stock === 0}
               >
@@ -352,11 +359,11 @@ const ProductDetailPage = () => {
               </Button>
 
               {/* Product Description */}
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <h3 className="text-sm font-medium tracking-[0.15em] uppercase mb-3">
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-sm font-bold tracking-wide uppercase mb-3 text-foreground">
                   Description
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {product.description}
                 </p>
               </div>
