@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 // Brand logos
@@ -115,6 +116,22 @@ const BrandShowcase = () => {
                 </p>
               </div>
             ))}
+            
+            {/* More Brands Card */}
+            <Link
+              to="/sale"
+              className="flex-shrink-0 group"
+            >
+              <div className="w-44 sm:w-56 md:w-72 lg:w-80 h-36 sm:h-44 md:h-52 lg:h-56 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary rounded-2xl flex flex-col items-center justify-center p-6 transition-all duration-500 hover:bg-primary hover:shadow-[0_0_40px_rgba(200,255,50,0.4)] hover:scale-105">
+                <ArrowRight size={48} className="text-primary group-hover:text-primary-foreground transition-colors mb-2" />
+                <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary group-hover:text-primary-foreground transition-colors">
+                  View All
+                </span>
+              </div>
+              <p className="text-center text-sm sm:text-base md:text-lg font-bold text-primary mt-3 sm:mt-4 group-hover:text-accent transition-colors tracking-wide">
+                MORE BRANDS
+              </p>
+            </Link>
             
           </div>
 
