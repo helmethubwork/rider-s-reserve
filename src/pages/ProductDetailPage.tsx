@@ -167,6 +167,10 @@ const ProductDetailPage = () => {
                       src={thumb}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
                     />
                   </button>
                 ))}
@@ -178,6 +182,10 @@ const ProductDetailPage = () => {
                   src={thumbnails[selectedImageIndex]}
                   alt={product.name}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg";
+                  }}
                 />
               </div>
             </div>
