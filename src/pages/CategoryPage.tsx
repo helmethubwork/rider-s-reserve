@@ -2,12 +2,16 @@ import { useParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/ProductCard";
-import { getProductsByCategory, categories } from "@/data/products";
+import { useProductsByCategory } from "@/hooks/useProducts";
+import { categories } from "@/data/products";
+import { Loader2 } from "lucide-react";
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const category = categories.find(c => c.slug === slug);
-  const products = getProductsByCategory(slug || "");
+  
+  // Fetch products from Supabase database
+  const { data: products = [], isLoading, error } = useProductsByCategory(slug || "");
 
   if (!category) {
     return (
@@ -40,7 +44,7 @@ const CategoryPage = () => {
             {category.description}
           </p>
           <p className="text-primary mt-4 font-medium">
-            {products.length} Products Available for Preorder
+            {products.length} Products Available
           </p>
         </div>
       </section>
@@ -48,7 +52,18 @@ const CategoryPage = () => {
       {/* Products Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {products.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-muted-foreground">Loading products...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-destructive text-lg">
+                Error loading products. Please try again later.
+              </p>
+            </div>
+          ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
                 <ProductCard
@@ -56,13 +71,10 @@ const CategoryPage = () => {
                   id={product.id}
                   name={product.name}
                   price={product.price}
-                  originalPrice={product.originalPrice}
-                  image={product.image}
-                  rating={product.rating}
-                  reviewCount={product.reviewCount}
-                  brand={product.brand}
-                  isPreorder={product.isPreorder}
-                  isSoldOut={product.isSoldOut}
+                  originalPrice={product.original_price || undefined}
+                  image={product.image_url || "/placeholder.svg"}
+                  brand={product.brand || undefined}
+                  isSoldOut={product.stock === 0}
                 />
               ))}
             </div>
