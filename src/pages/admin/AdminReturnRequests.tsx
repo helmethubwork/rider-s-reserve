@@ -4,6 +4,7 @@
  * Displays all return/exchange requests submitted by customers.
  */
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from './AdminLayout';
@@ -15,9 +16,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ReturnRequest {
@@ -36,6 +44,8 @@ interface ReturnRequest {
 }
 
 const AdminReturnRequests = () => {
+  const [selectedRequest, setSelectedRequest] = useState<ReturnRequest | null>(null);
+
   const { data: requests, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['return-requests'],
     queryFn: async () => {
@@ -85,7 +95,7 @@ const AdminReturnRequests = () => {
                     <TableHead>Order #</TableHead>
                     <TableHead>Product</TableHead>
                     <TableHead>Size Change</TableHead>
-                    <TableHead>Alternate</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -93,24 +103,17 @@ const AdminReturnRequests = () => {
                     <TableRow key={request.id}>
                       <TableCell className="whitespace-nowrap">
                         {format(new Date(request.created_at), 'dd MMM yyyy')}
-                        <br />
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(request.created_at), 'hh:mm a')}
-                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{request.full_name}</div>
                         <div className="text-sm text-muted-foreground">{request.email}</div>
-                        <div className="text-sm text-muted-foreground">{request.phone}</div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{request.order_number}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{request.original_product}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {request.product_type} • {request.product_color}
-                        </div>
+                        <div className="text-sm text-muted-foreground">{request.product_type}</div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -119,10 +122,15 @@ const AdminReturnRequests = () => {
                           <Badge variant="default">{request.size_needed}</Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="max-w-[200px]">
-                        <span className="text-sm text-muted-foreground">
-                          {request.alternate_products || '-'}
-                        </span>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedRequest(request)}
+                          title="View details"
+                        >
+                          <Eye size={18} />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -145,6 +153,71 @@ const AdminReturnRequests = () => {
             Showing {requests.length} request{requests.length !== 1 ? 's' : ''}
           </p>
         )}
+
+        {/* Request Detail Dialog */}
+        <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Return Request Details</DialogTitle>
+              <DialogDescription>
+                Order #{selectedRequest?.order_number} • Submitted on{' '}
+                {selectedRequest?.created_at &&
+                  format(new Date(selectedRequest.created_at), 'MMMM d, yyyy h:mm a')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Customer Name</p>
+                  <p className="font-medium">{selectedRequest?.full_name}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium">{selectedRequest?.email}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Phone</p>
+                  <p className="font-medium">{selectedRequest?.phone}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Product Type</p>
+                  <p className="font-medium">{selectedRequest?.product_type}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-muted-foreground text-sm mb-2">Product Details</p>
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Product:</span>
+                    <span className="font-medium">{selectedRequest?.original_product}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Color:</span>
+                    <span className="font-medium">{selectedRequest?.product_color}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Size Ordered:</span>
+                    <Badge variant="secondary">{selectedRequest?.size_ordered}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Size Needed:</span>
+                    <Badge variant="default">{selectedRequest?.size_needed}</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {selectedRequest?.alternate_products && (
+                <div>
+                  <p className="text-muted-foreground text-sm mb-2">Alternate Products</p>
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="whitespace-pre-wrap">{selectedRequest.alternate_products}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
