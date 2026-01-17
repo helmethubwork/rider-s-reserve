@@ -28,7 +28,7 @@ const promos: PromoCard[] = [
     title: "SUMMER SPECIAL",
     subtitle: "Now available at just Rs. 3,999!",
     buttonText: "SHOP TARGO",
-    buttonLink: "/brands/mt",
+    buttonLink: "/category/helmets?brand=mt",
     image: helmet3,
     accent: "Limited Time",
   },
