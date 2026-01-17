@@ -160,10 +160,10 @@ const AdminMessages = () => {
 
         {/* Message Detail Dialog */}
         <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg bg-white">
             <DialogHeader>
-              <DialogTitle>{selectedMessage?.subject}</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-gray-900 text-xl font-bold">{selectedMessage?.subject}</DialogTitle>
+              <DialogDescription className="text-gray-600">
                 From {selectedMessage?.name} on{' '}
                 {selectedMessage?.created_at &&
                   format(new Date(selectedMessage.created_at), 'MMMM d, yyyy h:mm a')}
@@ -172,18 +172,18 @@ const AdminMessages = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Email</p>
-                  <p className="font-medium">{selectedMessage?.email}</p>
+                  <p className="text-gray-500 font-medium">Email</p>
+                  <p className="font-bold text-gray-900">{selectedMessage?.email}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Phone</p>
-                  <p className="font-medium">{selectedMessage?.phone || 'Not provided'}</p>
+                  <p className="text-gray-500 font-medium">Phone</p>
+                  <p className="font-bold text-gray-900">{selectedMessage?.phone || 'Not provided'}</p>
                 </div>
               </div>
               <div>
-                <p className="text-muted-foreground text-sm mb-2">Message</p>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="whitespace-pre-wrap">{selectedMessage?.message}</p>
+                <p className="text-gray-600 font-medium text-sm mb-2">Message</p>
+                <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                  <p className="whitespace-pre-wrap text-gray-900">{selectedMessage?.message}</p>
                 </div>
               </div>
             </div>
