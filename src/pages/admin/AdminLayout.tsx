@@ -48,14 +48,14 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
         {/* Back to Store Link */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors font-medium"
         >
           <ArrowLeft size={18} />
           Back to Store
@@ -64,8 +64,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
           <aside className="lg:w-64 flex-shrink-0">
-            <div className="bg-card rounded-lg border border-border p-4 sticky top-24">
-              <h2 className="font-bold text-foreground mb-4 px-3">Admin Panel</h2>
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-4 sticky top-24 shadow-sm">
+              <h2 className="font-bold text-gray-900 mb-4 px-3 text-lg">Admin Panel</h2>
               <nav className="space-y-1">
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.href;
@@ -74,10 +74,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                       key={item.href}
                       to={item.href}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all font-medium',
                         isActive
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                          ? 'bg-gray-900 text-white shadow-md'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                       )}
                     >
                       <item.icon size={20} />

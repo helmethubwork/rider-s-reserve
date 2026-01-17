@@ -296,9 +296,9 @@ const AdminAddProduct = () => {
 
         {/* Step 2: Product Form */}
         {step === 2 && config && (
-          <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-6 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6 space-y-6 shadow-sm">
             {/* Back Button */}
-            <Button type="button" variant="ghost" size="sm" onClick={handleBack} className="mb-2">
+            <Button type="button" variant="outline" size="sm" onClick={handleBack} className="mb-2 text-gray-700 border-gray-300">
               <ArrowLeft size={16} className="mr-2" />
               Change Category
             </Button>
