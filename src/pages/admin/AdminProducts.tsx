@@ -14,7 +14,6 @@ import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -35,27 +34,25 @@ import { SupabaseProduct } from '@/hooks/useProducts';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Product form data
+// Product form data (minimal schema)
 interface ProductFormData {
   name: string;
-  description: string;
   price: string;
-  original_price: string;
-  brand: string;
   category: string;
   image_url: string;
   stock: string;
+  sizes: string;
+  colors: string;
 }
 
 const emptyFormData: ProductFormData = {
   name: '',
-  description: '',
   price: '',
-  original_price: '',
-  brand: '',
   category: '',
   image_url: '',
   stock: '',
+  sizes: '',
+  colors: '',
 };
 
 const categories = [
@@ -90,13 +87,12 @@ const AdminProducts = () => {
     mutationFn: async (data: ProductFormData) => {
       const { error } = await supabase.from('products').insert({
         name: data.name.trim(),
-        description: data.description.trim() || null,
         price: parseFloat(data.price),
-        original_price: data.original_price ? parseFloat(data.original_price) : null,
-        brand: data.brand.trim() || null,
         category: data.category || null,
         image_url: data.image_url.trim() || null,
         stock: parseInt(data.stock) || 0,
+        sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
+        colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
         is_active: true,
       });
 
@@ -121,14 +117,12 @@ const AdminProducts = () => {
         .from('products')
         .update({
           name: data.name.trim(),
-          description: data.description.trim() || null,
           price: parseFloat(data.price),
-          original_price: data.original_price ? parseFloat(data.original_price) : null,
-          brand: data.brand.trim() || null,
           category: data.category || null,
           image_url: data.image_url.trim() || null,
           stock: parseInt(data.stock) || 0,
-          updated_at: new Date().toISOString(),
+          sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
+          colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
         })
         .eq('id', id);
 
@@ -198,13 +192,12 @@ const AdminProducts = () => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
-      description: product.description || '',
       price: product.price.toString(),
-      original_price: product.original_price?.toString() || '',
-      brand: product.brand || '',
       category: product.category || '',
       image_url: product.image_url || '',
       stock: product.stock.toString(),
+      sizes: product.sizes?.join(', ') || '',
+      colors: product.colors?.join(', ') || '',
     });
     setIsDialogOpen(true);
   };
@@ -261,19 +254,7 @@ const AdminProducts = () => {
                   />
                 </div>
 
-                {/* Description */}
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Product description"
-                    rows={3}
-                  />
-                </div>
-
-                {/* Price and Original Price */}
+                {/* Price and Stock */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="price">
@@ -289,70 +270,68 @@ const AdminProducts = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="original_price">Original Price (₹)</Label>
+                    <Label htmlFor="stock">Stock Quantity</Label>
                     <Input
-                      id="original_price"
+                      id="stock"
                       type="number"
-                      value={formData.original_price}
-                      onChange={(e) => handleInputChange('original_price', e.target.value)}
+                      value={formData.stock}
+                      onChange={(e) => handleInputChange('stock', e.target.value)}
                       placeholder="0"
                       min="0"
                     />
                   </div>
                 </div>
 
-                {/* Brand and Category */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="brand">Brand</Label>
-                    <Input
-                      id="brand"
-                      value={formData.brand}
-                      onChange={(e) => handleInputChange('brand', e.target.value)}
-                      placeholder="Brand name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Category</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) => handleInputChange('category', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* Category */}
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => handleInputChange('category', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Image URL */}
                 <div className="space-y-2">
-                  <Label htmlFor="image_url">Image URL (Cloudinary)</Label>
+                  <Label htmlFor="image_url">Image URL</Label>
                   <Input
                     id="image_url"
                     value={formData.image_url}
                     onChange={(e) => handleInputChange('image_url', e.target.value)}
-                    placeholder="https://res.cloudinary.com/..."
+                    placeholder="https://..."
                   />
                 </div>
 
-                {/* Stock */}
+                {/* Sizes */}
                 <div className="space-y-2">
-                  <Label htmlFor="stock">Stock Quantity</Label>
+                  <Label htmlFor="sizes">Sizes (comma separated)</Label>
                   <Input
-                    id="stock"
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => handleInputChange('stock', e.target.value)}
-                    placeholder="0"
-                    min="0"
+                    id="sizes"
+                    value={formData.sizes}
+                    onChange={(e) => handleInputChange('sizes', e.target.value)}
+                    placeholder="S, M, L, XL"
+                  />
+                </div>
+
+                {/* Colors */}
+                <div className="space-y-2">
+                  <Label htmlFor="colors">Colors (comma separated)</Label>
+                  <Input
+                    id="colors"
+                    value={formData.colors}
+                    onChange={(e) => handleInputChange('colors', e.target.value)}
+                    placeholder="Black, White, Red"
                   />
                 </div>
 
@@ -433,18 +412,13 @@ const AdminProducts = () => {
                           <div>
                             <p className="font-medium text-foreground">{product.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {product.brand} • {product.category}
+                              {product.category}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-foreground">{formatPrice(product.price)}</p>
-                        {product.original_price && (
-                          <p className="text-xs text-muted-foreground line-through">
-                            {formatPrice(product.original_price)}
-                          </p>
-                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span

@@ -8,20 +8,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
-// Product type matching Supabase products table
+// Product type matching minimal Supabase products table
 export interface SupabaseProduct {
   id: string;
   name: string;
-  description: string | null;
   price: number;
-  original_price: number | null;
-  brand: string | null;
-  category: string | null;
-  image_url: string | null;
   stock: number;
+  image_url: string | null;
+  category: string | null;
+  sizes: string[] | null;
+  colors: string[] | null;
   is_active: boolean;
   created_at: string;
-  updated_at: string;
 }
 
 // Fetch all active products

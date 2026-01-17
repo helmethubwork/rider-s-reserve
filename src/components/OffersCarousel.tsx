@@ -47,13 +47,8 @@ const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps)
                 id={product.id}
                 name={product.name}
                 price={product.price}
-                originalPrice={product.originalPrice}
                 image={product.image}
-                rating={product.rating}
-                reviewCount={product.reviewCount}
-                brand={product.brand}
                 badge={product.badge}
-                isPreorder={product.isPreorder}
                 isSoldOut={product.isSoldOut}
               />
             </div>

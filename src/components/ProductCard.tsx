@@ -1,18 +1,12 @@
-import { Heart, Star, ShoppingCart, Eye, Zap } from "lucide-react";
-import { useState } from "react";
+import { Eye, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
   name: string;
   price: number;
-  originalPrice?: number;
   image: string;
-  rating?: number;
-  reviewCount?: number;
-  brand?: string;
   badge?: "Sale" | "Clearance Sale" | "Summer Special" | "New";
-  isPreorder?: boolean;
   isSoldOut?: boolean;
 }
 
@@ -20,17 +14,10 @@ const ProductCard = ({
   id,
   name,
   price,
-  originalPrice,
   image,
-  rating = 0,
-  reviewCount = 0,
-  brand = "",
   badge,
-  isPreorder = false,
   isSoldOut = false,
 }: ProductCardProps) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
-
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -54,10 +41,6 @@ const ProductCard = ({
     }
   };
 
-  const discountPercent = originalPrice 
-    ? Math.round(((originalPrice - price) / originalPrice) * 100) 
-    : 0;
-
   return (
     <Link 
       to={`/product/${id}`}
@@ -72,11 +55,11 @@ const ProductCard = ({
         </div>
       )}
 
-      {/* Discount badge */}
-      {discountPercent > 0 && (
-        <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10">
-          <span className="bg-destructive text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
-            -{discountPercent}%
+      {/* Sold Out Overlay */}
+      {isSoldOut && (
+        <div className="absolute inset-0 bg-background/60 z-20 flex items-center justify-center">
+          <span className="bg-destructive text-white px-4 py-2 rounded-lg font-bold text-sm">
+            Sold Out
           </span>
         </div>
       )}
@@ -90,7 +73,6 @@ const ProductCard = ({
           loading="lazy"
         />
 
-
         {/* Quick View Overlay - Desktop only */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent py-3 sm:py-4 px-4 text-center transition-all duration-500 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hidden sm:block">
           <button className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm hover:bg-accent transition-colors">
@@ -98,54 +80,20 @@ const ProductCard = ({
             Quick View
           </button>
         </div>
-
-        {/* Color Variants - Hidden on mobile */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 delay-100 hidden sm:flex">
-          <span className="w-5 h-5 rounded-full bg-foreground border-2 border-background cursor-pointer hover:scale-125 transition-transform shadow-lg" />
-          <span className="w-5 h-5 rounded-full bg-primary border-2 border-background cursor-pointer hover:scale-125 transition-transform shadow-lg" />
-        </div>
       </div>
 
       {/* Content */}
       <div className="p-3 sm:p-5 space-y-1.5 sm:space-y-3">
-        {/* Brand */}
-        <p className="text-[10px] sm:text-xs text-primary font-bold tracking-wider uppercase">{brand}</p>
-
         {/* Name */}
         <h3 className="font-semibold text-foreground text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
           {name}
         </h3>
-
-        {/* Rating */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={10}
-                className={`sm:w-3.5 sm:h-3.5 ${
-                  i < Math.floor(rating)
-                    ? "text-primary fill-primary"
-                    : "text-muted-foreground/40"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-[10px] sm:text-xs text-muted-foreground">
-            ({reviewCount})
-          </span>
-        </div>
 
         {/* Price */}
         <div className="flex items-center gap-2 sm:gap-3 pt-0.5 sm:pt-1">
           <span className="text-sm sm:text-lg font-bold text-primary">
             {formatPrice(price)}
           </span>
-          {originalPrice && (
-            <span className="text-xs sm:text-sm text-muted-foreground line-through">
-              {formatPrice(originalPrice)}
-            </span>
-          )}
         </div>
 
         {/* EMI Option - Hidden on small mobile */}
