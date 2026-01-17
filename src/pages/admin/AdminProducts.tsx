@@ -657,15 +657,16 @@ const AdminProducts = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() => handleEdit(product)}
                             title="Edit"
+                            className="border-gray-300 hover:bg-gray-100"
                           >
-                            <Pencil size={16} />
+                            <Pencil size={16} className="text-gray-700" />
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() =>
                               toggleActive.mutate({
@@ -674,6 +675,10 @@ const AdminProducts = () => {
                               })
                             }
                             title={product.is_active ? 'Deactivate' : 'Activate'}
+                            className={product.is_active 
+                              ? "border-orange-300 text-orange-600 hover:bg-orange-50" 
+                              : "border-green-300 text-green-600 hover:bg-green-50"
+                            }
                           >
                             {product.is_active ? (
                               <EyeOff size={16} />
