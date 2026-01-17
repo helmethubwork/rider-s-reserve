@@ -37,7 +37,7 @@ const CheckoutPage = () => {
   // Pre-fill form with user data if logged in
   const [formData, setFormData] = useState({
     name: profile?.full_name || '',
-    email: profile?.email || user?.email || '',
+    email: user?.email || '',
     phone: profile?.phone || '',
     address: '',
   });

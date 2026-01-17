@@ -16,16 +16,18 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, isAdmin, isLoading } = useAuth();
+  const { user, isAdmin, isLoading, profile } = useAuth();
   const location = useLocation();
 
-  // Show loading while checking auth state
-  if (isLoading) {
+  // Show loading while checking auth state OR while fetching profile for admin routes
+  const isCheckingAccess = isLoading || (requireAdmin && user && profile === null);
+
+  if (isCheckingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Checking access...</p>
         </div>
       </div>
     );
