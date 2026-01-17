@@ -8,13 +8,20 @@ import { Star, Truck, Minus, Plus, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-
 const ProductDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
-  const { toast } = useToast();
-  
+  const {
+    addToCart
+  } = useCart();
+  const {
+    toast
+  } = useToast();
+
   // All hooks must be called before any conditional returns
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -23,24 +30,24 @@ const ProductDetailPage = () => {
   const [isAdded, setIsAdded] = useState(false);
 
   // Fetch product from Supabase
-  const { data: product, isLoading, error } = useProduct(id || "");
+  const {
+    data: product,
+    isLoading,
+    error
+  } = useProduct(id || "");
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
+    return <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   if (!product || error) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
+    return <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -53,36 +60,18 @@ const ProductDetailPage = () => {
           </div>
         </main>
         <Footer />
-      </div>
-    );
+      </div>;
   }
 
   // Get colors and sizes from product data
   const colors = product.colors || [];
   const sizes = product.sizes || [];
-
   const getEmiAmount = (price: number) => Math.round(price / 3);
-
   const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            size={16}
-            className={
-              star <= Math.floor(rating)
-                ? "fill-primary text-primary"
-                : star - 0.5 <= rating
-                ? "fill-primary/50 text-primary"
-                : "text-muted-foreground"
-            }
-          />
-        ))}
-      </div>
-    );
+    return <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map(star => <Star key={star} size={16} className={star <= Math.floor(rating) ? "fill-primary text-primary" : star - 0.5 <= rating ? "fill-primary/50 text-primary" : "text-muted-foreground"} />)}
+      </div>;
   };
-
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       addToCart({
@@ -92,24 +81,21 @@ const ProductDetailPage = () => {
         price: product.price,
         color: selectedColor,
         size: selectedSize,
-        brand: product.category || "",
+        brand: product.category || ""
       });
     }
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
-
   const handleBuyNow = () => {
     handleAddToCart();
     navigate("/cart");
   };
-
   const incrementQuantity = () => {
     if (quantity < product.stock) {
       setQuantity(quantity + 1);
     }
   };
-
   const decrementQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -119,9 +105,7 @@ const ProductDetailPage = () => {
   // Product image
   const productImage = product.image_url || "/placeholder.svg";
   const thumbnails = [productImage];
-
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+  return <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
       <main className="flex-1 pb-12">
@@ -133,10 +117,7 @@ const ProductDetailPage = () => {
                 Home
               </Link>
               <span className="text-muted-foreground">/</span>
-              <Link 
-                to={`/category/${product.category}`} 
-                className="text-muted-foreground hover:text-primary transition-colors uppercase"
-              >
+              <Link to={`/category/${product.category}`} className="text-muted-foreground hover:text-primary transition-colors uppercase">
                 {categories.find(c => c.slug === product.category)?.name || product.category}
               </Link>
               <span className="text-muted-foreground">/</span>
@@ -159,54 +140,28 @@ const ProductDetailPage = () => {
                 
                 {/* Image container with zoom */}
                 <div className="w-full h-full p-4 sm:p-6">
-                  <img
-                    src={thumbnails[selectedImageIndex]}
-                    alt={product.name}
-                    className="w-full h-full object-contain rounded-xl transition-transform duration-500 group-hover:scale-110 cursor-zoom-in"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg";
-                    }}
-                  />
+                  <img src={thumbnails[selectedImageIndex]} alt={product.name} className="w-full h-full object-contain rounded-xl transition-transform duration-500 group-hover:scale-110 cursor-zoom-in" loading="lazy" onError={e => {
+                  e.currentTarget.src = "/placeholder.svg";
+                }} />
                 </div>
 
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 
                 {/* Category badge on image */}
-                {product.category && (
-                  <div className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                {product.category && <div className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
                     {product.category}
-                  </div>
-                )}
+                  </div>}
               </div>
 
               {/* Thumbnails */}
-              {thumbnails.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2">
-                  {thumbnails.map((thumb, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`w-20 h-20 flex-shrink-0 border-2 rounded-xl overflow-hidden transition-all ${
-                        selectedImageIndex === index
-                          ? "border-primary ring-2 ring-primary/30 scale-105"
-                          : "border-border hover:border-primary/50 opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={thumb}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.svg";
-                        }}
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+              {thumbnails.length > 1 && <div className="flex gap-3 overflow-x-auto pb-2">
+                  {thumbnails.map((thumb, index) => <button key={index} onClick={() => setSelectedImageIndex(index)} className={`w-20 h-20 flex-shrink-0 border-2 rounded-xl overflow-hidden transition-all ${selectedImageIndex === index ? "border-primary ring-2 ring-primary/30 scale-105" : "border-border hover:border-primary/50 opacity-70 hover:opacity-100"}`}>
+                      <img src={thumb} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" loading="lazy" onError={e => {
+                  e.currentTarget.src = "/placeholder.svg";
+                }} />
+                    </button>)}
+                </div>}
             </div>
 
             <div className="space-y-6">
@@ -252,52 +207,28 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Color Selector */}
-              {colors.length > 0 && (
-                <div>
+              {colors.length > 0 && <div>
                   <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
                     Color <span className="font-normal text-muted-foreground">— {selectedColor || colors[0]}</span>
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {colors.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setSelectedColor(color)}
-                        className={`px-4 py-2 border-2 rounded-lg font-medium transition-all capitalize ${
-                          (selectedColor || colors[0]) === color
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border hover:border-primary text-foreground"
-                        }`}
-                      >
+                    {colors.map(color => <button key={color} onClick={() => setSelectedColor(color)} className={`px-4 py-2 border-2 rounded-lg font-medium transition-all capitalize ${(selectedColor || colors[0]) === color ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}>
                         {color}
-                      </button>
-                    ))}
+                      </button>)}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Size Selector */}
-              {sizes.length > 0 && (
-                <div>
+              {sizes.length > 0 && <div>
                   <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
                     Size
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {sizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 border-2 rounded-lg font-medium transition-all uppercase ${
-                          (selectedSize || sizes[0]) === size
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border hover:border-primary text-foreground"
-                        }`}
-                      >
+                    {sizes.map(size => <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-2 border-2 rounded-lg font-medium transition-all uppercase ${(selectedSize || sizes[0]) === size ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}>
                         {size}
-                      </button>
-                    ))}
+                      </button>)}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Size Chart Link */}
               <button className="text-sm font-medium tracking-wide uppercase flex items-center gap-2 text-primary hover:text-accent transition-colors">
@@ -311,67 +242,32 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Stock Urgency */}
-              {product.stock > 0 && product.stock <= 10 && (
-                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
-                  <p className="text-destructive text-sm font-medium mb-2">
-                    🔥 Hurry, only {product.stock} item(s) left in stock!
-                  </p>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-destructive via-primary to-accent rounded-full transition-all"
-                      style={{ width: `${Math.min((product.stock / 10) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
+              {product.stock > 0 && product.stock <= 10}
 
               {/* Quantity Selector and Add to Cart */}
               <div className="flex gap-3">
                 {/* Quantity Selector */}
                 <div className="flex items-center border-2 border-border rounded-lg bg-card">
-                  <button
-                    onClick={decrementQuantity}
-                    disabled={quantity <= 1}
-                    className="w-12 h-14 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-l-lg"
-                  >
+                  <button onClick={decrementQuantity} disabled={quantity <= 1} className="w-12 h-14 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-l-lg">
                     <Minus size={18} />
                   </button>
                   <span className="w-12 text-center font-bold text-foreground text-lg">{quantity}</span>
-                  <button
-                    onClick={incrementQuantity}
-                    disabled={quantity >= product.stock}
-                    className="w-12 h-14 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-r-lg"
-                  >
+                  <button onClick={incrementQuantity} disabled={quantity >= product.stock} className="w-12 h-14 flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-r-lg">
                     <Plus size={18} />
                   </button>
                 </div>
 
                 {/* Add to Cart Button */}
-                <Button
-                  onClick={handleAddToCart}
-                  className={`flex-1 h-14 text-sm sm:text-base font-bold transition-all whitespace-nowrap min-w-0 ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`}
-                  size="lg"
-                  disabled={product.stock === 0}
-                >
-                  {isAdded ? (
-                    <>
+                <Button onClick={handleAddToCart} className={`flex-1 h-14 text-sm sm:text-base font-bold transition-all whitespace-nowrap min-w-0 ${isAdded ? 'bg-green-600 hover:bg-green-600' : ''}`} size="lg" disabled={product.stock === 0}>
+                  {isAdded ? <>
                       <Check size={18} className="mr-1 sm:mr-2 flex-shrink-0" />
                       <span className="truncate">Added</span>
-                    </>
-                  ) : (
-                    'Add To Cart'
-                  )}
+                    </> : 'Add To Cart'}
                 </Button>
               </div>
 
               {/* Buy Now Button */}
-              <Button
-                onClick={handleBuyNow}
-                variant="outline"
-                className="w-full h-14 text-base font-bold"
-                size="lg"
-                disabled={product.stock === 0}
-              >
+              <Button onClick={handleBuyNow} variant="outline" className="w-full h-14 text-base font-bold" size="lg" disabled={product.stock === 0}>
                 Buy Now
               </Button>
 
@@ -390,8 +286,6 @@ const ProductDetailPage = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ProductDetailPage;
