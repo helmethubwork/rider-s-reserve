@@ -150,54 +150,66 @@ const ProductDetailPage = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Left: Image Gallery */}
-            <div className="flex flex-col-reverse sm:flex-row gap-4">
-              {/* Thumbnails */}
-              <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
-                {thumbnails.map((thumb, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border-2 rounded-lg overflow-hidden transition-all ${
-                      selectedImageIndex === index
-                        ? "border-primary ring-2 ring-primary/30"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    <img
-                      src={thumb}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                    />
-                  </button>
-                ))}
+            <div className="flex flex-col gap-4">
+              {/* Main Image */}
+              <div className="relative aspect-square bg-gradient-to-br from-secondary/50 to-card rounded-2xl overflow-hidden border border-border shadow-xl group">
+                {/* Decorative corner accents */}
+                <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-primary/30 rounded-tl-2xl pointer-events-none z-10" />
+                <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-primary/30 rounded-br-2xl pointer-events-none z-10" />
+                
+                {/* Image container with zoom */}
+                <div className="w-full h-full p-4 sm:p-6">
+                  <img
+                    src={thumbnails[selectedImageIndex]}
+                    alt={product.name}
+                    className="w-full h-full object-contain rounded-xl transition-transform duration-500 group-hover:scale-110 cursor-zoom-in"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg";
+                    }}
+                  />
+                </div>
+
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                
+                {/* Category badge on image */}
+                {product.category && (
+                  <div className="absolute top-4 left-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                    {product.category}
+                  </div>
+                )}
               </div>
 
-              {/* Main Image */}
-              <div className="flex-1 aspect-square bg-card rounded-xl overflow-hidden border border-border">
-                <img
-                  src={thumbnails[selectedImageIndex]}
-                  alt={product.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg";
-                  }}
-                />
-              </div>
+              {/* Thumbnails */}
+              {thumbnails.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {thumbnails.map((thumb, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`w-20 h-20 flex-shrink-0 border-2 rounded-xl overflow-hidden transition-all ${
+                        selectedImageIndex === index
+                          ? "border-primary ring-2 ring-primary/30 scale-105"
+                          : "border-border hover:border-primary/50 opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={thumb}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Right: Product Info */}
             <div className="space-y-6">
-              {/* Category Badge */}
-              {product.category && (
-                <span className="inline-block text-xs font-bold text-primary tracking-widest uppercase">
-                  {product.category}
-                </span>
-              )}
 
               {/* Product Name */}
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-tight uppercase leading-tight">
