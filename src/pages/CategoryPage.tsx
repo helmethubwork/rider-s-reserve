@@ -71,9 +71,7 @@ const CategoryPage = () => {
                   id={product.id}
                   name={product.name}
                   price={product.price}
-                  originalPrice={product.original_price || undefined}
                   image={product.image_url || "/placeholder.svg"}
-                  brand={product.brand || undefined}
                   isSoldOut={product.stock === 0}
                 />
               ))}

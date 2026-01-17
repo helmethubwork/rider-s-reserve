@@ -103,11 +103,8 @@ const BrandDetailPage = () => {
                       id={product.id}
                       name={product.name}
                       price={product.price}
-                      originalPrice={product.originalPrice}
                       image={product.image}
-                      rating={product.rating}
-                      reviewCount={product.reviewCount || 0}
-                      brand={product.brand || ''}
+                      isSoldOut={product.isSoldOut}
                     />
                   ))}
                 </div>
