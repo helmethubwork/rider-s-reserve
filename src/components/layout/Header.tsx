@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight, LogOut, Package, Shield } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Navigation data with mega menu structure
 const navigationData = [
@@ -227,11 +228,25 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const { totalItems } = useCart();
+  const { user, profile, isAdmin, signOut } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const [hideOnScroll, setHideOnScroll] = useState(false);
   const lastScrollYRef = useRef(0);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close account dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountDropdownRef.current && !accountDropdownRef.current.contains(event.target as Node)) {
+        setAccountDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleMobileCategory = (name: string) => {
     setExpandedMobileCategory(expandedMobileCategory === name ? null : name);
@@ -321,13 +336,58 @@ const Header = () => {
               >
                 <Search size={20} />
               </button>
-              <Link 
-                to="/auth" 
-                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all hidden sm:block"
-                aria-label="Account"
-              >
-                <User size={22} />
-              </Link>
+              {user ? (
+                <div ref={accountDropdownRef} className="relative hidden sm:block">
+                  <button
+                    onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                    className="flex items-center gap-2 p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all"
+                  >
+                    <User size={22} />
+                    <span className="text-sm font-medium max-w-[100px] truncate">
+                      {profile?.full_name || 'Account'}
+                    </span>
+                    <ChevronDown size={16} className={`transition-transform ${accountDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {accountDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[180px]">
+                      <Link 
+                        to="/track-order" 
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                        onClick={() => setAccountDropdownOpen(false)}
+                      >
+                        <Package size={16} />
+                        My Orders
+                      </Link>
+                      {isAdmin && (
+                        <Link 
+                          to="/admin" 
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-primary font-medium hover:bg-secondary transition-colors"
+                          onClick={() => setAccountDropdownOpen(false)}
+                        >
+                          <Shield size={16} />
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      <hr className="my-1 border-border" />
+                      <button 
+                        onClick={() => { signOut(); setAccountDropdownOpen(false); }}
+                        className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-secondary transition-colors"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link 
+                  to="/auth" 
+                  className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all hidden sm:block"
+                  aria-label="Account"
+                >
+                  <User size={22} />
+                </Link>
+              )}
               <Link 
                 to="/cart" 
                 className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all relative active:scale-95"
@@ -466,14 +526,48 @@ const Header = () => {
 
           {/* Mobile Menu Footer */}
           <div className="p-5 border-t border-border mt-4">
-            <Link
-              to="/auth"
-              className="flex items-center gap-3 py-3 text-foreground font-medium"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <User size={20} />
-              My Account
-            </Link>
+            {user ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-foreground font-medium">
+                  <User size={20} />
+                  <span className="truncate">{profile?.full_name || user.email}</span>
+                </div>
+                <Link
+                  to="/track-order"
+                  className="flex items-center gap-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Package size={18} />
+                  My Orders
+                </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-3 py-2 text-sm text-primary font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Shield size={18} />
+                    Admin Dashboard
+                  </Link>
+                )}
+                <button
+                  onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                  className="flex items-center gap-3 py-2 text-sm text-destructive"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/auth"
+                className="flex items-center gap-3 py-3 text-foreground font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User size={20} />
+                My Account
+              </Link>
+            )}
           </div>
         </nav>
       </div>
