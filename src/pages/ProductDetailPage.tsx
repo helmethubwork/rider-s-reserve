@@ -15,14 +15,15 @@ const ProductDetailPage = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
   
-  // Fetch product from Supabase
-  const { data: product, isLoading, error } = useProduct(id || "");
-
+  // All hooks must be called before any conditional returns
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+
+  // Fetch product from Supabase
+  const { data: product, isLoading, error } = useProduct(id || "");
 
   // Loading state
   if (isLoading) {
