@@ -9,6 +9,7 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -233,13 +234,13 @@ const AdminProducts = () => {
             <h1 className="text-3xl font-bold text-foreground">Products</h1>
             <p className="text-muted-foreground">Manage your product inventory</p>
           </div>
+          <Link to="/admin/products/add">
+            <Button>
+              <Plus className="mr-2" size={18} />
+              Add Product
+            </Button>
+          </Link>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleAdd}>
-                <Plus className="mr-2" size={18} />
-                Add Product
-              </Button>
-            </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
