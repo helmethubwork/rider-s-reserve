@@ -111,8 +111,8 @@ const CartPage = () => {
                     </span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg">
-                  Proceed to Checkout
+                <Button className="w-full" size="lg" asChild>
+                  <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-4">
                   Shipping, taxes, and discount codes calculated at checkout.
