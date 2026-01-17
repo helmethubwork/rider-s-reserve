@@ -33,6 +33,7 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminAddProduct from "./pages/admin/AdminAddProduct";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminMessages from "./pages/admin/AdminMessages";
+import AdminReturnRequests from "./pages/admin/AdminReturnRequests";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/admin/products/add" element={<ProtectedRoute requireAdmin><AdminAddProduct /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute requireAdmin><AdminOrders /></ProtectedRoute>} />
               <Route path="/admin/messages" element={<ProtectedRoute requireAdmin><AdminMessages /></ProtectedRoute>} />
+              <Route path="/admin/return-requests" element={<ProtectedRoute requireAdmin><AdminReturnRequests /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
