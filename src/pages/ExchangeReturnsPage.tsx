@@ -83,7 +83,7 @@ const ExchangeReturnsPage = () => {
             
             <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-8">
               <div>
-                <h2 className="text-lg font-bold text-destructive mb-3">Exchange Policy:</h2>
+                <h2 className="text-lg font-bold text-black mb-3">Exchange Policy:</h2>
                 <p className="mb-4">
                   Your favorite gear purchased from us doesn't fit well? No problem, we are happy to exchange it for the right size.
                 </p>
@@ -94,29 +94,29 @@ const ExchangeReturnsPage = () => {
                   <li>The cost of sending the product will be compensated to the customer in the form of store credit only at actuals but upto a maximum of Rs. 500. No cash compensation will be made.</li>
                   <li>Helmet Hub will send the replacement free of cost.</li>
                 </ul>
-                <p className="text-destructive mt-4">
+                <p className="text-black mt-4">
                   * Please note that products that are on sale or purchased using a discount, luggage and all accessories cannot be exchanged.*
                 </p>
-                <p className="text-destructive mt-3">
+                <p className="text-black mt-3">
                   *The Store credit issued to the customer must be used within 30 days. The credit won't be reissued once it has expired.
                 </p>
-                <p className="text-destructive mt-3">
+                <p className="text-black mt-3">
                   *The Store credit can be used only on specific collections like helmets, jackets, gloves, pants, boots, intercoms and luggage. It cannot be used to buy accessories.
                 </p>
-                <p className="text-destructive mt-3">
+                <p className="text-black mt-3">
                   *The store credit for the shipping cost will be issued after the exchanged item is shipped. It is the customer's responsibility to send the shipping invoice to us within 7 days of the exchange to get the store credit. Store credit will not be issued if we do not get the shipping invoice within 7 days of the exchange.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-lg font-bold text-destructive mb-3">Returns & Refund Policy:</h2>
+                <h2 className="text-lg font-bold text-black mb-3">Returns & Refund Policy:</h2>
                 <p>
                   Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.
                 </p>
               </div>
 
               <div>
-                <h2 className="text-lg font-bold text-destructive mb-3">Cancellation Policy:</h2>
+                <h2 className="text-lg font-bold text-black mb-3">Cancellation Policy:</h2>
                 <p>
                   We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.
                 </p>
