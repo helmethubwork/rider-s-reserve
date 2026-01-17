@@ -7,7 +7,7 @@
 
 import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
-import { Package, ShoppingCart, Users, TrendingUp } from 'lucide-react';
+import { Package, ShoppingCart, TrendingUp, MessageSquare } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
@@ -53,6 +53,19 @@ const AdminDashboard = () => {
     },
   });
 
+  // Fetch messages count
+  const { data: messageCount = 0 } = useQuery({
+    queryKey: ['admin', 'contact-messages', 'count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('contact_messages')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
   const stats = [
     {
       label: 'Active Products',
@@ -78,6 +91,14 @@ const AdminDashboard = () => {
       color: 'text-orange-500',
       bg: 'bg-orange-500/10',
     },
+    {
+      label: 'Messages',
+      value: messageCount,
+      icon: MessageSquare,
+      href: '/admin/messages',
+      color: 'text-purple-500',
+      bg: 'bg-purple-500/10',
+    },
   ];
 
   return (
@@ -90,7 +111,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => (
             <Link
               key={stat.label}
