@@ -12,7 +12,6 @@ import { toast } from 'sonner';
 // Profile type matching the Supabase profiles table
 interface Profile {
   id: string;
-  email: string;
   full_name: string | null;
   phone: string | null;
   is_admin: boolean;
@@ -43,11 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch user profile from profiles table
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, phone, is_admin, created_at')
         .eq('id', userId)
         .maybeSingle();
 
@@ -73,40 +72,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Initialize auth state on mount
   useEffect(() => {
+    let isMounted = true;
+
     // Set up auth state listener FIRST (critical for proper session handling)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        if (!isMounted) return;
+        
         // Update session and user synchronously
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         // Defer profile fetch to avoid auth deadlock
         if (currentSession?.user) {
-          setTimeout(() => {
-            fetchProfile(currentSession.user.id).then(setProfile);
+          setTimeout(async () => {
+            if (!isMounted) return;
+            const profileData = await fetchProfile(currentSession.user.id);
+            if (isMounted) {
+              setProfile(profileData);
+              setIsLoading(false);
+            }
           }, 0);
         } else {
           setProfile(null);
+          setIsLoading(false);
         }
-
-        setIsLoading(false);
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
+      if (!isMounted) return;
+      
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
 
       if (existingSession?.user) {
-        fetchProfile(existingSession.user.id).then(setProfile);
+        const profileData = await fetchProfile(existingSession.user.id);
+        if (isMounted) {
+          setProfile(profileData);
+        }
       }
 
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     });
 
     // Cleanup subscription on unmount
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Sign up with email and password
@@ -139,7 +156,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .from('profiles')
           .insert({
             id: data.user.id,
-            email: email,
             full_name: fullName,
             is_admin: false,
           });
