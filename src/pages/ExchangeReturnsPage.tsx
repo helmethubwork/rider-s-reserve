@@ -25,12 +25,45 @@ const ExchangeReturnsPage = () => {
     alternateProduct3: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Request Submitted",
-      description: "We'll review your exchange request and get back to you within 48 hours.",
-    });
+    setIsSubmitting(true);
+
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      
+      const { error } = await supabase.from("return_requests").insert({
+        full_name: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        order_number: formData.orderNumber.trim(),
+        product_type: formData.productType,
+        original_product: formData.originalProduct.trim(),
+        product_color: formData.productColor.trim(),
+        size_ordered: formData.sizeOrdered.trim(),
+        size_needed: formData.sizeNeeded.trim(),
+        alternate_products: [formData.alternateProduct1, formData.alternateProduct2, formData.alternateProduct3].filter(Boolean),
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Submitted",
+        description: "We'll review your exchange request and get back to you within 48 hours.",
+      });
+      setFormData({ fullName: "", email: "", phone: "", orderNumber: "", productType: "", originalProduct: "", productColor: "", sizeOrdered: "", sizeNeeded: "", alternateProduct1: "", alternateProduct2: "", alternateProduct3: "" });
+    } catch (error) {
+      console.error("Return request error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
