@@ -1,8 +1,8 @@
 /**
  * Admin Add Product Page
  * 
- * Simple form to add a new product with image upload to Supabase Storage.
- * Flow: Generate UUID → Upload image → Get public URL → Insert product → Redirect
+ * Step-by-step form to add products by category.
+ * Step 1: Select category → Step 2: Fill category-specific fields
  */
 
 import { useState } from 'react';
@@ -20,59 +20,125 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Loader2, Upload, X } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-const categories = [
-  { value: 'helmets', label: 'Helmets' },
-  { value: 'riding-gears', label: 'Riding Gears' },
-  { value: 'helmet-accessories', label: 'Helmet Accessories' },
-  { value: 'motorcycle-accessories', label: 'Motorcycle Accessories' },
-];
+// Category configuration with icons and specific fields
+const categoryConfig = {
+  helmets: {
+    label: 'Helmets',
+    icon: HardHat,
+    description: 'Full face, half face, modular helmets',
+    fields: {
+      sizes: { label: 'Helmet Sizes', placeholder: 'XS, S, M, L, XL, XXL', required: true },
+      colors: { label: 'Colors', placeholder: 'Matt Black, Gloss White, Red' },
+      brand: { label: 'Brand', placeholder: 'LS2, Axor, MT, Studds' },
+      helmetType: { label: 'Helmet Type', options: ['Full Face', 'Half Face', 'Modular', 'Off Road', 'Open Face'] },
+    },
+  },
+  'riding-gears': {
+    label: 'Riding Gears',
+    icon: Shirt,
+    description: 'Jackets, pants, gloves, boots',
+    fields: {
+      sizes: { label: 'Sizes', placeholder: 'S, M, L, XL, XXL', required: true },
+      colors: { label: 'Colors', placeholder: 'Black, Red, Blue' },
+      brand: { label: 'Brand', placeholder: 'Rynox, Raida, Korda' },
+      gearType: { label: 'Gear Type', options: ['Jacket', 'Pants', 'Gloves', 'Boots', 'Rain Gear'] },
+    },
+  },
+  'helmet-accessories': {
+    label: 'Helmet Accessories',
+    icon: Settings,
+    description: 'Visors, intercoms, helmet bags',
+    fields: {
+      colors: { label: 'Colors', placeholder: 'Clear, Smoke, Iridium' },
+      brand: { label: 'Brand', placeholder: 'LS2, Axor, Cardo' },
+      accessoryType: { label: 'Accessory Type', options: ['Visor', 'Intercom', 'Helmet Bag', 'Chin Curtain', 'Cheek Pads'] },
+      compatibility: { label: 'Compatible With', placeholder: 'LS2 FF800, Axor Apex' },
+    },
+  },
+  'motorcycle-accessories': {
+    label: 'Motorcycle Accessories',
+    icon: Wrench,
+    description: 'Luggage, tank bags, phone mounts',
+    fields: {
+      colors: { label: 'Colors', placeholder: 'Black, Grey' },
+      brand: { label: 'Brand', placeholder: 'Rynox, ViaTerra' },
+      accessoryType: { label: 'Accessory Type', options: ['Tank Bag', 'Saddle Bag', 'Tail Bag', 'Phone Mount', 'USB Charger'] },
+    },
+  },
+};
+
+type CategoryKey = keyof typeof categoryConfig;
 
 const AdminAddProduct = () => {
   const navigate = useNavigate();
+  
+  // Step state
+  const [step, setStep] = useState<1 | 2>(1);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
   
   // Form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
-  const [category, setCategory] = useState('');
   const [sizes, setSizes] = useState('');
   const [colors, setColors] = useState('');
+  const [brand, setBrand] = useState('');
+  const [subType, setSubType] = useState('');
+  const [compatibility, setCompatibility] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle category selection
+  const handleCategorySelect = (category: CategoryKey) => {
+    setSelectedCategory(category);
+    setStep(2);
+    // Reset form fields
+    setName('');
+    setDescription('');
+    setPrice('');
+    setStock('');
+    setSizes('');
+    setColors('');
+    setBrand('');
+    setSubType('');
+    setCompatibility('');
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  // Go back to category selection
+  const handleBack = () => {
+    setStep(1);
+    setSelectedCategory(null);
+  };
 
   // Handle image file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image must be less than 5MB');
       return;
     }
 
     setImageFile(file);
-    
-    // Create preview
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
+    reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
   };
 
-  // Clear selected image
   const clearImage = () => {
     setImageFile(null);
     setImagePreview(null);
@@ -82,7 +148,6 @@ const AdminAddProduct = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
     if (!name.trim()) {
       toast.error('Product name is required');
       return;
@@ -106,10 +171,8 @@ const AdminAddProduct = () => {
     let productId = '';
 
     try {
-      // Step 1: Generate UUID for product
       productId = crypto.randomUUID();
 
-      // Step 2: Upload image to Supabase Storage
       const fileExt = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
       const filePath = `products/${productId}.${fileExt}`;
 
@@ -126,15 +189,12 @@ const AdminAddProduct = () => {
 
       imageUploaded = true;
 
-      // Step 3: Get public image URL
       const { data: urlData } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath);
 
       const imageUrl = urlData.publicUrl;
 
-      // Step 4: Insert product into database
-      // Parse sizes and colors as arrays
       const sizesArray = sizes.trim() ? sizes.split(',').map(s => s.trim()).filter(Boolean) : null;
       const colorsArray = colors.trim() ? colors.split(',').map(c => c.trim()).filter(Boolean) : null;
 
@@ -144,7 +204,7 @@ const AdminAddProduct = () => {
         description: description.trim() || null,
         price: priceValue,
         stock: stockValue,
-        category: category || null,
+        category: selectedCategory || null,
         sizes: sizesArray,
         colors: colorsArray,
         image_url: imageUrl,
@@ -155,25 +215,10 @@ const AdminAddProduct = () => {
         throw new Error(`Product creation failed: ${insertError.message}`);
       }
 
-      // Step 5: Show success message
       toast.success('Product added successfully!');
-
-      // Step 6: Reset form
-      setName('');
-      setDescription('');
-      setPrice('');
-      setStock('');
-      setCategory('');
-      setSizes('');
-      setColors('');
-      setImageFile(null);
-      setImagePreview(null);
-
-      // Step 7: Redirect to products list
       navigate('/admin/products');
 
     } catch (error) {
-      // Cleanup: If image was uploaded but product insert failed, delete the image
       if (imageUploaded && productId) {
         const fileExt = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
         await supabase.storage
@@ -188,9 +233,11 @@ const AdminAddProduct = () => {
     }
   };
 
+  const config = selectedCategory ? categoryConfig[selectedCategory] : null;
+
   return (
     <AdminLayout>
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Link to="/admin/products">
@@ -200,175 +247,291 @@ const AdminAddProduct = () => {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Add Product</h1>
-            <p className="text-muted-foreground text-sm">Create a new product with image</p>
+            <p className="text-muted-foreground text-sm">
+              {step === 1 ? 'Select a category to get started' : `Adding ${config?.label}`}
+            </p>
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-6 space-y-6">
-          {/* Product Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              Product Name <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter product name"
-              disabled={isLoading}
-            />
+        {/* Step Indicator */}
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
+            step >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            1
           </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter product description"
-              rows={3}
-              disabled={isLoading}
-            />
+          <div className={cn("flex-1 h-1 rounded", step >= 2 ? "bg-primary" : "bg-muted")} />
+          <div className={cn(
+            "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
+            step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          )}>
+            2
           </div>
+        </div>
 
-          {/* Price and Stock */}
-          <div className="grid grid-cols-2 gap-4">
+        {/* Step 1: Category Selection */}
+        {step === 1 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {(Object.entries(categoryConfig) as [CategoryKey, typeof categoryConfig[CategoryKey]][]).map(([key, cat]) => {
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleCategorySelect(key)}
+                  className="flex items-start gap-4 p-5 bg-card rounded-lg border border-border hover:border-primary hover:shadow-md transition-all text-left group"
+                >
+                  <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Icon size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">{cat.label}</h3>
+                    <p className="text-sm text-muted-foreground">{cat.description}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Step 2: Product Form */}
+        {step === 2 && config && (
+          <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-border p-6 space-y-6">
+            {/* Back Button */}
+            <Button type="button" variant="ghost" size="sm" onClick={handleBack} className="mb-2">
+              <ArrowLeft size={16} className="mr-2" />
+              Change Category
+            </Button>
+
+            {/* Product Name */}
             <div className="space-y-2">
-              <Label htmlFor="price">
-                Price (₹) <span className="text-destructive">*</span>
+              <Label htmlFor="name">
+                Product Name <span className="text-destructive">*</span>
               </Label>
               <Input
-                id="price"
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="0"
-                min="1"
-                step="1"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={`Enter ${config.label.toLowerCase()} name`}
                 disabled={isLoading}
               />
             </div>
+
+            {/* Brand - If applicable */}
+            {config.fields.brand && (
+              <div className="space-y-2">
+                <Label htmlFor="brand">{config.fields.brand.label}</Label>
+                <Input
+                  id="brand"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  placeholder={config.fields.brand.placeholder}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+
+            {/* Sub Type Selector - If applicable */}
+            {'helmetType' in config.fields && (
+              <div className="space-y-2">
+                <Label>{config.fields.helmetType.label}</Label>
+                <Select value={subType} onValueChange={setSubType} disabled={isLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {config.fields.helmetType.options.map((opt) => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {'gearType' in config.fields && (
+              <div className="space-y-2">
+                <Label>{config.fields.gearType.label}</Label>
+                <Select value={subType} onValueChange={setSubType} disabled={isLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {config.fields.gearType.options.map((opt) => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {'accessoryType' in config.fields && (
+              <div className="space-y-2">
+                <Label>{config.fields.accessoryType.label}</Label>
+                <Select value={subType} onValueChange={setSubType} disabled={isLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {config.fields.accessoryType.options.map((opt) => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Compatibility - For accessories */}
+            {'compatibility' in config.fields && (
+              <div className="space-y-2">
+                <Label htmlFor="compatibility">{(config.fields as any).compatibility.label}</Label>
+                <Input
+                  id="compatibility"
+                  value={compatibility}
+                  onChange={(e) => setCompatibility(e.target.value)}
+                  placeholder={(config.fields as any).compatibility.placeholder}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+
+            {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="stock">Stock Quantity</Label>
-              <Input
-                id="stock"
-                type="number"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                placeholder="0"
-                min="0"
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter product description"
+                rows={3}
                 disabled={isLoading}
               />
-              {stock === '0' && (
-                <p className="text-xs text-destructive">Will show as "Out of Stock"</p>
+            </div>
+
+            {/* Price and Stock */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">
+                  Price (₹) <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="0"
+                  min="1"
+                  step="1"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stock">Stock Quantity</Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  placeholder="0"
+                  min="0"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Sizes - If applicable */}
+            {'sizes' in config.fields && (
+              <div className="space-y-2">
+                <Label htmlFor="sizes">
+                  {(config.fields as any).sizes.label} {(config.fields as any).sizes.required && <span className="text-destructive">*</span>}
+                </Label>
+                <Input
+                  id="sizes"
+                  value={sizes}
+                  onChange={(e) => setSizes(e.target.value)}
+                  placeholder={(config.fields as any).sizes.placeholder}
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground">Separate with commas</p>
+              </div>
+            )}
+
+            {/* Colors */}
+            {config.fields.colors && (
+              <div className="space-y-2">
+                <Label htmlFor="colors">{config.fields.colors.label}</Label>
+                <Input
+                  id="colors"
+                  value={colors}
+                  onChange={(e) => setColors(e.target.value)}
+                  placeholder={config.fields.colors.placeholder}
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground">Separate with commas</p>
+              </div>
+            )}
+
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <Label>
+                Product Image <span className="text-destructive">*</span>
+              </Label>
+              
+              {imagePreview ? (
+                <div className="relative inline-block">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-40 h-40 object-cover rounded-lg border border-border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6"
+                    onClick={clearImage}
+                    disabled={isLoading}
+                  >
+                    <X size={14} />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors bg-secondary/30">
+                  <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                  <span className="text-sm text-muted-foreground">Click to upload image</span>
+                  <span className="text-xs text-muted-foreground mt-1">Max 5MB</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={isLoading}
+                  />
+                </label>
               )}
             </div>
-          </div>
 
-          {/* Category */}
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Select value={category} onValueChange={setCategory} disabled={isLoading}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Sizes and Colors */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="sizes">Sizes (comma separated)</Label>
-              <Input
-                id="sizes"
-                value={sizes}
-                onChange={(e) => setSizes(e.target.value)}
-                placeholder="S, M, L, XL"
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/admin/products')}
                 disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="colors">Colors (comma separated)</Label>
-              <Input
-                id="colors"
-                value={colors}
-                onChange={(e) => setColors(e.target.value)}
-                placeholder="Black, Red, Blue"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
                 disabled={isLoading}
-              />
+                className="flex-1"
+              >
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading ? 'Saving...' : 'Save Product'}
+              </Button>
             </div>
-          </div>
-
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label>
-              Product Image <span className="text-destructive">*</span>
-            </Label>
-            
-            {imagePreview ? (
-              <div className="relative inline-block">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-40 h-40 object-cover rounded-lg border border-border"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="absolute -top-2 -right-2 h-6 w-6"
-                  onClick={clearImage}
-                  disabled={isLoading}
-                >
-                  <X size={14} />
-                </Button>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors bg-secondary/30">
-                <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                <span className="text-sm text-muted-foreground">Click to upload image</span>
-                <span className="text-xs text-muted-foreground mt-1">Max 5MB</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  disabled={isLoading}
-                />
-              </label>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/admin/products')}
-              disabled={isLoading}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? 'Saving...' : 'Save Product'}
-            </Button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
     </AdminLayout>
   );
