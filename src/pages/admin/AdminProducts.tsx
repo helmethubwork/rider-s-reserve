@@ -8,12 +8,13 @@
  * - Soft delete (set is_active = false)
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Upload, X, ImageIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -67,6 +68,10 @@ const AdminProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<SupabaseProduct | null>(null);
   const [formData, setFormData] = useState<ProductFormData>(emptyFormData);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch all products (including inactive)
   const { data: products = [], isLoading } = useQuery({
@@ -166,8 +171,62 @@ const AdminProducts = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Handle image file selection
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    // Clear URL input when file is selected
+    setFormData((prev) => ({ ...prev, image_url: '' }));
+  };
+
+  // Clear selected image
+  const clearImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Upload image to Supabase Storage
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `products/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, file);
+
+    if (error) {
+      console.error('Upload error:', error);
+      throw new Error('Failed to upload image');
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   // Handle form submit
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic validation
@@ -180,11 +239,31 @@ const AdminProducts = () => {
       return;
     }
 
-    if (editingProduct) {
-      updateProduct.mutate({ id: editingProduct.id, data: formData });
-    } else {
-      createProduct.mutate(formData);
+    let imageUrl = formData.image_url;
+
+    // Upload image if file is selected
+    if (imageFile) {
+      setIsUploading(true);
+      try {
+        imageUrl = await uploadImage(imageFile) || '';
+      } catch (error) {
+        toast.error('Failed to upload image');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
     }
+
+    const submitData = { ...formData, image_url: imageUrl };
+
+    if (editingProduct) {
+      updateProduct.mutate({ id: editingProduct.id, data: submitData });
+    } else {
+      createProduct.mutate(submitData);
+    }
+
+    // Clear image state after submit
+    clearImage();
   };
 
   // Open edit dialog
@@ -302,15 +381,66 @@ const AdminProducts = () => {
                   </Select>
                 </div>
 
-                {/* Image URL */}
+                {/* Image Upload */}
                 <div className="space-y-2">
-                  <Label htmlFor="image_url">Image URL</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => handleInputChange('image_url', e.target.value)}
-                    placeholder="https://..."
+                  <Label>Product Image</Label>
+                  
+                  {/* Image Preview */}
+                  {(imagePreview || formData.image_url) && (
+                    <div className="relative w-full h-32 bg-secondary rounded-lg overflow-hidden">
+                      <img
+                        src={imagePreview || formData.image_url}
+                        alt="Product preview"
+                        className="w-full h-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          clearImage();
+                          setFormData(prev => ({ ...prev, image_url: '' }));
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-destructive text-white rounded-full hover:bg-destructive/80"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Upload Button */}
+                  {!imagePreview && !formData.image_url && (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors"
+                    >
+                      <ImageIcon size={24} className="text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Click to upload image</span>
+                      <span className="text-xs text-muted-foreground">Max 5MB</span>
+                    </div>
+                  )}
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
                   />
+
+                  {/* Or URL Input */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Or enter URL:</span>
+                    <Input
+                      id="image_url"
+                      value={formData.image_url}
+                      onChange={(e) => {
+                        handleInputChange('image_url', e.target.value);
+                        if (e.target.value) clearImage();
+                      }}
+                      placeholder="https://..."
+                      className="flex-1"
+                      disabled={!!imagePreview}
+                    />
+                  </div>
                 </div>
 
                 {/* Sizes */}
@@ -348,12 +478,12 @@ const AdminProducts = () => {
                   <Button
                     type="submit"
                     className="flex-1"
-                    disabled={createProduct.isPending || updateProduct.isPending}
+                    disabled={createProduct.isPending || updateProduct.isPending || isUploading}
                   >
-                    {(createProduct.isPending || updateProduct.isPending) && (
+                    {(createProduct.isPending || updateProduct.isPending || isUploading) && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    {editingProduct ? 'Update' : 'Create'}
+                    {isUploading ? 'Uploading...' : editingProduct ? 'Update' : 'Create'}
                   </Button>
                 </div>
               </form>
