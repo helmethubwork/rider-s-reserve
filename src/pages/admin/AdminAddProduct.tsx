@@ -11,16 +11,34 @@ import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Loader2, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
+
+const categories = [
+  { value: 'helmets', label: 'Helmets' },
+  { value: 'riding-gears', label: 'Riding Gears' },
+  { value: 'helmet-accessories', label: 'Helmet Accessories' },
+  { value: 'motorcycle-accessories', label: 'Motorcycle Accessories' },
+];
 
 const AdminAddProduct = () => {
   const navigate = useNavigate();
   
   // Form state
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [stock, setStock] = useState('');
+  const [category, setCategory] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -79,6 +97,8 @@ const AdminAddProduct = () => {
       return;
     }
 
+    const stockValue = parseInt(stock) || 0;
+
     setIsLoading(true);
     let imageUploaded = false;
     let productId = '';
@@ -115,7 +135,10 @@ const AdminAddProduct = () => {
       const { error: insertError } = await supabase.from('products').insert({
         id: productId,
         name: name.trim(),
+        description: description.trim() || null,
         price: priceValue,
+        stock: stockValue,
+        category: category || null,
         image_url: imageUrl,
         is_active: true,
       });
@@ -129,7 +152,10 @@ const AdminAddProduct = () => {
 
       // Step 6: Reset form
       setName('');
+      setDescription('');
       setPrice('');
+      setStock('');
+      setCategory('');
       setImageFile(null);
       setImagePreview(null);
 
@@ -184,21 +210,68 @@ const AdminAddProduct = () => {
             />
           </div>
 
-          {/* Price */}
+          {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="price">
-              Price (₹) <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="0"
-              min="1"
-              step="1"
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter product description"
+              rows={3}
               disabled={isLoading}
             />
+          </div>
+
+          {/* Price and Stock */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">
+                Price (₹) <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="0"
+                min="1"
+                step="1"
+                disabled={isLoading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stock">Stock Quantity</Label>
+              <Input
+                id="stock"
+                type="number"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                placeholder="0"
+                min="0"
+                disabled={isLoading}
+              />
+              {stock === '0' && (
+                <p className="text-xs text-destructive">Will show as "Out of Stock"</p>
+              )}
+            </div>
+          </div>
+
+          {/* Category */}
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select value={category} onValueChange={setCategory} disabled={isLoading}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Image Upload */}
