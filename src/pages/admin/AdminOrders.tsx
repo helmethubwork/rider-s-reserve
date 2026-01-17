@@ -268,18 +268,20 @@ const AdminOrders = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() => handleViewDetails(order)}
                             title="View Details"
+                            className="border-gray-300 hover:bg-gray-100"
                           >
-                            <Eye size={16} />
+                            <Eye size={16} className="text-gray-700" />
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() => handleEdit(order)}
                             title="Update Order"
+                            className="border-blue-300 text-blue-600 hover:bg-blue-50"
                           >
                             <Truck size={16} />
                           </Button>
@@ -295,46 +297,46 @@ const AdminOrders = () => {
 
         {/* Order Details Dialog */}
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg bg-white">
             <DialogHeader>
-              <DialogTitle>Order Details - {selectedOrder?.order_number}</DialogTitle>
+              <DialogTitle className="text-gray-900 text-xl font-bold">Order Details - {selectedOrder?.order_number}</DialogTitle>
             </DialogHeader>
             {selectedOrder && (
               <div className="space-y-4">
                 {/* Customer Info */}
-                <div className="bg-secondary/50 rounded-lg p-4">
-                  <h3 className="font-medium text-foreground mb-2">Customer</h3>
-                  <p className="text-sm text-foreground">{selectedOrder.customer_name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedOrder.customer_email}</p>
+                <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                  <h3 className="font-bold text-gray-900 mb-2">Customer</h3>
+                  <p className="text-sm text-gray-900 font-medium">{selectedOrder.customer_name}</p>
+                  <p className="text-sm text-gray-600">{selectedOrder.customer_email}</p>
                   {selectedOrder.customer_phone && (
-                    <p className="text-sm text-muted-foreground">{selectedOrder.customer_phone}</p>
+                    <p className="text-sm text-gray-600">{selectedOrder.customer_phone}</p>
                   )}
                 </div>
 
                 {/* Shipping Address */}
-                <div className="bg-secondary/50 rounded-lg p-4">
-                  <h3 className="font-medium text-foreground mb-2">Shipping Address</h3>
-                  <p className="text-sm text-foreground whitespace-pre-wrap">
+                <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                  <h3 className="font-bold text-gray-900 mb-2">Shipping Address</h3>
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">
                     {selectedOrder.shipping_address}
                   </p>
                 </div>
 
                 {/* Order Items */}
                 <div>
-                  <h3 className="font-medium text-foreground mb-2">Items</h3>
+                  <h3 className="font-bold text-gray-900 mb-2">Items</h3>
                   <div className="space-y-2">
                     {orderItems.map((item) => (
                       <div
                         key={item.id}
-                        className="flex justify-between items-center bg-secondary/50 rounded-lg p-3"
+                        className="flex justify-between items-center bg-gray-100 rounded-lg p-3 border border-gray-200"
                       >
                         <div>
-                          <p className="text-sm font-medium text-foreground">{item.product_name}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm font-bold text-gray-900">{item.product_name}</p>
+                          <p className="text-xs text-gray-600">
                             {item.color} | {item.size} | Qty: {item.quantity}
                           </p>
                         </div>
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-sm font-bold text-gray-900">
                           {formatPrice(item.price * item.quantity)}
                         </p>
                       </div>
@@ -344,13 +346,13 @@ const AdminOrders = () => {
 
                 {/* Tracking Info */}
                 {(selectedOrder.tracking_id || selectedOrder.courier_name) && (
-                  <div className="bg-secondary/50 rounded-lg p-4">
-                    <h3 className="font-medium text-foreground mb-2">Tracking</h3>
+                  <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                    <h3 className="font-bold text-gray-900 mb-2">Tracking</h3>
                     {selectedOrder.courier_name && (
-                      <p className="text-sm text-foreground">Courier: {selectedOrder.courier_name}</p>
+                      <p className="text-sm text-gray-900">Courier: {selectedOrder.courier_name}</p>
                     )}
                     {selectedOrder.tracking_id && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-gray-600">
                         Tracking ID: {selectedOrder.tracking_id}
                       </p>
                     )}
@@ -358,9 +360,9 @@ const AdminOrders = () => {
                 )}
 
                 {/* Total */}
-                <div className="flex justify-between items-center pt-4 border-t border-border">
-                  <span className="font-bold text-foreground">Total</span>
-                  <span className="font-bold text-primary text-lg">
+                <div className="flex justify-between items-center pt-4 border-t-2 border-gray-200">
+                  <span className="font-bold text-gray-900">Total</span>
+                  <span className="font-bold text-gray-900 text-lg">
                     {formatPrice(selectedOrder.total_amount)}
                   </span>
                 </div>
@@ -371,14 +373,14 @@ const AdminOrders = () => {
 
         {/* Edit Order Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md bg-white">
             <DialogHeader>
-              <DialogTitle>Update Order - {selectedOrder?.order_number}</DialogTitle>
+              <DialogTitle className="text-gray-900 text-xl font-bold">Update Order - {selectedOrder?.order_number}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleEditSubmit} className="space-y-4">
               {/* Order Status */}
               <div className="space-y-2">
-                <Label>Order Status</Label>
+                <Label className="text-gray-900 font-bold">Order Status</Label>
                 <Select
                   value={editData.order_status}
                   onValueChange={(value) =>
@@ -400,7 +402,7 @@ const AdminOrders = () => {
 
               {/* Courier Name */}
               <div className="space-y-2">
-                <Label htmlFor="courier_name">Courier Name</Label>
+                <Label htmlFor="courier_name" className="text-gray-900 font-bold">Courier Name</Label>
                 <Input
                   id="courier_name"
                   value={editData.courier_name}
@@ -413,7 +415,7 @@ const AdminOrders = () => {
 
               {/* Tracking ID */}
               <div className="space-y-2">
-                <Label htmlFor="tracking_id">Tracking ID</Label>
+                <Label htmlFor="tracking_id" className="text-gray-900 font-bold">Tracking ID</Label>
                 <Input
                   id="tracking_id"
                   value={editData.tracking_id}
@@ -430,13 +432,13 @@ const AdminOrders = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditOpen(false)}
-                  className="flex-1"
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1"
+                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
                   disabled={updateOrder.isPending}
                 >
                   {updateOrder.isPending && (

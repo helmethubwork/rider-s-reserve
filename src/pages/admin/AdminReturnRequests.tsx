@@ -158,10 +158,10 @@ const AdminReturnRequests = () => {
 
         {/* Request Detail Dialog */}
         <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg bg-white">
             <DialogHeader>
-              <DialogTitle>Return Request Details</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-gray-900 text-xl font-bold">Return Request Details</DialogTitle>
+              <DialogDescription className="text-gray-600">
                 Order #{selectedRequest?.order_number} • Submitted on{' '}
                 {selectedRequest?.created_at &&
                   format(new Date(selectedRequest.created_at), 'MMMM d, yyyy h:mm a')}
@@ -170,50 +170,50 @@ const AdminReturnRequests = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Customer Name</p>
-                  <p className="font-medium">{selectedRequest?.full_name}</p>
+                  <p className="text-gray-500 font-medium">Customer Name</p>
+                  <p className="font-bold text-gray-900">{selectedRequest?.full_name}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Email</p>
-                  <p className="font-medium">{selectedRequest?.email}</p>
+                  <p className="text-gray-500 font-medium">Email</p>
+                  <p className="font-bold text-gray-900">{selectedRequest?.email}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Phone</p>
-                  <p className="font-medium">{selectedRequest?.phone}</p>
+                  <p className="text-gray-500 font-medium">Phone</p>
+                  <p className="font-bold text-gray-900">{selectedRequest?.phone}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Product Type</p>
-                  <p className="font-medium">{selectedRequest?.product_type}</p>
+                  <p className="text-gray-500 font-medium">Product Type</p>
+                  <p className="font-bold text-gray-900">{selectedRequest?.product_type}</p>
                 </div>
               </div>
 
               <div>
-                <p className="text-muted-foreground text-sm mb-2">Product Details</p>
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="text-gray-600 font-medium text-sm mb-2">Product Details</p>
+                <div className="bg-gray-100 rounded-lg p-4 space-y-2 border border-gray-200">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Product:</span>
-                    <span className="font-medium">{selectedRequest?.original_product}</span>
+                    <span className="text-gray-600">Product:</span>
+                    <span className="font-bold text-gray-900">{selectedRequest?.original_product}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Color:</span>
-                    <span className="font-medium">{selectedRequest?.product_color}</span>
+                    <span className="text-gray-600">Color:</span>
+                    <span className="font-bold text-gray-900">{selectedRequest?.product_color}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Size Ordered:</span>
-                    <Badge variant="secondary">{selectedRequest?.size_ordered}</Badge>
+                    <span className="text-gray-600">Size Ordered:</span>
+                    <Badge variant="secondary" className="bg-gray-200 text-gray-700 font-bold">{selectedRequest?.size_ordered}</Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Size Needed:</span>
-                    <Badge variant="default">{selectedRequest?.size_needed}</Badge>
+                    <span className="text-gray-600">Size Needed:</span>
+                    <Badge className="bg-gray-900 text-white font-bold">{selectedRequest?.size_needed}</Badge>
                   </div>
                 </div>
               </div>
 
               {selectedRequest?.alternate_products && (
                 <div>
-                  <p className="text-muted-foreground text-sm mb-2">Alternate Products</p>
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="whitespace-pre-wrap">{selectedRequest.alternate_products}</p>
+                  <p className="text-gray-600 font-medium text-sm mb-2">Alternate Products</p>
+                  <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                    <p className="whitespace-pre-wrap text-gray-900">{selectedRequest.alternate_products}</p>
                   </div>
                 </div>
               )}
