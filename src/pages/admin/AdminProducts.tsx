@@ -41,6 +41,7 @@ interface ProductFormData {
   price: string;
   category: string;
   image_url: string;
+  image_urls: string[]; // Multiple images for color variants
   stock: string;
   sizes: string;
   colors: string;
@@ -51,6 +52,7 @@ const emptyFormData: ProductFormData = {
   price: '',
   category: '',
   image_url: '',
+  image_urls: [],
   stock: '',
   sizes: '',
   colors: '',
@@ -68,8 +70,8 @@ const AdminProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<SupabaseProduct | null>(null);
   const [formData, setFormData] = useState<ProductFormData>(emptyFormData);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -171,33 +173,56 @@ const AdminProducts = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Handle image file selection
+  // Handle multiple image file selection
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
+    const validFiles: File[] = [];
+    const previews: string[] = [];
+
+    for (const file of files) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} is not an image file`);
+        continue;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        continue;
+      }
+
+      validFiles.push(file);
+      previews.push(URL.createObjectURL(file));
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
-      return;
+    if (validFiles.length > 0) {
+      setImageFiles(prev => [...prev, ...validFiles]);
+      setImagePreviews(prev => [...prev, ...previews]);
     }
-
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-    // Clear URL input when file is selected
-    setFormData((prev) => ({ ...prev, image_url: '' }));
   };
 
-  // Clear selected image
-  const clearImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  // Remove a specific image
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Remove an existing uploaded image URL
+  const removeExistingImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      image_urls: prev.image_urls.filter((_, i) => i !== index),
+      image_url: index === 0 && prev.image_urls.length === 1 ? '' : prev.image_url
+    }));
+  };
+
+  // Clear all images
+  const clearAllImages = () => {
+    setImageFiles([]);
+    setImagePreviews([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -239,22 +264,34 @@ const AdminProducts = () => {
       return;
     }
 
-    let imageUrl = formData.image_url;
+    let allImageUrls = [...formData.image_urls];
 
-    // Upload image if file is selected
-    if (imageFile) {
+    // Upload new images if files are selected
+    if (imageFiles.length > 0) {
       setIsUploading(true);
       try {
-        imageUrl = await uploadImage(imageFile) || '';
+        for (const file of imageFiles) {
+          const url = await uploadImage(file);
+          if (url) {
+            allImageUrls.push(url);
+          }
+        }
       } catch (error) {
-        toast.error('Failed to upload image');
+        toast.error('Failed to upload images');
         setIsUploading(false);
         return;
       }
       setIsUploading(false);
     }
 
-    const submitData = { ...formData, image_url: imageUrl };
+    // Use first image as main image_url
+    const mainImageUrl = allImageUrls.length > 0 ? allImageUrls[0] : formData.image_url;
+    
+    const submitData = { 
+      ...formData, 
+      image_url: mainImageUrl,
+      image_urls: allImageUrls 
+    };
 
     if (editingProduct) {
       updateProduct.mutate({ id: editingProduct.id, data: submitData });
@@ -263,21 +300,26 @@ const AdminProducts = () => {
     }
 
     // Clear image state after submit
-    clearImage();
+    clearAllImages();
   };
 
   // Open edit dialog
   const handleEdit = (product: SupabaseProduct) => {
     setEditingProduct(product);
+    // Parse existing image_urls from product (stored as JSON array or comma-separated)
+    const existingUrls = (product as any).image_urls || (product.image_url ? [product.image_url] : []);
     setFormData({
       name: product.name,
       price: product.price.toString(),
       category: product.category || '',
       image_url: product.image_url || '',
+      image_urls: Array.isArray(existingUrls) ? existingUrls : [],
       stock: product.stock.toString(),
       sizes: product.sizes?.join(', ') || '',
       colors: product.colors?.join(', ') || '',
     });
+    setImageFiles([]);
+    setImagePreviews([]);
     setIsDialogOpen(true);
   };
 
@@ -381,66 +423,108 @@ const AdminProducts = () => {
                   </Select>
                 </div>
 
-                {/* Image Upload */}
-                <div className="space-y-2">
-                  <Label>Product Image</Label>
+                {/* Multi-Image Upload for Color Variants */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Product Images (for different colors)</Label>
+                    <span className="text-xs text-muted-foreground">
+                      {formData.image_urls.length + imagePreviews.length} image(s)
+                    </span>
+                  </div>
                   
-                  {/* Image Preview */}
-                  {(imagePreview || formData.image_url) && (
-                    <div className="relative w-full h-32 bg-secondary rounded-lg overflow-hidden">
-                      <img
-                        src={imagePreview || formData.image_url}
-                        alt="Product preview"
-                        className="w-full h-full object-contain"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          clearImage();
-                          setFormData(prev => ({ ...prev, image_url: '' }));
-                        }}
-                        className="absolute top-2 right-2 p-1 bg-destructive text-white rounded-full hover:bg-destructive/80"
-                      >
-                        <X size={14} />
-                      </button>
+                  {/* Existing Images Preview Grid */}
+                  {formData.image_urls.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {formData.image_urls.map((url, index) => (
+                        <div key={`existing-${index}`} className="relative aspect-square bg-secondary rounded-lg overflow-hidden group">
+                          <img
+                            src={url}
+                            alt={`Product ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "/placeholder.svg";
+                            }}
+                          />
+                          {index === 0 && (
+                            <span className="absolute top-1 left-1 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+                              Main
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* New Images Preview Grid */}
+                  {imagePreviews.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={`new-${index}`} className="relative aspect-square bg-secondary rounded-lg overflow-hidden group border-2 border-dashed border-primary/50">
+                          <img
+                            src={preview}
+                            alt={`New ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-1 left-1 text-[10px] bg-accent text-accent-foreground px-1.5 py-0.5 rounded">
+                            New
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
 
                   {/* Upload Button */}
-                  {!imagePreview && !formData.image_url && (
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors"
-                    >
-                      <ImageIcon size={24} className="text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Click to upload image</span>
-                      <span className="text-xs text-muted-foreground">Max 5MB</span>
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Plus size={18} className="text-muted-foreground" />
+                      <ImageIcon size={18} className="text-muted-foreground" />
                     </div>
-                  )}
+                    <span className="text-sm text-muted-foreground">Add images for color variants</span>
+                    <span className="text-xs text-muted-foreground">Click to select multiple (max 5MB each)</span>
+                  </div>
 
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageSelect}
                     className="hidden"
                   />
 
-                  {/* Or URL Input */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">Or enter URL:</span>
-                    <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) => {
-                        handleInputChange('image_url', e.target.value);
-                        if (e.target.value) clearImage();
+                  {/* Clear All Button */}
+                  {(imagePreviews.length > 0 || formData.image_urls.length > 0) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        clearAllImages();
+                        setFormData(prev => ({ ...prev, image_urls: [], image_url: '' }));
                       }}
-                      placeholder="https://..."
-                      className="flex-1"
-                      disabled={!!imagePreview}
-                    />
-                  </div>
+                      className="w-full text-destructive hover:text-destructive"
+                    >
+                      <X size={14} className="mr-1" />
+                      Clear All Images
+                    </Button>
+                  )}
                 </div>
 
                 {/* Sizes */}

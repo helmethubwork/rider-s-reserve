@@ -15,6 +15,7 @@ export interface SupabaseProduct {
   price: number;
   stock: number;
   image_url: string | null;
+  image_urls: string[] | null; // Multiple images for color variants
   category: string | null;
   sizes: string[] | null;
   colors: string[] | null;
