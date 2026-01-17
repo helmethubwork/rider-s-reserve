@@ -18,18 +18,6 @@ const BrandsPage = () => {
       <Header />
       
       <main className="pt-20">
-        {/* Breadcrumb */}
-        <div className="bg-muted/30 border-b border-border">
-          <div className="container mx-auto px-4 py-3">
-            <nav className="flex items-center gap-2 text-sm">
-              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </Link>
-              <ChevronRight size={14} className="text-muted-foreground" />
-              <span className="text-foreground font-medium">All Brands</span>
-            </nav>
-          </div>
-        </div>
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-primary/10 to-background py-12 md:py-16">
