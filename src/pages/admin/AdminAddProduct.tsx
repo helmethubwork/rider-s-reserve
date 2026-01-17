@@ -39,6 +39,8 @@ const AdminAddProduct = () => {
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('');
+  const [sizes, setSizes] = useState('');
+  const [colors, setColors] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -132,6 +134,10 @@ const AdminAddProduct = () => {
       const imageUrl = urlData.publicUrl;
 
       // Step 4: Insert product into database
+      // Parse sizes and colors as arrays
+      const sizesArray = sizes.trim() ? sizes.split(',').map(s => s.trim()).filter(Boolean) : null;
+      const colorsArray = colors.trim() ? colors.split(',').map(c => c.trim()).filter(Boolean) : null;
+
       const { error: insertError } = await supabase.from('products').insert({
         id: productId,
         name: name.trim(),
@@ -139,6 +145,8 @@ const AdminAddProduct = () => {
         price: priceValue,
         stock: stockValue,
         category: category || null,
+        sizes: sizesArray,
+        colors: colorsArray,
         image_url: imageUrl,
         is_active: true,
       });
@@ -156,6 +164,8 @@ const AdminAddProduct = () => {
       setPrice('');
       setStock('');
       setCategory('');
+      setSizes('');
+      setColors('');
       setImageFile(null);
       setImagePreview(null);
 
@@ -272,6 +282,30 @@ const AdminAddProduct = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Sizes and Colors */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="sizes">Sizes (comma separated)</Label>
+              <Input
+                id="sizes"
+                value={sizes}
+                onChange={(e) => setSizes(e.target.value)}
+                placeholder="S, M, L, XL"
+                disabled={isLoading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="colors">Colors (comma separated)</Label>
+              <Input
+                id="colors"
+                value={colors}
+                onChange={(e) => setColors(e.target.value)}
+                placeholder="Black, Red, Blue"
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
           {/* Image Upload */}
