@@ -8,9 +8,9 @@ interface ProductCardProps {
   price: number;
   originalPrice?: number;
   image: string;
-  rating: number;
-  reviewCount: number;
-  brand: string;
+  rating?: number;
+  reviewCount?: number;
+  brand?: string;
   badge?: "Sale" | "Clearance Sale" | "Summer Special" | "New";
   isPreorder?: boolean;
   isSoldOut?: boolean;
@@ -22,9 +22,9 @@ const ProductCard = ({
   price,
   originalPrice,
   image,
-  rating,
-  reviewCount,
-  brand,
+  rating = 0,
+  reviewCount = 0,
+  brand = "",
   badge,
   isPreorder = false,
   isSoldOut = false,
