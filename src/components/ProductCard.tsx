@@ -71,6 +71,9 @@ const ProductCard = ({
           alt={name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.svg";
+          }}
         />
 
         {/* Quick View Overlay - Desktop only */}
