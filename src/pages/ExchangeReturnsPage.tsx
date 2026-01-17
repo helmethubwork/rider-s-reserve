@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Phone, Package, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 const ExchangeReturnsPage = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -22,19 +23,19 @@ const ExchangeReturnsPage = () => {
     sizeNeeded: "",
     alternateProduct1: "",
     alternateProduct2: "",
-    alternateProduct3: "",
+    alternateProduct3: ""
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      const { supabase } = await import("@/lib/supabase");
-      
-      const { error } = await supabase.from("return_requests").insert({
+      const {
+        supabase
+      } = await import("@/lib/supabase");
+      const {
+        error
+      } = await supabase.from("return_requests").insert({
         full_name: formData.fullName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
@@ -44,16 +45,27 @@ const ExchangeReturnsPage = () => {
         product_color: formData.productColor.trim(),
         size_ordered: formData.sizeOrdered.trim(),
         size_needed: formData.sizeNeeded.trim(),
-        alternate_products: [formData.alternateProduct1, formData.alternateProduct2, formData.alternateProduct3].filter(Boolean),
+        alternate_products: [formData.alternateProduct1, formData.alternateProduct2, formData.alternateProduct3].filter(Boolean)
       });
-
       if (error) throw error;
-
       toast({
         title: "Request Submitted",
-        description: "We'll review your exchange request and get back to you within 48 hours.",
+        description: "We'll review your exchange request and get back to you within 48 hours."
       });
-      setFormData({ fullName: "", email: "", phone: "", orderNumber: "", productType: "", originalProduct: "", productColor: "", sizeOrdered: "", sizeNeeded: "", alternateProduct1: "", alternateProduct2: "", alternateProduct3: "" });
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        orderNumber: "",
+        productType: "",
+        originalProduct: "",
+        productColor: "",
+        sizeOrdered: "",
+        sizeNeeded: "",
+        alternateProduct1: "",
+        alternateProduct2: "",
+        alternateProduct3: ""
+      });
     } catch (error) {
       console.error("Return request error:", error);
       toast({
@@ -65,13 +77,13 @@ const ExchangeReturnsPage = () => {
       setIsSubmitting(false);
     }
   };
-
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-white">
+  return <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
       <main className="flex-1 pt-0 pb-4">
@@ -135,13 +147,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="fullName" className="text-gray-700">
                       Full Name <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="fullName"
-                      value={formData.fullName}
-                      onChange={(e) => handleInputChange("fullName", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="fullName" value={formData.fullName} onChange={e => handleInputChange("fullName", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   {/* Email */}
@@ -151,14 +157,7 @@ const ExchangeReturnsPage = () => {
                     </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        required
-                        className="bg-white border-gray-300 pl-10"
-                      />
+                      <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300 pl-10" />
                     </div>
                   </div>
 
@@ -172,13 +171,7 @@ const ExchangeReturnsPage = () => {
                         <Phone className="h-4 w-4 text-gray-400 mr-2" />
                         <span className="text-gray-600 text-sm">+91</span>
                       </div>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
-                        required
-                        className="bg-white border-gray-300 flex-1"
-                      />
+                      <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} required className="bg-white border-gray-300 flex-1" />
                     </div>
                   </div>
 
@@ -187,13 +180,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="orderNumber" className="text-gray-700">
                       Order Number <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="orderNumber"
-                      value={formData.orderNumber}
-                      onChange={(e) => handleInputChange("orderNumber", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="orderNumber" value={formData.orderNumber} onChange={e => handleInputChange("orderNumber", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   {/* Product Type */}
@@ -201,7 +188,7 @@ const ExchangeReturnsPage = () => {
                     <Label className="text-gray-700">
                       Product Type <span className="text-red-500">*</span>
                     </Label>
-                    <Select onValueChange={(value) => handleInputChange("productType", value)}>
+                    <Select onValueChange={value => handleInputChange("productType", value)}>
                       <SelectTrigger className="bg-white border-gray-300">
                         <Package className="h-4 w-4 text-gray-400 mr-2" />
                         <SelectValue placeholder="Please select" />
@@ -221,13 +208,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="originalProduct" className="text-gray-700">
                       Original Product Ordered <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="originalProduct"
-                      value={formData.originalProduct}
-                      onChange={(e) => handleInputChange("originalProduct", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="originalProduct" value={formData.originalProduct} onChange={e => handleInputChange("originalProduct", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   {/* Product Color */}
@@ -235,13 +216,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="productColor" className="text-gray-700">
                       Product Color <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="productColor"
-                      value={formData.productColor}
-                      onChange={(e) => handleInputChange("productColor", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="productColor" value={formData.productColor} onChange={e => handleInputChange("productColor", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
 
                   {/* Size Ordered */}
@@ -249,13 +224,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="sizeOrdered" className="text-gray-700">
                       Size Ordered <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="sizeOrdered"
-                      value={formData.sizeOrdered}
-                      onChange={(e) => handleInputChange("sizeOrdered", e.target.value)}
-                      required
-                      className="bg-white border-gray-300"
-                    />
+                    <Input id="sizeOrdered" value={formData.sizeOrdered} onChange={e => handleInputChange("sizeOrdered", e.target.value)} required className="bg-white border-gray-300" />
                   </div>
                 </div>
 
@@ -264,13 +233,7 @@ const ExchangeReturnsPage = () => {
                   <Label htmlFor="sizeNeeded" className="text-gray-700">
                     Size Needed in Exchange <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    id="sizeNeeded"
-                    value={formData.sizeNeeded}
-                    onChange={(e) => handleInputChange("sizeNeeded", e.target.value)}
-                    required
-                    className="bg-white border-gray-300"
-                  />
+                  <Input id="sizeNeeded" value={formData.sizeNeeded} onChange={e => handleInputChange("sizeNeeded", e.target.value)} required className="bg-white border-gray-300" />
                 </div>
 
                 {/* Alternate Products */}
@@ -284,30 +247,15 @@ const ExchangeReturnsPage = () => {
                     </p>
                   </div>
                   
-                  <Input
-                    placeholder="Option 1"
-                    value={formData.alternateProduct1}
-                    onChange={(e) => handleInputChange("alternateProduct1", e.target.value)}
-                    className="bg-white border-gray-300"
-                  />
-                  <Input
-                    placeholder="Option 2"
-                    value={formData.alternateProduct2}
-                    onChange={(e) => handleInputChange("alternateProduct2", e.target.value)}
-                    className="bg-white border-gray-300"
-                  />
-                  <Input
-                    placeholder="Option 3"
-                    value={formData.alternateProduct3}
-                    onChange={(e) => handleInputChange("alternateProduct3", e.target.value)}
-                    className="bg-white border-gray-300"
-                  />
+                  <Input placeholder="Option 1" value={formData.alternateProduct1} onChange={e => handleInputChange("alternateProduct1", e.target.value)} className="bg-white border-gray-300" />
+                  <Input placeholder="Option 2" value={formData.alternateProduct2} onChange={e => handleInputChange("alternateProduct2", e.target.value)} className="bg-white border-gray-300" />
+                  <Input placeholder="Option 3" value={formData.alternateProduct3} onChange={e => handleInputChange("alternateProduct3", e.target.value)} className="bg-white border-gray-300" />
                 </div>
 
                 {/* Invoice Upload */}
                 <div className="space-y-2">
                   <Label className="text-gray-700">Invoice</Label>
-                  <p className="text-sm text-gray-500">The max file size is 10MB.</p>
+                  <p className="text-sm text-gray-500">The max file size is 5 MB.</p>
                   <div className="mt-2">
                     <Button type="button" variant="outline" className="w-full md:w-auto bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200">
                       <Upload className="h-4 w-4 mr-2" />
@@ -318,10 +266,7 @@ const ExchangeReturnsPage = () => {
 
                 {/* Submit */}
                 <div className="flex justify-center pt-6">
-                  <Button 
-                    type="submit" 
-                    className="px-12 py-3 bg-pink-400 hover:bg-pink-500 text-white font-medium"
-                  >
+                  <Button type="submit" className="px-12 py-3 bg-pink-400 hover:bg-pink-500 text-white font-medium">
                     Submit
                   </Button>
                 </div>
@@ -332,8 +277,6 @@ const ExchangeReturnsPage = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ExchangeReturnsPage;
