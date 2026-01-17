@@ -86,65 +86,66 @@ const AdminMessages = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Contact Messages</h1>
-          <p className="text-muted-foreground">View and manage messages from users</p>
+          <h1 className="text-3xl font-bold text-gray-900">Contact Messages</h1>
+          <p className="text-gray-600">View and manage messages from users</p>
         </div>
 
         {/* Messages Table */}
-        <div className="bg-card rounded-lg border border-border">
+        <div className="bg-white rounded-xl border-2 border-gray-200 shadow-sm">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="animate-spin text-muted-foreground" size={32} />
+              <Loader2 className="animate-spin text-gray-600" size={32} />
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <MessageSquare size={48} className="mb-4 opacity-50" />
-              <p className="text-lg font-medium">No messages yet</p>
+              <p className="text-lg font-bold">No messages yet</p>
               <p className="text-sm">Contact form submissions will appear here</p>
             </div>
           ) : (
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-gray-100 border-b-2 border-gray-200">
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="hidden md:table-cell">Phone</TableHead>
-                  <TableHead>Subject</TableHead>
-                  <TableHead className="hidden md:table-cell">Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="font-bold text-gray-700">Name</TableHead>
+                  <TableHead className="font-bold text-gray-700">Email</TableHead>
+                  <TableHead className="hidden md:table-cell font-bold text-gray-700">Phone</TableHead>
+                  <TableHead className="font-bold text-gray-700">Subject</TableHead>
+                  <TableHead className="hidden md:table-cell font-bold text-gray-700">Date</TableHead>
+                  <TableHead className="text-right font-bold text-gray-700">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {messages.map((msg) => (
-                  <TableRow key={msg.id}>
-                    <TableCell className="font-medium">{msg.name}</TableCell>
-                    <TableCell>{msg.email}</TableCell>
-                    <TableCell className="hidden md:table-cell">
+                  <TableRow key={msg.id} className="hover:bg-gray-50">
+                    <TableCell className="font-bold text-gray-900">{msg.name}</TableCell>
+                    <TableCell className="text-gray-700">{msg.email}</TableCell>
+                    <TableCell className="hidden md:table-cell text-gray-600">
                       {msg.phone || '-'}
                     </TableCell>
-                    <TableCell className="max-w-[200px] truncate">
+                    <TableCell className="max-w-[200px] truncate text-gray-700">
                       {msg.subject}
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden md:table-cell text-gray-600">
                       {format(new Date(msg.created_at), 'MMM d, yyyy')}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="icon"
                           onClick={() => setSelectedMessage(msg)}
                           title="View message"
+                          className="border-gray-300 hover:bg-gray-100"
                         >
-                          <Eye size={18} />
+                          <Eye size={18} className="text-gray-700" />
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="icon"
                           onClick={() => handleDelete(msg.id)}
                           disabled={deleteMutation.isPending}
                           title="Delete message"
-                          className="text-destructive hover:text-destructive"
+                          className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
                         >
                           <Trash2 size={18} />
                         </Button>

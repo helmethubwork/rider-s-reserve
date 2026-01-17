@@ -64,8 +64,8 @@ const AdminReturnRequests = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Return Requests</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl font-bold text-gray-900">Return Requests</h1>
+            <p className="text-gray-600">
               View and manage customer exchange/return requests
             </p>
           </div>
@@ -74,6 +74,7 @@ const AdminReturnRequests = () => {
             size="sm"
             onClick={() => refetch()}
             disabled={isRefetching}
+            className="border-gray-300 text-gray-700 hover:bg-gray-100"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
             Refresh
@@ -82,54 +83,55 @@ const AdminReturnRequests = () => {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
           </div>
         ) : requests && requests.length > 0 ? (
-          <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-gray-100 border-b-2 border-gray-200">
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Order #</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Size Change</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="font-bold text-gray-700">Date</TableHead>
+                    <TableHead className="font-bold text-gray-700">Customer</TableHead>
+                    <TableHead className="font-bold text-gray-700">Order #</TableHead>
+                    <TableHead className="font-bold text-gray-700">Product</TableHead>
+                    <TableHead className="font-bold text-gray-700">Size Change</TableHead>
+                    <TableHead className="text-right font-bold text-gray-700">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {requests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell className="whitespace-nowrap">
+                    <TableRow key={request.id} className="hover:bg-gray-50">
+                      <TableCell className="whitespace-nowrap text-gray-900">
                         {format(new Date(request.created_at), 'dd MMM yyyy')}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{request.full_name}</div>
-                        <div className="text-sm text-muted-foreground">{request.email}</div>
+                        <div className="font-bold text-gray-900">{request.full_name}</div>
+                        <div className="text-sm text-gray-500">{request.email}</div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{request.order_number}</Badge>
+                        <Badge variant="outline" className="border-gray-300 text-gray-700 font-bold">{request.order_number}</Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{request.original_product}</div>
-                        <div className="text-sm text-muted-foreground">{request.product_type}</div>
+                        <div className="font-bold text-gray-900">{request.original_product}</div>
+                        <div className="text-sm text-gray-500">{request.product_type}</div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Badge variant="secondary">{request.size_ordered}</Badge>
-                          <span>→</span>
-                          <Badge variant="default">{request.size_needed}</Badge>
+                          <Badge variant="secondary" className="bg-gray-200 text-gray-700 font-bold">{request.size_ordered}</Badge>
+                          <span className="text-gray-500">→</span>
+                          <Badge className="bg-gray-900 text-white font-bold">{request.size_needed}</Badge>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="icon"
                           onClick={() => setSelectedRequest(request)}
                           title="View details"
+                          className="border-gray-300 hover:bg-gray-100"
                         >
-                          <Eye size={18} />
+                          <Eye size={18} className="text-gray-700" />
                         </Button>
                       </TableCell>
                     </TableRow>

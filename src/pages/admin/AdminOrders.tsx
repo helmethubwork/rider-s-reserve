@@ -188,65 +188,65 @@ const AdminOrders = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Orders</h1>
-          <p className="text-muted-foreground">Manage customer orders</p>
+          <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
+          <p className="text-gray-600">Manage customer orders</p>
         </div>
 
         {/* Orders Table */}
-        <div className="bg-card rounded-lg border border-border overflow-hidden">
+        <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden shadow-sm">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
             </div>
           ) : orders.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-gray-500">
               <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              No orders yet
+              <p className="font-medium">No orders yet</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-secondary">
+                <thead className="bg-gray-100 border-b-2 border-gray-200">
                   <tr>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Order
                     </th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Customer
                     </th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Total
                     </th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Status
                     </th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Payment
                     </th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Date
                     </th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">
+                    <th className="text-right px-4 py-3 text-sm font-bold text-gray-700">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-gray-200">
                   {orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-secondary/50">
+                    <tr key={order.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-primary">{order.order_number}</p>
+                        <p className="font-bold text-gray-900">{order.order_number}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="font-medium text-foreground">{order.customer_name}</p>
-                        <p className="text-xs text-muted-foreground">{order.customer_email}</p>
+                        <p className="font-medium text-gray-900">{order.customer_name}</p>
+                        <p className="text-xs text-gray-500">{order.customer_email}</p>
                       </td>
-                      <td className="px-4 py-3 font-medium text-foreground">
+                      <td className="px-4 py-3 font-bold text-gray-900">
                         {formatPrice(order.total_amount)}
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold capitalize ${getStatusColor(
                             order.order_status
                           )}`}
                         >
@@ -255,14 +255,14 @@ const AdminOrders = () => {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize ${getPaymentColor(
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold capitalize ${getPaymentColor(
                             order.payment_status
                           )}`}
                         >
                           {order.payment_status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(order.created_at)}
                       </td>
                       <td className="px-4 py-3">

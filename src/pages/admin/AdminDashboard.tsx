@@ -106,8 +106,8 @@ const AdminDashboard = () => {
       <div className="space-y-8">
         {/* Title */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to the admin panel</p>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">Welcome to the admin panel</p>
         </div>
 
         {/* Stats Grid */}
@@ -116,15 +116,15 @@ const AdminDashboard = () => {
             <Link
               key={stat.label}
               to={stat.href}
-              className="bg-card rounded-lg border border-border p-6 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:shadow-lg hover:border-gray-300 transition-all"
             >
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-lg ${stat.bg}`}>
+                <div className={`p-3 rounded-xl ${stat.bg}`}>
                   <stat.icon className={stat.color} size={24} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
                 </div>
               </div>
             </Link>
@@ -132,18 +132,18 @@ const AdminDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="font-semibold text-foreground mb-4">Quick Actions</h2>
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-6 shadow-sm">
+          <h2 className="font-bold text-gray-900 mb-4 text-lg">Quick Actions</h2>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/admin/products"
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium shadow-sm"
             >
               Manage Products
             </Link>
             <Link
               to="/admin/orders"
-              className="px-4 py-2 bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+              className="px-5 py-2.5 bg-white text-gray-900 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
               View Orders
             </Link>
