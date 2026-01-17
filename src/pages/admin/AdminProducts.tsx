@@ -14,6 +14,7 @@ import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Upload, X, ImageIcon } from 'lucide-react';
 import {
   Dialog,
@@ -45,6 +46,7 @@ interface ProductFormData {
   stock: string;
   sizes: string;
   colors: string;
+  description: string;
 }
 
 const emptyFormData: ProductFormData = {
@@ -56,6 +58,7 @@ const emptyFormData: ProductFormData = {
   stock: '',
   sizes: '',
   colors: '',
+  description: '',
 };
 
 const categories = [
@@ -100,6 +103,7 @@ const AdminProducts = () => {
         stock: parseInt(data.stock) || 0,
         sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
         colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
+        description: data.description.trim() || null,
         is_active: true,
       });
 
@@ -130,6 +134,7 @@ const AdminProducts = () => {
           stock: parseInt(data.stock) || 0,
           sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
           colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
+          description: data.description.trim() || null,
         })
         .eq('id', id);
 
@@ -317,6 +322,7 @@ const AdminProducts = () => {
       stock: product.stock.toString(),
       sizes: product.sizes?.join(', ') || '',
       colors: product.colors?.join(', ') || '',
+      description: product.description || '',
     });
     setImageFiles([]);
     setImagePreviews([]);
@@ -546,6 +552,18 @@ const AdminProducts = () => {
                     value={formData.colors}
                     onChange={(e) => handleInputChange('colors', e.target.value)}
                     placeholder="Black, White, Red"
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    placeholder="Enter product description..."
+                    rows={4}
                   />
                 </div>
 
