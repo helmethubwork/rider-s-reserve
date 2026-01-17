@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { products, categories } from "@/data/products";
-import { Star, Truck, Minus, Plus, Check } from "lucide-react";
+import { categories } from "@/data/products";
+import { useProduct } from "@/hooks/useProducts";
+import { Star, Truck, Minus, Plus, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -13,24 +14,30 @@ const ProductDetailPage = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const product = products.find((p) => p.id === id);
+  
+  // Fetch product from Supabase
+  const { data: product, isLoading, error } = useProduct(id || "");
 
-  const [selectedColor, setSelectedColor] = useState("Fluorescent Yellow");
-  const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
-  // Demo colors and sizes
-  const colors = [
-    { name: "Fluorescent Yellow", hex: "#e8ff00" },
-    { name: "Matte Black", hex: "#1a1a1a" },
-    { name: "Gloss White", hex: "#ffffff" },
-  ];
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
-  const sizes = ["S", "M", "L", "XL", "XXL"];
-
-  if (!product) {
+  if (!product || error) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
@@ -48,6 +55,10 @@ const ProductDetailPage = () => {
       </div>
     );
   }
+
+  // Get colors and sizes from product data
+  const colors = product.colors || [];
+  const sizes = product.sizes || [];
 
   const getEmiAmount = (price: number) => Math.round(price / 3);
 
@@ -76,11 +87,11 @@ const ProductDetailPage = () => {
       addToCart({
         id: product.id,
         name: product.name,
-        image: product.image,
+        image: product.image_url || "/placeholder.svg",
         price: product.price,
         color: selectedColor,
         size: selectedSize,
-        brand: product.brand,
+        brand: product.category || "",
       });
     }
     setIsAdded(true);
@@ -104,8 +115,9 @@ const ProductDetailPage = () => {
     }
   };
 
-  // Demo thumbnails (using same image)
-  const thumbnails = [product.image, product.image, product.image, product.image];
+  // Product image
+  const productImage = product.image_url || "/placeholder.svg";
+  const thumbnails = [productImage];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -171,39 +183,23 @@ const ProductDetailPage = () => {
 
             {/* Right: Product Info */}
             <div className="space-y-6">
-              {/* Brand Badge */}
-              <span className="inline-block text-xs font-bold text-primary tracking-widest uppercase">
-                {product.brand}
-              </span>
+              {/* Category Badge */}
+              {product.category && (
+                <span className="inline-block text-xs font-bold text-primary tracking-widest uppercase">
+                  {product.category}
+                </span>
+              )}
 
               {/* Product Name */}
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-tight uppercase leading-tight">
                 {product.name}
               </h1>
 
-              {/* Rating */}
-              <div className="flex items-center gap-3">
-                {renderStars(product.rating)}
-                <span className="text-sm text-muted-foreground">
-                  {product.reviewCount} reviews
-                </span>
-              </div>
-
               {/* Price */}
               <div className="flex items-baseline gap-3">
-                {product.originalPrice && (
-                  <span className="text-lg text-muted-foreground line-through">
-                    Rs. {product.originalPrice.toLocaleString()}.00
-                  </span>
-                )}
                 <span className="text-2xl md:text-3xl text-primary font-bold">
                   Rs. {product.price.toLocaleString()}.00
                 </span>
-                {product.originalPrice && (
-                  <span className="text-sm bg-destructive/20 text-destructive px-2 py-1 rounded font-medium">
-                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                  </span>
-                )}
               </div>
 
               <p className="text-sm text-muted-foreground">
@@ -235,48 +231,52 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Color Selector */}
-              <div>
-                <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
-                  Color <span className="font-normal text-muted-foreground">— {selectedColor}</span>
-                </p>
-                <div className="flex gap-3">
-                  {colors.map((color) => (
-                    <button
-                      key={color.name}
-                      onClick={() => setSelectedColor(color.name)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all ${
-                        selectedColor === color.name
-                          ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                      style={{ backgroundColor: color.hex }}
-                      title={color.name}
-                    />
-                  ))}
+              {colors.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
+                    Color <span className="font-normal text-muted-foreground">— {selectedColor || colors[0]}</span>
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {colors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`px-4 py-2 border-2 rounded-lg font-medium transition-all capitalize ${
+                          (selectedColor || colors[0]) === color
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border hover:border-primary text-foreground"
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Size Selector */}
-              <div>
-                <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
-                  Size
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-12 h-12 border-2 rounded-lg font-medium transition-all ${
-                        selectedSize === size
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border hover:border-primary text-foreground"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+              {sizes.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
+                    Size
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`px-4 py-2 border-2 rounded-lg font-medium transition-all uppercase ${
+                          (selectedSize || sizes[0]) === size
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border hover:border-primary text-foreground"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Size Chart Link */}
               <button className="text-sm font-medium tracking-wide uppercase flex items-center gap-2 text-primary hover:text-accent transition-colors">
