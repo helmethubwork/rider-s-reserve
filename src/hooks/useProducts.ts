@@ -8,7 +8,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
-// Product type matching minimal Supabase products table
+// Product type matching Supabase products table
 export interface SupabaseProduct {
   id: string;
   name: string;
@@ -18,6 +18,7 @@ export interface SupabaseProduct {
   category: string | null;
   sizes: string[] | null;
   colors: string[] | null;
+  description: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -121,7 +122,7 @@ export const useSearchProducts = (searchTerm: string) => {
         .from('products')
         .select('*')
         .eq('is_active', true)
-        .or(`name.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+        .or(`name.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
         .order('created_at', { ascending: false });
 
       if (error) {
