@@ -51,16 +51,35 @@ export const useProducts = () => {
   });
 };
 
-// Fetch products by category
-export const useProductsByCategory = (category: string) => {
+// Fetch products by category slug (looks up category UUID first)
+export const useProductsByCategory = (categorySlug: string) => {
   return useQuery({
-    queryKey: ['products', 'category', category],
+    queryKey: ['products', 'category', categorySlug],
     queryFn: async () => {
+      // First, get the category UUID from the slug
+      const { data: category, error: categoryError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (categoryError) {
+        console.error('Error fetching category:', categoryError);
+        throw categoryError;
+      }
+
+      // If category not found, return empty array
+      if (!category) {
+        return [] as SupabaseProduct[];
+      }
+
+      // Now fetch products by category UUID
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('is_active', true)
-        .eq('category_id', category)
+        .eq('category_id', category.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -70,7 +89,7 @@ export const useProductsByCategory = (category: string) => {
 
       return data as SupabaseProduct[];
     },
-    enabled: !!category,
+    enabled: !!categorySlug,
   });
 };
 
