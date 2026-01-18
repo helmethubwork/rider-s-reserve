@@ -198,6 +198,29 @@ const AdminProducts = () => {
     },
   });
 
+  // Delete product permanently
+  const deleteProduct = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Product deleted permanently');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setIsDialogOpen(false);
+      setEditingProduct(null);
+      setFormData(emptyFormData);
+    },
+    onError: (error) => {
+      toast.error('Failed to delete product: ' + error.message);
+    },
+  });
+
   // Handle form input change
   const handleInputChange = (field: keyof ProductFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -641,6 +664,30 @@ const AdminProducts = () => {
                 )}
               </div>
 
+              {/* Sizes */}
+              <div className="space-y-2">
+                <Label htmlFor="sizes">Sizes</Label>
+                <Input
+                  id="sizes"
+                  value={formData.sizes}
+                  onChange={(e) => handleInputChange('sizes', e.target.value)}
+                  placeholder="S, M, L, XL, XXL (comma separated)"
+                />
+                <p className="text-xs text-muted-foreground">Enter sizes separated by commas</p>
+              </div>
+
+              {/* Colors */}
+              <div className="space-y-2">
+                <Label htmlFor="colors">Colors</Label>
+                <Input
+                  id="colors"
+                  value={formData.colors}
+                  onChange={(e) => handleInputChange('colors', e.target.value)}
+                  placeholder="Black, Red, Blue (comma separated)"
+                />
+                <p className="text-xs text-muted-foreground">Enter colors separated by commas</p>
+              </div>
+
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
@@ -655,6 +702,21 @@ const AdminProducts = () => {
 
               {/* Submit */}
               <div className="flex gap-3 pt-4">
+                {editingProduct && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to permanently delete this product? This cannot be undone.')) {
+                        deleteProduct.mutate(editingProduct.id);
+                      }
+                    }}
+                    disabled={deleteProduct.isPending}
+                  >
+                    {deleteProduct.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Delete
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="outline"
