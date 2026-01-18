@@ -9,14 +9,14 @@
  * - Soft delete (set is_active = false)
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, X, ImageIcon, Filter } from 'lucide-react';
+import { Upload, X, ImageIcon, Filter, Image as ImageLucide } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +59,17 @@ interface ProductFormData {
   is_featured: boolean;
 }
 
+// Hero slider form data
+interface HeroSliderFormData {
+  enabled: boolean;
+  subtitle: string;
+  title: string;
+  button_text: string;
+  align: 'left' | 'center' | 'right';
+  display_order: number;
+  existing_slide_id: string | null;
+}
+
 const emptyFormData: ProductFormData = {
   name: '',
   price: '',
@@ -72,6 +83,16 @@ const emptyFormData: ProductFormData = {
   is_featured: false,
 };
 
+const emptyHeroSliderData: HeroSliderFormData = {
+  enabled: false,
+  subtitle: 'NEW ARRIVAL',
+  title: '',
+  button_text: 'Shop Now',
+  align: 'left',
+  display_order: 1,
+  existing_slide_id: null,
+};
+
 const AdminProducts = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -83,6 +104,9 @@ const AdminProducts = () => {
   const [existingStorageImages, setExistingStorageImages] = useState<string[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Hero slider state
+  const [heroSliderData, setHeroSliderData] = useState<HeroSliderFormData>(emptyHeroSliderData);
 
   // Filter states
   const [filterBrand, setFilterBrand] = useState<string>('all');
@@ -166,10 +190,71 @@ const AdminProducts = () => {
     setIsLoadingImages(false);
   };
 
+  // Helper function to handle hero slider
+  const handleHeroSlider = async (productId: string, productName: string, imageUrl: string, heroSlider: HeroSliderFormData) => {
+    if (heroSlider.enabled) {
+      // Create or update hero slide
+      const slideData = {
+        subtitle: heroSlider.subtitle,
+        title: heroSlider.title || productName,
+        description: null,
+        button_text: heroSlider.button_text,
+        button_link: `/product/${productId}`,
+        image_url: imageUrl,
+        align: heroSlider.align,
+        display_order: heroSlider.display_order,
+        is_active: true,
+      };
+
+      if (heroSlider.existing_slide_id) {
+        // Update existing slide
+        const { error } = await supabase
+          .from('hero_slides')
+          .update(slideData)
+          .eq('id', heroSlider.existing_slide_id);
+        
+        if (error) {
+          console.error('Error updating hero slide:', error);
+          toast.error('Product saved but failed to update hero slide');
+        } else {
+          toast.success('Hero slide updated');
+        }
+      } else {
+        // Create new slide
+        const { error } = await supabase
+          .from('hero_slides')
+          .insert(slideData);
+        
+        if (error) {
+          console.error('Error creating hero slide:', error);
+          toast.error('Product saved but failed to create hero slide');
+        } else {
+          toast.success('Hero slide created');
+        }
+      }
+    } else if (heroSlider.existing_slide_id) {
+      // Remove existing hero slide
+      const { error } = await supabase
+        .from('hero_slides')
+        .delete()
+        .eq('id', heroSlider.existing_slide_id);
+      
+      if (error) {
+        console.error('Error deleting hero slide:', error);
+      } else {
+        toast.success('Hero slide removed');
+      }
+    }
+    
+    // Invalidate hero slides queries
+    queryClient.invalidateQueries({ queryKey: ['hero-slides'] });
+    queryClient.invalidateQueries({ queryKey: ['admin', 'hero-slides'] });
+  };
+
   // Create product mutation
   const createProduct = useMutation({
-    mutationFn: async (data: ProductFormData) => {
-      const { error } = await supabase.from('products').insert({
+    mutationFn: async ({ data, heroSlider }: { data: ProductFormData; heroSlider: HeroSliderFormData }) => {
+      const { data: newProduct, error } = await supabase.from('products').insert({
         name: data.name.trim(),
         price: parseFloat(data.price),
         category_id: data.category_id || null,
@@ -180,9 +265,16 @@ const AdminProducts = () => {
         is_featured: data.is_featured,
         sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
         colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
-      });
+      }).select().single();
 
       if (error) throw error;
+      
+      // Handle hero slider if enabled
+      if (heroSlider.enabled && newProduct) {
+        await handleHeroSlider(newProduct.id, data.name.trim(), data.image_url.trim(), heroSlider);
+      }
+      
+      return newProduct;
     },
     onSuccess: () => {
       toast.success('Product created successfully');
@@ -190,6 +282,7 @@ const AdminProducts = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setIsDialogOpen(false);
       setFormData(emptyFormData);
+      setHeroSliderData(emptyHeroSliderData);
     },
     onError: (error) => {
       toast.error('Failed to create product: ' + error.message);
@@ -198,7 +291,7 @@ const AdminProducts = () => {
 
   // Update product mutation
   const updateProduct = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: ProductFormData }) => {
+    mutationFn: async ({ id, data, heroSlider }: { id: string; data: ProductFormData; heroSlider: HeroSliderFormData }) => {
       const { error } = await supabase
         .from('products')
         .update({
@@ -215,6 +308,9 @@ const AdminProducts = () => {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Handle hero slider
+      await handleHeroSlider(id, data.name.trim(), data.image_url.trim(), heroSlider);
     },
     onSuccess: () => {
       toast.success('Product updated successfully');
@@ -223,6 +319,7 @@ const AdminProducts = () => {
       setIsDialogOpen(false);
       setEditingProduct(null);
       setFormData(emptyFormData);
+      setHeroSliderData(emptyHeroSliderData);
       setExistingStorageImages([]);
     },
     onError: (error) => {
@@ -394,16 +491,41 @@ const AdminProducts = () => {
     };
 
     if (editingProduct) {
-      updateProduct.mutate({ id: editingProduct.id, data: submitData });
+      updateProduct.mutate({ id: editingProduct.id, data: submitData, heroSlider: heroSliderData });
     } else {
-      createProduct.mutate(submitData);
+      createProduct.mutate({ data: submitData, heroSlider: heroSliderData });
     }
 
     clearAllImages();
   };
 
+  // Check for existing hero slide for a product (by product ID in button_link)
+  const checkForExistingHeroSlide = async (productId: string) => {
+    if (!productId) return;
+    
+    const { data, error } = await supabase
+      .from('hero_slides')
+      .select('*')
+      .eq('button_link', `/product/${productId}`)
+      .maybeSingle();
+    
+    if (data && !error) {
+      setHeroSliderData({
+        enabled: true,
+        subtitle: data.subtitle || 'NEW ARRIVAL',
+        title: data.title || '',
+        button_text: data.button_text || 'Shop Now',
+        align: data.align || 'left',
+        display_order: data.display_order || 1,
+        existing_slide_id: data.id,
+      });
+    } else {
+      setHeroSliderData(prev => ({ ...prev, enabled: false, existing_slide_id: null }));
+    }
+  };
+
   // Open edit dialog
-  const handleEdit = (product: ProductWithRelations) => {
+  const handleEdit = async (product: ProductWithRelations) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -417,6 +539,10 @@ const AdminProducts = () => {
       description: product.description || '',
       is_featured: product.is_featured || false,
     });
+    setHeroSliderData({
+      ...emptyHeroSliderData,
+      title: product.name, // Default title to product name
+    });
     setImageFiles([]);
     setImagePreviews([]);
     setExistingStorageImages([]);
@@ -424,6 +550,9 @@ const AdminProducts = () => {
     
     // Fetch existing images from storage
     fetchProductImages(product.id, product.image_url || '');
+    
+    // Check for existing hero slide
+    checkForExistingHeroSlide(product.id);
   };
 
   // Set image as main
@@ -436,6 +565,7 @@ const AdminProducts = () => {
   const handleAdd = () => {
     setEditingProduct(null);
     setFormData(emptyFormData);
+    setHeroSliderData(emptyHeroSliderData);
     setIsDialogOpen(true);
   };
 
@@ -645,6 +775,105 @@ const AdminProducts = () => {
                     }`}
                   />
                 </button>
+              </div>
+
+              {/* Hero Slider Toggle */}
+              <div className={`rounded-lg border transition-all ${heroSliderData.enabled ? 'bg-gradient-to-r from-purple-50 to-blue-50 border-purple-300' : 'bg-gray-50 border-gray-200'}`}>
+                <div className="flex items-center justify-between p-3">
+                  <div className="flex items-center gap-2">
+                    <ImageLucide className={`h-5 w-5 ${heroSliderData.enabled ? 'text-purple-500' : 'text-gray-400'}`} />
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-900">Hero Slider</Label>
+                      <p className="text-xs text-gray-600">Feature in homepage hero slider</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setHeroSliderData(prev => ({ 
+                      ...prev, 
+                      enabled: !prev.enabled,
+                      title: prev.title || formData.name 
+                    }))}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      heroSliderData.enabled ? 'bg-purple-500' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        heroSliderData.enabled ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                
+                {/* Hero Slider Options (shown when enabled) */}
+                {heroSliderData.enabled && (
+                  <div className="px-3 pb-3 space-y-3 border-t border-purple-200/50 pt-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-gray-600">Subtitle</Label>
+                        <Input
+                          value={heroSliderData.subtitle}
+                          onChange={(e) => setHeroSliderData(prev => ({ ...prev, subtitle: e.target.value }))}
+                          placeholder="NEW ARRIVAL"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-gray-600">Button Text</Label>
+                        <Input
+                          value={heroSliderData.button_text}
+                          onChange={(e) => setHeroSliderData(prev => ({ ...prev, button_text: e.target.value }))}
+                          placeholder="Shop Now"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-gray-600">Title (defaults to product name)</Label>
+                      <Input
+                        value={heroSliderData.title}
+                        onChange={(e) => setHeroSliderData(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder={formData.name || 'Product name'}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-gray-600">Alignment</Label>
+                        <Select
+                          value={heroSliderData.align}
+                          onValueChange={(value: 'left' | 'center' | 'right') => setHeroSliderData(prev => ({ ...prev, align: value }))}
+                        >
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Left" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="left">Left</SelectItem>
+                            <SelectItem value="center">Center</SelectItem>
+                            <SelectItem value="right">Right</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-gray-600">Display Order</Label>
+                        <Input
+                          type="number"
+                          value={heroSliderData.display_order}
+                          onChange={(e) => setHeroSliderData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 1 }))}
+                          min="1"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                    {heroSliderData.existing_slide_id && (
+                      <p className="text-xs text-purple-600 flex items-center gap-1">
+                        <ImageLucide size={12} />
+                        This product already has a hero slide
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Product Images Section */}
