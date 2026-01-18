@@ -43,51 +43,61 @@ const ProductDetailPage = () => {
   useEffect(() => {
     const fetchProductImages = async () => {
       if (!id) return;
-      
+
       setImagesLoading(true);
       try {
-        // List all files in the products folder
-        const { data: files, error } = await supabase.storage
-          .from('product-images')
-          .list('products');
+        const matching: { name: string }[] = [];
+        const pageSize = 100;
+        let offset = 0;
 
-        if (error) {
-          console.error('Error fetching product images:', error);
-          setProductImages([]);
-          return;
+        // Paginate through storage objects to find files that start with the product id
+        // (Supabase list() returns a limited page; without pagination thumbnails may not appear.)
+        // Stop once we find some images and reach a reasonable number.
+        while (true) {
+          const { data: files, error } = await supabase.storage
+            .from("product-images")
+            .list("products", { limit: pageSize, offset });
+
+          if (error) {
+            console.error("Error fetching product images:", error);
+            break;
+          }
+
+          if (!files || files.length === 0) break;
+
+          for (const file of files) {
+            if (file.name.startsWith(id)) matching.push({ name: file.name });
+          }
+
+          // If we already found images and this page didn't add any new ones, we can stop early.
+          if (matching.length >= 12) break;
+
+          offset += pageSize;
         }
 
-        if (files && files.length > 0) {
-          // Filter files that start with the product ID and sort by index
-          const productFiles = files
-            .filter(file => file.name.startsWith(id))
-            .sort((a, b) => {
-              // Extract the index from filename (e.g., "productId-0.jpg" -> 0)
-              const getIndex = (name: string) => {
-                const parts = name.split('-');
-                const lastPart = parts[parts.length - 1];
-                return parseInt(lastPart?.split('.')[0] || '0');
-              };
-              return getIndex(a.name) - getIndex(b.name);
-            });
+        if (matching.length > 0) {
+          const sorted = matching.sort((a, b) => {
+            const getIndex = (name: string) => {
+              const parts = name.split("-");
+              const lastPart = parts[parts.length - 1];
+              return parseInt(lastPart?.split(".")[0] || "0");
+            };
+            return getIndex(a.name) - getIndex(b.name);
+          });
 
-          if (productFiles.length > 0) {
-            // Get public URLs for all matching images
-            const imageUrls = productFiles.map(file => {
-              const { data } = supabase.storage
-                .from('product-images')
-                .getPublicUrl(`products/${file.name}`);
-              return data.publicUrl;
-            });
-            setProductImages(imageUrls);
-          } else {
-            setProductImages([]);
-          }
+          const imageUrls = sorted.map(file => {
+            const { data } = supabase.storage
+              .from("product-images")
+              .getPublicUrl(`products/${file.name}`);
+            return data.publicUrl;
+          });
+
+          setProductImages(imageUrls);
         } else {
           setProductImages([]);
         }
       } catch (err) {
-        console.error('Error fetching product images:', err);
+        console.error("Error fetching product images:", err);
         setProductImages([]);
       } finally {
         setImagesLoading(false);
