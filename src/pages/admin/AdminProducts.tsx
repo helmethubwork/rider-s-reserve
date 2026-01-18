@@ -50,6 +50,7 @@ interface ProductFormData {
   name: string;
   price: string;
   category_id: string;
+  brand_id: string;
   image_url: string;
   image_urls: string[];
   stock: string;
@@ -74,6 +75,7 @@ const emptyFormData: ProductFormData = {
   name: '',
   price: '',
   category_id: '',
+  brand_id: '',
   image_url: '',
   image_urls: [],
   stock: '',
@@ -258,6 +260,7 @@ const AdminProducts = () => {
         name: data.name.trim(),
         price: parseFloat(data.price),
         category_id: data.category_id || null,
+        brand_id: data.brand_id || null,
         image_url: data.image_url.trim() || null,
         stock: parseInt(data.stock) || 0,
         description: data.description.trim() || null,
@@ -298,6 +301,7 @@ const AdminProducts = () => {
           name: data.name.trim(),
           price: parseFloat(data.price),
           category_id: data.category_id || null,
+          brand_id: data.brand_id || null,
           image_url: data.image_url.trim() || null,
           stock: parseInt(data.stock) || 0,
           description: data.description.trim() || null,
@@ -531,6 +535,7 @@ const AdminProducts = () => {
       name: product.name,
       price: product.price.toString(),
       category_id: product.category_id || '',
+      brand_id: product.brand_id || '',
       image_url: product.image_url || '',
       image_urls: [],
       stock: product.stock.toString(),
@@ -733,24 +738,44 @@ const AdminProducts = () => {
                 </div>
               </div>
 
-              {/* Category */}
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select
-                  value={formData.category_id}
-                  onValueChange={(value) => handleInputChange('category_id', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-              </Select>
+              {/* Category & Brand */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select
+                    value={formData.category_id}
+                    onValueChange={(value) => handleInputChange('category_id', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Brand</Label>
+                  <Select
+                    value={formData.brand_id}
+                    onValueChange={(value) => handleInputChange('brand_id', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select brand" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {brands.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.id}>
+                          {brand.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Unbelievable Offers Toggle */}
