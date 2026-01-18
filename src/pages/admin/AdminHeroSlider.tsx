@@ -287,7 +287,7 @@ const AdminHeroSlider = () => {
           </div>
           <Button 
             onClick={() => setIsDialogOpen(true)}
-            className="bg-gray-900 hover:bg-gray-800 text-white shadow-sm h-11 px-4"
+            className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg h-11 px-4"
           >
             <Plus className="mr-2" size={18} />
             <span className="hidden sm:inline">Add Slide</span>

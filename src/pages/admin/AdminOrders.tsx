@@ -438,7 +438,7 @@ const AdminOrders = () => {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
                   disabled={updateOrder.isPending}
                 >
                   {updateOrder.isPending && (

@@ -268,7 +268,7 @@ const AdminCategories = () => {
           </div>
           <Button 
             onClick={() => setIsDialogOpen(true)}
-            className="bg-gray-900 hover:bg-gray-800 text-white shadow-sm h-11 px-4"
+            className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg h-11 px-4"
           >
             <Plus className="mr-2" size={18} />
             <span className="hidden sm:inline">Add Category</span>
@@ -493,7 +493,7 @@ const AdminCategories = () => {
                 <Button
                   type="submit"
                   disabled={createCategory.isPending || updateCategory.isPending || isUploading}
-                  className="flex-1 h-11 bg-gray-900 hover:bg-gray-800"
+                  className="flex-1 h-11 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
                 >
                   {(createCategory.isPending || updateCategory.isPending || isUploading) && (
                     <Loader2 className="mr-2 animate-spin" size={16} />
