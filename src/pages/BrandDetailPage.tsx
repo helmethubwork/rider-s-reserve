@@ -2,18 +2,57 @@ import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/ProductCard';
-import { getBrandBySlug } from '@/data/brands';
-import { products } from '@/data/products';
-import { ChevronRight, Package } from 'lucide-react';
+import { useBrand } from '@/hooks/useBrands';
+import { useProductsByBrand } from '@/hooks/useProducts';
+import { ChevronRight, Package, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const BrandDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const brand = getBrandBySlug(slug || '');
+  
+  // Fetch brand from Supabase
+  const { data: brand, isLoading: brandLoading } = useBrand(slug || '');
+  
+  // Fetch products for this brand
+  const { data: brandProducts = [], isLoading: productsLoading } = useProductsByBrand(brand?.id || '');
 
-  const brandProducts = products.filter(p => 
-    p.brand?.toLowerCase().includes(brand?.name.toLowerCase() || '') ||
-    p.name.toLowerCase().includes(brand?.name.toLowerCase() || '')
-  );
+  const isLoading = brandLoading || productsLoading;
+
+  if (brandLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20">
+          <div className="bg-muted/30 border-b border-border">
+            <div className="container mx-auto px-4 py-3">
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
+          <section className="bg-gradient-to-b from-primary/10 to-background py-12 md:py-16">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <Skeleton className="w-32 h-32 md:w-40 md:h-40 rounded-2xl" />
+                <div className="text-center md:text-left flex-1">
+                  <Skeleton className="h-10 w-48 mb-4 mx-auto md:mx-0" />
+                  <Skeleton className="h-6 w-full max-w-2xl" />
+                </div>
+              </div>
+            </div>
+          </section>
+          <section className="py-12">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} className="aspect-[3/4] rounded-xl" />
+                ))}
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!brand) {
     return (
@@ -65,18 +104,22 @@ const BrandDetailPage = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-2xl flex items-center justify-center p-4 shadow-lg">
-                <img
-                  src={brand.logo}
-                  alt={brand.name}
-                  className="max-w-full max-h-full object-contain"
-                />
+                {brand.logo_url ? (
+                  <img
+                    src={brand.logo_url}
+                    alt={brand.name}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-gray-400">{brand.name.charAt(0)}</span>
+                )}
               </div>
               <div className="text-center md:text-left">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                   {brand.name}
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-2xl">
-                  {brand.description}
+                  {brand.description || `Explore our collection of ${brand.name} products.`}
                 </p>
               </div>
             </div>
@@ -86,7 +129,11 @@ const BrandDetailPage = () => {
         {/* Products Section */}
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
-            {brandProducts.length > 0 ? (
+            {productsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : brandProducts.length > 0 ? (
               <>
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-foreground">
@@ -103,8 +150,8 @@ const BrandDetailPage = () => {
                       id={product.id}
                       name={product.name}
                       price={product.price}
-                      image={product.image}
-                      isSoldOut={product.isSoldOut}
+                      image={product.image_url || '/placeholder.svg'}
+                      isSoldOut={product.stock === 0}
                     />
                   ))}
                 </div>

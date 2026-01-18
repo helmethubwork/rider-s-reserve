@@ -93,6 +93,29 @@ export const useProductsByCategory = (categorySlug: string) => {
   });
 };
 
+// Fetch products by brand ID
+export const useProductsByBrand = (brandId: string) => {
+  return useQuery({
+    queryKey: ['products', 'brand', brandId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .eq('brand_id', brandId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching products by brand:', error);
+        throw error;
+      }
+
+      return data as SupabaseProduct[];
+    },
+    enabled: !!brandId,
+  });
+};
+
 // Fetch single product by ID
 export const useProduct = (id: string) => {
   return useQuery({
