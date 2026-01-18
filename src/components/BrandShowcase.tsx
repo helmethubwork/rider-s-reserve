@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useFeaturedBrands } from "@/hooks/useBrands";
 import { Skeleton } from "@/components/ui/skeleton";
+import { brands as localBrands } from "@/data/brands";
 
 const LoadingSkeleton = () => (
   <section className="py-12 sm:py-20 md:py-28 bg-background relative overflow-hidden">
@@ -24,12 +25,36 @@ const LoadingSkeleton = () => (
   </section>
 );
 
+// Helper to get local logo by slug
+const getLocalLogo = (slug: string): string | null => {
+  const localBrand = localBrands.find(b => b.slug === slug);
+  return localBrand?.logo || null;
+};
+
 const BrandShowcase = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   
-  const { data: brands = [], isLoading } = useFeaturedBrands();
+  const { data: dbBrands = [], isLoading } = useFeaturedBrands();
+
+  // Merge database brands with local logos as fallback
+  const brands = dbBrands.length > 0 
+    ? dbBrands.map(brand => ({
+        ...brand,
+        logo_url: brand.logo_url || getLocalLogo(brand.slug)
+      }))
+    : localBrands.filter(b => b.featured).map(b => ({
+        id: b.slug,
+        name: b.name,
+        slug: b.slug,
+        logo_url: b.logo,
+        description: b.description,
+        is_featured: true,
+        is_active: true,
+        display_order: 0,
+        created_at: ''
+      }));
 
   const checkScroll = () => {
     if (scrollRef.current) {
