@@ -99,8 +99,8 @@ const AdminAddProduct = () => {
   const [categoryId, setCategoryId] = useState<string>('');
   const [subType, setSubType] = useState('');
   const [compatibility, setCompatibility] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // New fields for featured products and sales
@@ -156,8 +156,8 @@ const AdminAddProduct = () => {
     setCategoryId('');
     setSubType('');
     setCompatibility('');
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFiles([]);
+    setImagePreviews([]);
     setIsFeatured(false);
     setIsOnSale(false);
     setSalePrice('');
@@ -171,30 +171,43 @@ const AdminAddProduct = () => {
     setSelectedCategory(null);
   };
 
-  // Handle image file selection
+  // Handle multiple image file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
+    const validFiles: File[] = [];
+    const previews: string[] = [];
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} is not an image file`);
+        continue;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        continue;
+      }
+
+      validFiles.push(file);
+      previews.push(URL.createObjectURL(file));
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
-      return;
+    if (validFiles.length > 0) {
+      setImageFiles(prev => [...prev, ...validFiles]);
+      setImagePreviews(prev => [...prev, ...previews]);
     }
-
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
   };
 
-  const clearImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearAllImages = () => {
+    setImageFiles([]);
+    setImagePreviews([]);
   };
 
   // Handle form submission
@@ -212,41 +225,49 @@ const AdminAddProduct = () => {
       return;
     }
 
-    if (!imageFile) {
-      toast.error('Product image is required');
+    if (imageFiles.length === 0) {
+      toast.error('At least one product image is required');
       return;
     }
 
     const stockValue = parseInt(stock) || 0;
 
     setIsLoading(true);
-    let imageUploaded = false;
+    const uploadedFilePaths: string[] = [];
     let productId = '';
 
     try {
       productId = crypto.randomUUID();
 
-      const fileExt = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const filePath = `products/${productId}.${fileExt}`;
+      // Upload all images
+      const imageUrls: string[] = [];
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        const filePath = `products/${productId}-${i}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, imageFile, {
-          contentType: imageFile.type,
-          upsert: false,
-        });
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file, {
+            contentType: file.type,
+            upsert: false,
+          });
 
-      if (uploadError) {
-        throw new Error(`Image upload failed: ${uploadError.message}`);
+        if (uploadError) {
+          throw new Error(`Image upload failed: ${uploadError.message}`);
+        }
+
+        uploadedFilePaths.push(filePath);
+
+        const { data: urlData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageUrls.push(urlData.publicUrl);
       }
 
-      imageUploaded = true;
-
-      const { data: urlData } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
-
-      const imageUrl = urlData.publicUrl;
+      // Use first image as main image_url
+      const mainImageUrl = imageUrls[0];
 
       const { error: insertError } = await supabase.from('products').insert({
         id: productId,
@@ -254,7 +275,7 @@ const AdminAddProduct = () => {
         description: description.trim() || null,
         price: priceValue,
         stock: stockValue,
-        image_url: imageUrl,
+        image_url: mainImageUrl,
         is_active: true,
         brand_id: brandId || null,
         category_id: categoryId || null,
@@ -275,11 +296,11 @@ const AdminAddProduct = () => {
       navigate('/admin/products');
 
     } catch (error) {
-      if (imageUploaded && productId) {
-        const fileExt = imageFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+      // Clean up uploaded images on failure
+      if (uploadedFilePaths.length > 0) {
         await supabase.storage
           .from('product-images')
-          .remove([`products/${productId}.${fileExt}`]);
+          .remove(uploadedFilePaths);
       }
 
       const errorMessage = error instanceof Error ? error.message : 'Failed to add product';
@@ -548,38 +569,64 @@ const AdminAddProduct = () => {
 
             {/* Image Upload */}
             <div className="space-y-2">
-              <Label>
-                Product Image <span className="text-destructive">*</span>
-              </Label>
-              {imagePreview ? (
-                <div className="relative w-40 h-40">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg border border-border"
-                  />
+              <div className="flex items-center justify-between">
+                <Label>
+                  Product Images <span className="text-destructive">*</span>
+                </Label>
+                {imagePreviews.length > 0 && (
                   <button
                     type="button"
-                    onClick={clearImage}
-                    className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                    onClick={clearAllImages}
+                    className="text-xs text-destructive hover:underline"
                   >
-                    <X size={16} />
+                    Clear all
                   </button>
+                )}
+              </div>
+              
+              {/* Image Previews Grid */}
+              {imagePreviews.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative w-24 h-24">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded-lg border border-border"
+                      />
+                      {index === 0 && (
+                        <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded">
+                          Main
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors">
-                  <Upload size={32} className="text-muted-foreground mb-2" />
-                  <span className="text-sm text-muted-foreground">Click to upload image</span>
-                  <span className="text-xs text-muted-foreground">Max 5MB</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    disabled={isLoading}
-                  />
-                </label>
               )}
+
+              {/* Upload Button */}
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors">
+                <Upload size={28} className="text-muted-foreground mb-2" />
+                <span className="text-sm text-muted-foreground">
+                  {imagePreviews.length > 0 ? 'Add more images' : 'Click to upload images'}
+                </span>
+                <span className="text-xs text-muted-foreground">Max 5MB each • First image is main</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                  className="hidden"
+                  disabled={isLoading}
+                />
+              </label>
             </div>
 
             {/* Featured & Sale Options */}
