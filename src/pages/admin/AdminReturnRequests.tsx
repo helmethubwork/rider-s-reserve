@@ -120,7 +120,7 @@ const AdminReturnRequests = () => {
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className="bg-gray-200 text-gray-700 font-bold">{request.size_ordered}</Badge>
                           <span className="text-gray-500">→</span>
-                          <Badge className="bg-gray-900 text-white font-bold">{request.size_needed}</Badge>
+                          <Badge className="bg-yellow-500 text-gray-900 font-bold">{request.size_needed}</Badge>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -204,7 +204,7 @@ const AdminReturnRequests = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Size Needed:</span>
-                    <Badge className="bg-gray-900 text-white font-bold">{selectedRequest?.size_needed}</Badge>
+                    <Badge className="bg-yellow-500 text-gray-900 font-bold">{selectedRequest?.size_needed}</Badge>
                   </div>
                 </div>
               </div>

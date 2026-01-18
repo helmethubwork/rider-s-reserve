@@ -137,7 +137,7 @@ const AdminDashboard = () => {
           <div className="flex flex-wrap gap-3">
             <Link
               to="/admin/products"
-              className="px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium shadow-sm"
+              className="px-5 py-2.5 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-600 transition-colors font-bold shadow-lg"
             >
               Manage Products
             </Link>

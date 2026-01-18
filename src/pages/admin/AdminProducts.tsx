@@ -603,7 +603,7 @@ const AdminProducts = () => {
             <p className="text-gray-600">Manage your product inventory</p>
           </div>
           <Link to="/admin/products/add">
-            <Button className="bg-gray-900 hover:bg-gray-800 text-white shadow-sm">
+            <Button className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg">
               <Plus className="mr-2" size={18} />
               Add Product
             </Button>
@@ -1105,7 +1105,7 @@ const AdminProducts = () => {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1"
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
                   disabled={createProduct.isPending || updateProduct.isPending || isUploading}
                 >
                   {(createProduct.isPending || updateProduct.isPending || isUploading) && (
