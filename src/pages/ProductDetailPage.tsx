@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -8,6 +8,7 @@ import { Star, Truck, Minus, Plus, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 const ProductDetailPage = () => {
   const {
     id
@@ -28,6 +29,8 @@ const ProductDetailPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
 
   // Fetch product from Supabase
   const {
@@ -35,6 +38,60 @@ const ProductDetailPage = () => {
     isLoading,
     error
   } = useProduct(id || "");
+
+  // Fetch all images for this product from storage
+  useEffect(() => {
+    const fetchProductImages = async () => {
+      if (!id) return;
+      
+      setImagesLoading(true);
+      try {
+        // List all files in the products folder that start with this product ID
+        const { data: files, error } = await supabase.storage
+          .from('product-images')
+          .list('products', {
+            search: id
+          });
+
+        if (error) {
+          console.error('Error fetching product images:', error);
+          setProductImages([]);
+          return;
+        }
+
+        if (files && files.length > 0) {
+          // Filter files that match the product ID pattern and sort them
+          const productFiles = files
+            .filter(file => file.name.startsWith(id))
+            .sort((a, b) => {
+              // Extract the index from filename (e.g., "productId-0.jpg" -> 0)
+              const indexA = parseInt(a.name.split('-').pop()?.split('.')[0] || '0');
+              const indexB = parseInt(b.name.split('-').pop()?.split('.')[0] || '0');
+              return indexA - indexB;
+            });
+
+          // Get public URLs for all images
+          const imageUrls = productFiles.map(file => {
+            const { data } = supabase.storage
+              .from('product-images')
+              .getPublicUrl(`products/${file.name}`);
+            return data.publicUrl;
+          });
+
+          setProductImages(imageUrls);
+        } else {
+          setProductImages([]);
+        }
+      } catch (err) {
+        console.error('Error fetching product images:', err);
+        setProductImages([]);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    fetchProductImages();
+  }, [id]);
 
   // Loading state
   if (isLoading) {
@@ -102,9 +159,11 @@ const ProductDetailPage = () => {
     }
   };
 
-  // Product image
-  const productImage = product.image_url || "/placeholder.svg";
-  const thumbnails = [productImage];
+  // Product images - use fetched images from storage, fallback to main image_url
+  const thumbnails = productImages.length > 0 
+    ? productImages 
+    : (product.image_url ? [product.image_url] : ["/placeholder.svg"]);
+    
   return <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
