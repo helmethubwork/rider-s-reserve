@@ -29,7 +29,7 @@ const LoadingSkeleton = () => (
 );
 
 const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps) => {
-  const { data: products = [], isLoading } = useFeaturedProducts(8);
+  const { data: products = [], isLoading } = useFeaturedProducts(4);
 
   if (isLoading) {
     return <LoadingSkeleton />;
