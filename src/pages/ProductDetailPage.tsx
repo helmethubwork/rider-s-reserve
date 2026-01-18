@@ -173,10 +173,22 @@ const ProductDetailPage = () => {
     }
   };
 
-  // Product images - use fetched images from storage, fallback to main image_url
-  const thumbnails = productImages.length > 0 
-    ? productImages 
-    : (product.image_url ? [product.image_url] : ["/placeholder.svg"]);
+  // Product images - combine main image_url with any additional images from storage
+  const getAllImages = () => {
+    const mainImage = product.image_url || "/placeholder.svg";
+    
+    // If we found images in storage, use them (they include properly named uploads)
+    if (productImages.length > 0) {
+      // Deduplicate: if main image URL is in productImages, don't add it twice
+      const uniqueImages = productImages.filter(url => url !== mainImage);
+      return [mainImage, ...uniqueImages];
+    }
+    
+    // Fallback to just the main image
+    return [mainImage];
+  };
+  
+  const thumbnails = getAllImages();
     
   return <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -227,14 +239,35 @@ const ProductDetailPage = () => {
                   </div>}
               </div>
 
-              {/* Thumbnails */}
-              {thumbnails.length > 1 && <div className="flex gap-3 overflow-x-auto pb-2">
-                  {thumbnails.map((thumb, index) => <button key={index} onClick={() => setSelectedImageIndex(index)} className={`w-20 h-20 flex-shrink-0 border-2 rounded-xl overflow-hidden transition-all ${selectedImageIndex === index ? "border-primary ring-2 ring-primary/30 scale-105" : "border-border hover:border-primary/50 opacity-70 hover:opacity-100"}`}>
-                      <img src={thumb} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" loading="lazy" onError={e => {
-                  e.currentTarget.src = "/placeholder.svg";
-                }} />
-                    </button>)}
-                </div>}
+              {/* Thumbnails - always show for image selection */}
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {thumbnails.map((thumb, index) => (
+                  <button 
+                    key={index} 
+                    onClick={() => setSelectedImageIndex(index)} 
+                    className={`w-20 h-20 flex-shrink-0 border-2 rounded-xl overflow-hidden transition-all ${
+                      selectedImageIndex === index 
+                        ? "border-primary ring-2 ring-primary/30 scale-105" 
+                        : "border-border hover:border-primary/50 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img 
+                      src={thumb} 
+                      alt={`Image ${index + 1}`} 
+                      className="w-full h-full object-cover" 
+                      loading="lazy" 
+                      onError={e => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }} 
+                    />
+                  </button>
+                ))}
+                {thumbnails.length === 1 && (
+                  <div className="w-20 h-20 flex-shrink-0 border-2 border-dashed border-border rounded-xl flex items-center justify-center text-muted-foreground text-xs text-center p-1">
+                    More images coming soon
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-6">
