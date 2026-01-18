@@ -128,6 +128,8 @@ const AdminProducts = () => {
         stock: parseInt(data.stock) || 0,
         description: data.description.trim() || null,
         is_active: true,
+        sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
+        colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
       });
 
       if (error) throw error;
@@ -156,6 +158,8 @@ const AdminProducts = () => {
           image_url: data.image_url.trim() || null,
           stock: parseInt(data.stock) || 0,
           description: data.description.trim() || null,
+          sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
+          colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
         })
         .eq('id', id);
 
@@ -333,8 +337,8 @@ const AdminProducts = () => {
       image_url: product.image_url || '',
       image_urls: [],
       stock: product.stock.toString(),
-      sizes: '',
-      colors: '',
+      sizes: product.sizes?.join(', ') || '',
+      colors: product.colors?.join(', ') || '',
       description: product.description || '',
     });
     setImageFiles([]);
