@@ -46,12 +46,10 @@ const ProductDetailPage = () => {
       
       setImagesLoading(true);
       try {
-        // List all files in the products folder that start with this product ID
+        // List all files in the products folder
         const { data: files, error } = await supabase.storage
           .from('product-images')
-          .list('products', {
-            search: id
-          });
+          .list('products');
 
         if (error) {
           console.error('Error fetching product images:', error);
@@ -60,25 +58,31 @@ const ProductDetailPage = () => {
         }
 
         if (files && files.length > 0) {
-          // Filter files that match the product ID pattern and sort them
+          // Filter files that start with the product ID and sort by index
           const productFiles = files
             .filter(file => file.name.startsWith(id))
             .sort((a, b) => {
               // Extract the index from filename (e.g., "productId-0.jpg" -> 0)
-              const indexA = parseInt(a.name.split('-').pop()?.split('.')[0] || '0');
-              const indexB = parseInt(b.name.split('-').pop()?.split('.')[0] || '0');
-              return indexA - indexB;
+              const getIndex = (name: string) => {
+                const parts = name.split('-');
+                const lastPart = parts[parts.length - 1];
+                return parseInt(lastPart?.split('.')[0] || '0');
+              };
+              return getIndex(a.name) - getIndex(b.name);
             });
 
-          // Get public URLs for all images
-          const imageUrls = productFiles.map(file => {
-            const { data } = supabase.storage
-              .from('product-images')
-              .getPublicUrl(`products/${file.name}`);
-            return data.publicUrl;
-          });
-
-          setProductImages(imageUrls);
+          if (productFiles.length > 0) {
+            // Get public URLs for all matching images
+            const imageUrls = productFiles.map(file => {
+              const { data } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(`products/${file.name}`);
+              return data.publicUrl;
+            });
+            setProductImages(imageUrls);
+          } else {
+            setProductImages([]);
+          }
         } else {
           setProductImages([]);
         }
