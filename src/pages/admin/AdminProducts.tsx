@@ -56,6 +56,7 @@ interface ProductFormData {
   sizes: string;
   colors: string;
   description: string;
+  is_featured: boolean;
 }
 
 const emptyFormData: ProductFormData = {
@@ -68,6 +69,7 @@ const emptyFormData: ProductFormData = {
   sizes: '',
   colors: '',
   description: '',
+  is_featured: false,
 };
 
 const AdminProducts = () => {
@@ -78,6 +80,8 @@ const AdminProducts = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [existingStorageImages, setExistingStorageImages] = useState<string[]>([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter states
@@ -117,6 +121,51 @@ const AdminProducts = () => {
     return true;
   });
 
+  // Fetch existing images from storage for a product
+  const fetchProductImages = async (productId: string, mainImageUrl: string) => {
+    setIsLoadingImages(true);
+    try {
+      const allImages: string[] = [];
+      let offset = 0;
+      const pageSize = 100;
+      
+      while (true) {
+        const { data: files, error } = await supabase.storage
+          .from('product-images')
+          .list('products', { limit: pageSize, offset });
+        
+        if (error || !files || files.length === 0) break;
+        
+        const matching = files.filter(f => 
+          f.name.startsWith(`${productId}-`) || 
+          f.name.includes(productId)
+        );
+        
+        for (const file of matching) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(`products/${file.name}`);
+          if (publicUrl && !allImages.includes(publicUrl)) {
+            allImages.push(publicUrl);
+          }
+        }
+        
+        if (files.length < pageSize) break;
+        offset += pageSize;
+      }
+      
+      // Add main image if not already included
+      if (mainImageUrl && !allImages.includes(mainImageUrl)) {
+        allImages.unshift(mainImageUrl);
+      }
+      
+      setExistingStorageImages(allImages);
+    } catch (err) {
+      console.error('Error fetching images:', err);
+    }
+    setIsLoadingImages(false);
+  };
+
   // Create product mutation
   const createProduct = useMutation({
     mutationFn: async (data: ProductFormData) => {
@@ -128,6 +177,7 @@ const AdminProducts = () => {
         stock: parseInt(data.stock) || 0,
         description: data.description.trim() || null,
         is_active: true,
+        is_featured: data.is_featured,
         sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
         colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
       });
@@ -158,6 +208,7 @@ const AdminProducts = () => {
           image_url: data.image_url.trim() || null,
           stock: parseInt(data.stock) || 0,
           description: data.description.trim() || null,
+          is_featured: data.is_featured,
           sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
           colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
         })
@@ -172,6 +223,7 @@ const AdminProducts = () => {
       setIsDialogOpen(false);
       setEditingProduct(null);
       setFormData(emptyFormData);
+      setExistingStorageImages([]);
     },
     onError: (error) => {
       toast.error('Failed to update product: ' + error.message);
@@ -363,10 +415,21 @@ const AdminProducts = () => {
       sizes: product.sizes?.join(', ') || '',
       colors: product.colors?.join(', ') || '',
       description: product.description || '',
+      is_featured: product.is_featured || false,
     });
     setImageFiles([]);
     setImagePreviews([]);
+    setExistingStorageImages([]);
     setIsDialogOpen(true);
+    
+    // Fetch existing images from storage
+    fetchProductImages(product.id, product.image_url || '');
+  };
+
+  // Set image as main
+  const setAsMainImage = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, image_url: imageUrl }));
+    toast.success('Set as main image');
   };
 
   // Open add dialog
@@ -557,84 +620,148 @@ const AdminProducts = () => {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
+              </Select>
               </div>
 
-              {/* Multi-Image Upload */}
+              {/* Unbelievable Offers Toggle */}
+              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                <div className="flex items-center gap-2">
+                  <Star className={`h-5 w-5 ${formData.is_featured ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-900">Unbelievable Offers</Label>
+                    <p className="text-xs text-gray-600">Show in featured offers section</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, is_featured: !prev.is_featured }))}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    formData.is_featured ? 'bg-yellow-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                      formData.is_featured ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Product Images Section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Product Images</Label>
+                  <Label className="font-semibold">Product Images</Label>
                   <span className="text-xs text-muted-foreground">
-                    {formData.image_urls.length + imagePreviews.length} image(s)
+                    {existingStorageImages.length + imagePreviews.length} image(s)
                   </span>
                 </div>
                 
-                {/* Existing Images Preview Grid */}
-                {formData.image_urls.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2">
-                    {formData.image_urls.map((url, index) => (
-                      <div key={`existing-${index}`} className="relative aspect-square bg-secondary rounded-lg overflow-hidden group">
-                        <img
-                          src={url}
-                          alt={`Product ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = "/placeholder.svg";
-                          }}
-                        />
-                        {index === 0 && (
-                          <span className="absolute top-1 left-1 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
-                            Main
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => removeExistingImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
+                {/* Loading State */}
+                {isLoadingImages && (
+                  <div className="flex items-center justify-center py-4 text-muted-foreground">
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    <span className="text-sm">Loading existing images...</span>
+                  </div>
+                )}
+
+                {/* Existing Storage Images */}
+                {!isLoadingImages && existingStorageImages.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground font-medium">Existing Images (click to set as main)</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {existingStorageImages.map((url, index) => {
+                        const isMain = url === formData.image_url;
+                        return (
+                          <div 
+                            key={`storage-${index}`} 
+                            className={`relative aspect-square rounded-lg overflow-hidden group cursor-pointer border-2 transition-all ${
+                              isMain ? 'border-yellow-500 ring-2 ring-yellow-200' : 'border-gray-200 hover:border-primary'
+                            }`}
+                            onClick={() => setAsMainImage(url)}
+                          >
+                            <img
+                              src={url}
+                              alt={`Product ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
+                            />
+                            {isMain && (
+                              <span className="absolute top-1 left-1 text-[10px] bg-yellow-500 text-white px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+                                <Star size={10} className="fill-white" /> Main
+                              </span>
+                            )}
+                            {!isMain && (
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-white text-xs font-medium">Set as Main</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Current Main Image (if no storage images found) */}
+                {!isLoadingImages && existingStorageImages.length === 0 && formData.image_url && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground font-medium">Current Main Image</p>
+                    <div className="w-24 h-24 relative rounded-lg overflow-hidden border-2 border-yellow-500">
+                      <img
+                        src={formData.image_url}
+                        alt="Main"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
+                      <span className="absolute top-1 left-1 text-[10px] bg-yellow-500 text-white px-1.5 py-0.5 rounded font-bold">
+                        Main
+                      </span>
+                    </div>
                   </div>
                 )}
 
                 {/* New Images Preview Grid */}
                 {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2">
-                    {imagePreviews.map((preview, index) => (
-                      <div key={`new-${index}`} className="relative aspect-square bg-secondary rounded-lg overflow-hidden group border-2 border-dashed border-primary/50">
-                        <img
-                          src={preview}
-                          alt={`New ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <span className="absolute top-1 left-1 text-[10px] bg-accent text-accent-foreground px-1.5 py-0.5 rounded">
-                          New
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground font-medium">New Images to Upload</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={`new-${index}`} className="relative aspect-square bg-secondary rounded-lg overflow-hidden group border-2 border-dashed border-green-400">
+                          <img
+                            src={preview}
+                            alt={`New ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-1 left-1 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-bold">
+                            New
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {/* Upload Button */}
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors"
+                  className="w-full h-20 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <Plus size={18} className="text-muted-foreground" />
                     <ImageIcon size={18} className="text-muted-foreground" />
                   </div>
-                  <span className="text-sm text-muted-foreground">Add images</span>
-                  <span className="text-xs text-muted-foreground">Click to select (max 5MB each)</span>
+                  <span className="text-xs text-muted-foreground">Click to add more images (max 5MB each)</span>
                 </div>
 
                 <input
@@ -646,20 +773,17 @@ const AdminProducts = () => {
                   className="hidden"
                 />
 
-                {/* Clear All Button */}
-                {(imagePreviews.length > 0 || formData.image_urls.length > 0) && (
+                {/* Clear New Images Button */}
+                {imagePreviews.length > 0 && (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      clearAllImages();
-                      setFormData(prev => ({ ...prev, image_urls: [], image_url: '' }));
-                    }}
+                    onClick={clearAllImages}
                     className="w-full text-destructive hover:text-destructive"
                   >
                     <X size={14} className="mr-1" />
-                    Clear All Images
+                    Clear New Images
                   </Button>
                 )}
               </div>
