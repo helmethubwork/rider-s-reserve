@@ -1,42 +1,41 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import helmet1 from "@/assets/products/helmet-1.jpg";
-import jacket1 from "@/assets/products/jacket-1.jpg";
-import gloves1 from "@/assets/products/gloves-1.jpg";
-import intercom1 from "@/assets/products/intercom-1.jpg";
-import helmet2 from "@/assets/products/helmet-2.jpg";
-import helmet3 from "@/assets/products/helmet-3.jpg";
-import visor1 from "@/assets/products/visor-1.jpg";
+import { useCategories, SupabaseCategory } from "@/hooks/useCategories";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface CategoryItem {
-  name: string;
-  subtitle: string;
-  href: string;
-  image: string;
-}
+const LoadingSkeleton = () => (
+  <section className="py-10 sm:py-16 md:py-24 bg-background">
+    <div className="container mx-auto px-3 sm:px-4">
+      <div className="text-center mb-8 sm:mb-14">
+        <Skeleton className="h-4 w-32 mx-auto mb-4" />
+        <Skeleton className="h-10 w-64 mx-auto" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 mb-3 sm:mb-5">
+        <Skeleton className="min-h-[280px] sm:min-h-[380px] md:min-h-[520px] rounded-xl" />
+        <Skeleton className="min-h-[280px] sm:min-h-[380px] md:min-h-[520px] rounded-xl" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="min-h-[200px] sm:min-h-[280px] md:min-h-[380px] rounded-xl" />
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
-const categories: CategoryItem[] = [
-  { name: "Helmets", subtitle: "Full Face, Modular & More", href: "/category/helmets", image: helmet1 },
-  { name: "Jackets", subtitle: "Mesh, Leather & Textile", href: "/category/riding-gears?type=jackets", image: jacket1 },
-  { name: "Gloves", subtitle: "Racing & Touring", href: "/category/riding-gears?type=gloves", image: gloves1 },
-  { name: "Pants", subtitle: "Riding Jeans & Pants", href: "/category/riding-gears?type=pants", image: helmet2 },
-  { name: "Boots", subtitle: "Touring & Racing Boots", href: "/category/riding-gears?type=boots", image: helmet3 },
-  { name: "Communication", subtitle: "Intercoms & Bluetooth", href: "/category/helmet-accessories?type=intercoms", image: intercom1 },
-  { name: "Luggage", subtitle: "Saddlebags & Tank Bags", href: "/category/motorcycle-accessories?type=luggage", image: visor1 },
-  { name: "Accessories", subtitle: "Visors, Locks & More", href: "/category/motorcycle-accessories", image: gloves1 },
-];
-
-const CategoryCard = ({ category, isLarge = false }: { category: CategoryItem; isLarge?: boolean }) => {
+const CategoryCard = ({ category, isLarge = false }: { category: SupabaseCategory; isLarge?: boolean }) => {
+  const href = category.href || `/category/${category.slug}`;
+  
   return (
     <Link
-      to={category.href}
+      to={href}
       className={`relative block overflow-hidden group rounded-xl sm:rounded-2xl active:scale-[0.98] transition-transform ${
         isLarge ? "min-h-[280px] sm:min-h-[380px] md:min-h-[520px]" : "min-h-[200px] sm:min-h-[280px] md:min-h-[380px]"
       }`}
     >
       {/* Image with zoom effect */}
       <img
-        src={category.image}
+        src={category.image_url || '/placeholder.svg'}
         alt={category.name}
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 absolute inset-0"
         loading="lazy"
@@ -65,9 +64,11 @@ const CategoryCard = ({ category, isLarge = false }: { category: CategoryItem; i
         </h3>
         
         {/* Subtitle */}
-        <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-xs mb-2 sm:mb-4 line-clamp-1 sm:line-clamp-none">
-          {category.subtitle}
-        </p>
+        {category.subtitle && (
+          <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-xs mb-2 sm:mb-4 line-clamp-1 sm:line-clamp-none">
+            {category.subtitle}
+          </p>
+        )}
         
         {/* Arrow indicator */}
         <div className="flex items-center gap-2 sm:gap-3 text-primary overflow-hidden">
@@ -89,6 +90,24 @@ const CategoryCard = ({ category, isLarge = false }: { category: CategoryItem; i
 };
 
 const CategoryGrid = () => {
+  const { data: categories = [], isLoading } = useCategories();
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (categories.length === 0) {
+    return null;
+  }
+
+  // Separate large and regular categories based on is_large field
+  const largeCategories = categories.filter(c => c.is_large).slice(0, 2);
+  const regularCategories = categories.filter(c => !c.is_large);
+
+  // Split regular categories into rows of 3
+  const row2 = regularCategories.slice(0, 3);
+  const row3 = regularCategories.slice(3, 6);
+
   return (
     <section className="py-10 sm:py-16 md:py-24 bg-background">
       <div className="container mx-auto px-3 sm:px-4">
@@ -107,25 +126,32 @@ const CategoryGrid = () => {
           </div>
         </div>
         
-        {/* First row - 2 large banners */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 mb-3 sm:mb-5">
-          <CategoryCard category={categories[0]} isLarge={true} />
-          <CategoryCard category={categories[1]} isLarge={true} />
-        </div>
+        {/* First row - large banners */}
+        {largeCategories.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 mb-3 sm:mb-5">
+            {largeCategories.map((category) => (
+              <CategoryCard key={category.id} category={category} isLarge={true} />
+            ))}
+          </div>
+        )}
         
-        {/* Second row - 3 medium banners */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5 mb-3 sm:mb-5">
-          <CategoryCard category={categories[2]} />
-          <CategoryCard category={categories[3]} />
-          <CategoryCard category={categories[4]} />
-        </div>
+        {/* Second row - medium banners */}
+        {row2.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5 mb-3 sm:mb-5">
+            {row2.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        )}
         
-        {/* Third row - 3 medium banners */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
-          <CategoryCard category={categories[5]} />
-          <CategoryCard category={categories[6]} />
-          <CategoryCard category={categories[7]} />
-        </div>
+        {/* Third row - medium banners */}
+        {row3.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
+            {row3.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

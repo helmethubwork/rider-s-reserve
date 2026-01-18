@@ -3,7 +3,7 @@
  * 
  * Step-by-step form to add products by category.
  * Step 1: Select category → Step 2: Fill category-specific fields
- * Now includes brand selection from database, featured toggle, and sale options.
+ * Now includes brand selection from database, category dropdown, featured toggle, and sale options.
  */
 
 import { useState } from 'react';
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { SupabaseBrand } from '@/hooks/useBrands';
+import { SupabaseCategory } from '@/hooks/useCategories';
 import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -95,6 +96,7 @@ const AdminAddProduct = () => {
   const [colors, setColors] = useState('');
   const [brand, setBrand] = useState('');
   const [brandId, setBrandId] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
   const [subType, setSubType] = useState('');
   const [compatibility, setCompatibility] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -123,6 +125,21 @@ const AdminAddProduct = () => {
     },
   });
 
+  // Fetch categories from database
+  const { data: dbCategories = [] } = useQuery({
+    queryKey: ['admin', 'categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return data as Pick<SupabaseCategory, 'id' | 'name' | 'slug'>[];
+    },
+  });
+
   // Handle category selection
   const handleCategorySelect = (category: CategoryKey) => {
     setSelectedCategory(category);
@@ -136,6 +153,7 @@ const AdminAddProduct = () => {
     setColors('');
     setBrand('');
     setBrandId('');
+    setCategoryId('');
     setSubType('');
     setCompatibility('');
     setImageFile(null);
@@ -230,21 +248,16 @@ const AdminAddProduct = () => {
 
       const imageUrl = urlData.publicUrl;
 
-      const sizesArray = sizes.trim() ? sizes.split(',').map(s => s.trim()).filter(Boolean) : null;
-      const colorsArray = colors.trim() ? colors.split(',').map(c => c.trim()).filter(Boolean) : null;
-
       const { error: insertError } = await supabase.from('products').insert({
         id: productId,
         name: name.trim(),
         description: description.trim() || null,
         price: priceValue,
         stock: stockValue,
-        category: selectedCategory || null,
-        sizes: sizesArray,
-        colors: colorsArray,
         image_url: imageUrl,
         is_active: true,
         brand_id: brandId || null,
+        category_id: categoryId || null,
         is_featured: isFeatured,
         is_on_sale: isOnSale,
         sale_price: isOnSale && salePrice ? parseFloat(salePrice) : null,
@@ -358,19 +371,39 @@ const AdminAddProduct = () => {
               />
             </div>
 
-            {/* Brand - If applicable */}
-            {config.fields.brand && (
-              <div className="space-y-2">
-                <Label htmlFor="brand">{config.fields.brand.label}</Label>
-                <Input
-                  id="brand"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  placeholder={config.fields.brand.placeholder}
-                  disabled={isLoading}
-                />
-              </div>
-            )}
+            {/* Category Dropdown (from database) */}
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dbCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Brand Dropdown (from database) */}
+            <div className="space-y-2">
+              <Label>Brand</Label>
+              <Select value={brandId} onValueChange={setBrandId} disabled={isLoading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select brand" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brands.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Sub Type Selector - If applicable */}
             {'helmetType' in config.fields && (
@@ -492,12 +525,12 @@ const AdminAddProduct = () => {
                   placeholder={(config.fields as any).sizes.placeholder}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">Separate with commas</p>
+                <p className="text-xs text-muted-foreground">Separate sizes with commas</p>
               </div>
             )}
 
-            {/* Colors */}
-            {config.fields.colors && (
+            {/* Colors - If applicable */}
+            {'colors' in config.fields && (
               <div className="space-y-2">
                 <Label htmlFor="colors">{config.fields.colors.label}</Label>
                 <Input
@@ -507,7 +540,7 @@ const AdminAddProduct = () => {
                   placeholder={config.fields.colors.placeholder}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">Separate with commas</p>
+                <p className="text-xs text-muted-foreground">Separate colors with commas</p>
               </div>
             )}
 
@@ -516,30 +549,26 @@ const AdminAddProduct = () => {
               <Label>
                 Product Image <span className="text-destructive">*</span>
               </Label>
-              
               {imagePreview ? (
-                <div className="relative inline-block">
+                <div className="relative w-40 h-40">
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="w-40 h-40 object-cover rounded-lg border border-border"
+                    className="w-full h-full object-cover rounded-lg border border-border"
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -top-2 -right-2 h-6 w-6"
                     onClick={clearImage}
-                    disabled={isLoading}
+                    className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
                   >
-                    <X size={14} />
-                  </Button>
+                    <X size={16} />
+                  </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors bg-secondary/30">
-                  <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary hover:bg-secondary/50 transition-colors">
+                  <Upload size={32} className="text-muted-foreground mb-2" />
                   <span className="text-sm text-muted-foreground">Click to upload image</span>
-                  <span className="text-xs text-muted-foreground mt-1">Max 5MB</span>
+                  <span className="text-xs text-muted-foreground">Max 5MB</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -551,24 +580,97 @@ const AdminAddProduct = () => {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
+            {/* Featured & Sale Options */}
+            <div className="space-y-4 p-4 bg-secondary/30 rounded-lg border border-border">
+              <h3 className="font-semibold text-foreground flex items-center gap-2">
+                <Star size={18} className="text-yellow-500" />
+                Featured & Sale Options
+              </h3>
+
+              {/* Featured Toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Featured Product</Label>
+                  <p className="text-xs text-muted-foreground">Show on homepage offers section</p>
+                </div>
+                <Switch checked={isFeatured} onCheckedChange={setIsFeatured} disabled={isLoading} />
+              </div>
+
+              {/* Display Order */}
+              {isFeatured && (
+                <div className="space-y-2">
+                  <Label htmlFor="displayOrder">Display Order</Label>
+                  <Input
+                    id="displayOrder"
+                    type="number"
+                    value={displayOrder}
+                    onChange={(e) => setDisplayOrder(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-muted-foreground">Lower numbers appear first</p>
+                </div>
+              )}
+
+              {/* On Sale Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Percent size={16} className="text-red-500" />
+                    On Sale
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Enable sale price and badge</p>
+                </div>
+                <Switch checked={isOnSale} onCheckedChange={setIsOnSale} disabled={isLoading} />
+              </div>
+
+              {/* Sale Options */}
+              {isOnSale && (
+                <div className="space-y-4 pt-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="salePrice">Sale Price (₹)</Label>
+                    <Input
+                      id="salePrice"
+                      type="number"
+                      value={salePrice}
+                      onChange={(e) => setSalePrice(e.target.value)}
+                      placeholder="0"
+                      min="1"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Sale Badge</Label>
+                    <Select value={saleBadge} onValueChange={setSaleBadge} disabled={isLoading}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select badge" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {saleBadgeOptions.map((badge) => (
+                          <SelectItem key={badge} value={badge}>{badge}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Submit */}
+            <div className="flex gap-4 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/admin/products')}
-                disabled={isLoading}
                 className="flex-1"
+                disabled={isLoading}
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="flex-1"
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? 'Saving...' : 'Save Product'}
+              <Button type="submit" className="flex-1" disabled={isLoading}>
+                {isLoading && <Loader2 size={18} className="mr-2 animate-spin" />}
+                Save Product
               </Button>
             </div>
           </form>

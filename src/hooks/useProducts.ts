@@ -8,20 +8,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
-// Product type matching Supabase products table
+// Product type matching Supabase products table exactly
 export interface SupabaseProduct {
   id: string;
   name: string;
   price: number;
   stock: number;
   image_url: string | null;
-  image_urls: string[] | null; // Multiple images for color variants
-  category: string | null;
-  sizes: string[] | null;
-  colors: string[] | null;
   description: string | null;
   is_active: boolean;
   created_at: string;
+  brand_id: string | null;
+  category_id: string | null;
+  category: string | null;
+  sizes: string[] | null;
+  colors: string[] | null;
+  is_featured: boolean;
+  is_on_sale: boolean;
+  sale_price: number | null;
+  sale_badge: string | null;
+  display_order: number;
 }
 
 // Fetch all active products
@@ -54,7 +60,7 @@ export const useProductsByCategory = (category: string) => {
         .from('products')
         .select('*')
         .eq('is_active', true)
-        .eq('category', category)
+        .eq('category_id', category)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -91,6 +97,29 @@ export const useProduct = (id: string) => {
   });
 };
 
+// Fetch featured products for homepage offers carousel
+export const useFeaturedProducts = (limit = 8) => {
+  return useQuery({
+    queryKey: ['products', 'featured', limit],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_featured', true)
+        .order('display_order', { ascending: true })
+        .limit(limit);
+
+      if (error) {
+        console.error('Error fetching featured products:', error);
+        throw error;
+      }
+
+      return data as SupabaseProduct[];
+    },
+  });
+};
+
 // Fetch bestsellers (top products by stock, simulated popularity)
 export const useBestsellers = (limit = 4) => {
   return useQuery({
@@ -123,7 +152,7 @@ export const useSearchProducts = (searchTerm: string) => {
         .from('products')
         .select('*')
         .eq('is_active', true)
-        .or(`name.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+        .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
         .order('created_at', { ascending: false });
 
       if (error) {
