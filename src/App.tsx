@@ -36,6 +36,7 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminReturnRequests from "./pages/admin/AdminReturnRequests";
 import AdminBrands from "./pages/admin/AdminBrands";
 import AdminCategories from "./pages/admin/AdminCategories";
+import AdminHeroSlider from "./pages/admin/AdminHeroSlider";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="/admin/return-requests" element={<ProtectedRoute requireAdmin><AdminReturnRequests /></ProtectedRoute>} />
               <Route path="/admin/brands" element={<ProtectedRoute requireAdmin><AdminBrands /></ProtectedRoute>} />
               <Route path="/admin/categories" element={<ProtectedRoute requireAdmin><AdminCategories /></ProtectedRoute>} />
+              <Route path="/admin/hero-slider" element={<ProtectedRoute requireAdmin><AdminHeroSlider /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

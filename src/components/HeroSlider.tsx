@@ -2,19 +2,21 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-helmet.jpg";
+import { useHeroSlides } from "@/hooks/useHeroSlides";
 
 interface Slide {
-  id: number;
+  id: string | number;
   subtitle: string;
   title: string;
-  description?: string;
+  description?: string | null;
   buttonText: string;
   buttonLink: string;
   image: string;
   align: "left" | "center" | "right";
 }
 
-const slides: Slide[] = [
+// Fallback slides when database is empty
+const fallbackSlides: Slide[] = [
   {
     id: 1,
     subtitle: "LAUNCHED",
@@ -62,12 +64,28 @@ const HeroSlider = () => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
+  const { data: dbSlides = [] } = useHeroSlides();
+
+  // Use database slides if available, otherwise use fallback
+  const slides: Slide[] = dbSlides.length > 0 
+    ? dbSlides.map(s => ({
+        id: s.id,
+        subtitle: s.subtitle,
+        title: s.title,
+        description: s.description,
+        buttonText: s.button_text,
+        buttonLink: s.button_link,
+        image: s.image_url || heroImage,
+        align: s.align,
+      }))
+    : fallbackSlides;
+
   useEffect(() => {
     const timer = setInterval(() => {
       goToNextSlide();
     }, 6000);
     return () => clearInterval(timer);
-  }, [currentSlide]);
+  }, [currentSlide, slides.length]);
 
   const goToNextSlide = () => {
     if (isAnimating) return;
@@ -116,6 +134,8 @@ const HeroSlider = () => {
   };
 
   const slide = slides[currentSlide];
+
+  if (!slide) return null;
 
   return (
     <section 
