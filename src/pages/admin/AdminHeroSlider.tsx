@@ -556,7 +556,7 @@ const AdminHeroSlider = () => {
                 <Button
                   type="submit"
                   disabled={createSlide.isPending || updateSlide.isPending || isUploading}
-                  className="flex-1 h-11 bg-gray-900 hover:bg-gray-800"
+                  className="flex-1 h-11 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
                 >
                   {(createSlide.isPending || updateSlide.isPending || isUploading) && (
                     <Loader2 className="mr-2 animate-spin" size={16} />
