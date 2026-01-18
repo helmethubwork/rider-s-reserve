@@ -630,25 +630,25 @@ const AdminAddProduct = () => {
             </div>
 
             {/* Featured & Sale Options */}
-            <div className="space-y-4 p-4 bg-secondary/30 rounded-lg border border-border">
-              <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <Star size={18} className="text-yellow-500" />
+            <div className="space-y-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg border-2 border-amber-200 shadow-sm">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                <Star size={18} className="text-amber-500 fill-amber-500" />
                 Featured & Sale Options
               </h3>
 
               {/* Featured Toggle */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-amber-100">
                 <div>
-                  <Label>Featured Product</Label>
-                  <p className="text-xs text-muted-foreground">Show on homepage offers section</p>
+                  <Label className="text-gray-900 font-medium">Featured Product</Label>
+                  <p className="text-xs text-gray-600">Show on homepage offers section (max 4)</p>
                 </div>
                 <Switch checked={isFeatured} onCheckedChange={setIsFeatured} disabled={isLoading} />
               </div>
 
               {/* Display Order */}
               {isFeatured && (
-                <div className="space-y-2">
-                  <Label htmlFor="displayOrder">Display Order</Label>
+                <div className="space-y-2 p-3 bg-white rounded-lg border border-amber-100">
+                  <Label htmlFor="displayOrder" className="text-gray-900 font-medium">Display Order</Label>
                   <Input
                     id="displayOrder"
                     type="number"
@@ -657,19 +657,20 @@ const AdminAddProduct = () => {
                     placeholder="0"
                     min="0"
                     disabled={isLoading}
+                    className="bg-white border-gray-300"
                   />
-                  <p className="text-xs text-muted-foreground">Lower numbers appear first</p>
+                  <p className="text-xs text-gray-600">Lower numbers appear first</p>
                 </div>
               )}
 
               {/* On Sale Toggle */}
-              <div className="flex items-center justify-between pt-2 border-t border-border">
+              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-lg border border-red-200">
                 <div>
-                  <Label className="flex items-center gap-2">
+                  <Label className="flex items-center gap-2 text-gray-900 font-medium">
                     <Percent size={16} className="text-red-500" />
                     On Sale
                   </Label>
-                  <p className="text-xs text-muted-foreground">Enable sale price and badge</p>
+                  <p className="text-xs text-gray-600">Enable sale price and badge</p>
                 </div>
                 <Switch checked={isOnSale} onCheckedChange={setIsOnSale} disabled={isLoading} />
               </div>
