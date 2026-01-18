@@ -263,6 +263,8 @@ const AdminAddProduct = () => {
         sale_price: isOnSale && salePrice ? parseFloat(salePrice) : null,
         sale_badge: isOnSale && saleBadge ? saleBadge : null,
         display_order: parseInt(displayOrder) || 0,
+        sizes: sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
+        colors: colors ? colors.split(',').map(c => c.trim()).filter(Boolean) : null,
       });
 
       if (insertError) {
