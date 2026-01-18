@@ -1,17 +1,43 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Flame } from "lucide-react";
 import ProductCard from "./ProductCard";
-import { getBestsellers } from "@/data/products";
+import { useFeaturedProducts } from "@/hooks/useProducts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OffersCarouselProps {
   title?: string;
 }
 
+const LoadingSkeleton = () => (
+  <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-foreground via-foreground to-muted relative overflow-hidden">
+    <div className="container mx-auto px-3 sm:px-4 relative z-10">
+      <div className="text-center mb-8 sm:mb-14">
+        <Skeleton className="h-8 w-32 mx-auto mb-4" />
+        <Skeleton className="h-12 w-64 mx-auto" />
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-3">
+            <Skeleton className="aspect-square w-full rounded-lg" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps) => {
-  const products = getBestsellers().map((product, index) => ({
-    ...product,
-    badge: index === 0 ? "Sale" as const : index === 1 ? "Clearance Sale" as const : "Summer Special" as const,
-  }));
+  const { data: products = [], isLoading } = useFeaturedProducts(8);
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-foreground via-foreground to-muted relative overflow-hidden">
@@ -46,10 +72,10 @@ const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps)
               <ProductCard
                 id={product.id}
                 name={product.name}
-                price={product.price}
-                image={product.image}
-                badge={product.badge}
-                isSoldOut={product.isSoldOut}
+                price={product.is_on_sale && product.sale_price ? product.sale_price : product.price}
+                image={product.image_url || '/placeholder.svg'}
+                badge={product.sale_badge as "Sale" | "Clearance Sale" | "Summer Special" | undefined}
+                isSoldOut={product.stock === 0}
               />
             </div>
           ))}

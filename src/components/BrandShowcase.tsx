@@ -1,32 +1,35 @@
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useFeaturedBrands } from "@/hooks/useBrands";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Brand logos
-import axorLogo from "@/assets/brands/axor-logo.png";
-import ls2Logo from "@/assets/brands/ls2-logo.png";
-import mtLogo from "@/assets/brands/mt-logo.png";
-import kordaLogo from "@/assets/brands/korda-logo.png";
-import axxisLogo from "@/assets/brands/axxis-logo.png";
-import nhkLogo from "@/assets/brands/nhk-logo.png";
-import studdsLogo from "@/assets/brands/studds-logo.png";
-import rynoxLogo from "@/assets/brands/rynox-logo.png";
-
-const brands = [
-  { name: "AXOR", slug: "axor", logo: axorLogo },
-  { name: "LS2", slug: "ls2", logo: ls2Logo },
-  { name: "MT", slug: "mt", logo: mtLogo },
-  { name: "KORDA", slug: "korda", logo: kordaLogo },
-  { name: "AXXIS", slug: "axxis", logo: axxisLogo },
-  { name: "NHK", slug: "nhk", logo: nhkLogo },
-  { name: "STUDDS", slug: "studds", logo: studdsLogo },
-  { name: "RYNOX", slug: "rynox", logo: rynoxLogo },
-];
+const LoadingSkeleton = () => (
+  <section className="py-12 sm:py-20 md:py-28 bg-background relative overflow-hidden">
+    <div className="container mx-auto px-3 sm:px-4 relative z-10">
+      <div className="text-center mb-8 sm:mb-14">
+        <Skeleton className="h-4 w-32 mx-auto mb-4" />
+        <Skeleton className="h-10 w-64 mx-auto mb-4" />
+        <Skeleton className="h-4 w-96 mx-auto" />
+      </div>
+      <div className="flex gap-4 sm:gap-6 md:gap-8 overflow-hidden px-12 sm:px-16 md:px-20 py-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex-shrink-0">
+            <Skeleton className="w-44 sm:w-56 md:w-72 lg:w-80 h-36 sm:h-44 md:h-52 lg:h-56 rounded-2xl" />
+            <Skeleton className="h-4 w-24 mx-auto mt-4" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
 const BrandShowcase = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  
+  const { data: brands = [], isLoading } = useFeaturedBrands();
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -40,7 +43,7 @@ const BrandShowcase = () => {
     checkScroll();
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
-  }, []);
+  }, [brands]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -52,6 +55,14 @@ const BrandShowcase = () => {
       setTimeout(checkScroll, 350);
     }
   };
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (brands.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-12 sm:py-20 md:py-28 bg-background relative overflow-hidden">
@@ -99,13 +110,14 @@ const BrandShowcase = () => {
             className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide px-12 sm:px-16 md:px-20 py-6"
           >
             {brands.map((brand) => (
-              <div
-                key={brand.name}
+              <Link
+                key={brand.id}
+                to={`/brands/${brand.slug}`}
                 className="flex-shrink-0 group"
               >
                 <div className="w-44 sm:w-56 md:w-72 lg:w-80 h-36 sm:h-44 md:h-52 lg:h-56 bg-gradient-to-br from-card via-card to-secondary border-2 border-primary/40 rounded-2xl flex items-center justify-center p-6 transition-all duration-500 hover:border-primary hover:shadow-[0_0_40px_rgba(200,255,50,0.25)] hover:scale-105 group-hover:bg-secondary/80">
                   <img 
-                    src={brand.logo} 
+                    src={brand.logo_url || '/placeholder.svg'} 
                     alt={`${brand.name} logo`}
                     className="max-w-[90%] max-h-[85%] object-contain transition-all duration-500 group-hover:scale-110 filter brightness-90 group-hover:brightness-110"
                     loading="lazy"
@@ -114,12 +126,12 @@ const BrandShowcase = () => {
                 <p className="text-center text-sm sm:text-base md:text-lg font-bold text-muted-foreground mt-3 sm:mt-4 group-hover:text-primary transition-colors tracking-wide">
                   {brand.name}
                 </p>
-              </div>
+              </Link>
             ))}
             
             {/* More Brands Card */}
             <Link
-              to="/sale"
+              to="/brands"
               className="flex-shrink-0 group"
             >
               <div className="w-44 sm:w-56 md:w-72 lg:w-80 h-36 sm:h-44 md:h-52 lg:h-56 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border-2 border-primary rounded-2xl flex flex-col items-center justify-center p-6 transition-all duration-500 hover:bg-primary hover:shadow-[0_0_40px_rgba(200,255,50,0.4)] hover:scale-105">
