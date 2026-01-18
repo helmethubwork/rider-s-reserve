@@ -155,15 +155,15 @@ const AdminOrders = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'placed':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-gray-700 text-gray-200';
       case 'shipped':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-500/20 text-yellow-400';
       case 'delivered':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-500/20 text-green-400';
       case 'cancelled':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-500/20 text-red-400';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-700 text-gray-300';
     }
   };
 
@@ -171,15 +171,15 @@ const AdminOrders = () => {
   const getPaymentColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-500/20 text-green-400';
       case 'pending':
-        return 'bg-orange-100 text-orange-700';
+        return 'bg-orange-500/20 text-orange-400';
       case 'failed':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-500/20 text-red-400';
       case 'refunded':
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-700 text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-700 text-gray-300';
     }
   };
 
@@ -281,7 +281,7 @@ const AdminOrders = () => {
                             size="icon"
                             onClick={() => handleEdit(order)}
                             title="Update Order"
-                            className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                            className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
                           >
                             <Truck size={16} />
                           </Button>

@@ -72,15 +72,15 @@ const AdminDashboard = () => {
       value: productCount,
       icon: Package,
       href: '/admin/products',
-      color: 'text-blue-500',
-      bg: 'bg-blue-500/10',
+      color: 'text-yellow-500',
+      bg: 'bg-yellow-500/10',
     },
     {
       label: 'Total Orders',
       value: orderCount,
       icon: ShoppingCart,
       href: '/admin/orders',
-      color: 'text-green-500',
+      color: 'text-green-400',
       bg: 'bg-green-500/10',
     },
     {
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
       value: pendingOrders,
       icon: TrendingUp,
       href: '/admin/orders',
-      color: 'text-orange-500',
+      color: 'text-orange-400',
       bg: 'bg-orange-500/10',
     },
     {
@@ -96,8 +96,8 @@ const AdminDashboard = () => {
       value: messageCount,
       icon: MessageSquare,
       href: '/admin/messages',
-      color: 'text-purple-500',
-      bg: 'bg-purple-500/10',
+      color: 'text-yellow-400',
+      bg: 'bg-yellow-500/10',
     },
   ];
 

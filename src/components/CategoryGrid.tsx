@@ -26,14 +26,14 @@ const LoadingSkeleton = () => (
 const CategoryCard = ({ category, isLarge = false, index = 0 }: { category: SupabaseCategory; isLarge?: boolean; index?: number }) => {
   const href = category.href || `/category/${category.slug}`;
   
-  // Gradient colors for visual variety
+  // Gradient colors for visual variety - black + yellow theme
   const gradientColors = [
-    "from-yellow-500/20 via-orange-500/10",
-    "from-blue-500/20 via-cyan-500/10", 
-    "from-purple-500/20 via-pink-500/10",
-    "from-green-500/20 via-emerald-500/10",
-    "from-red-500/20 via-rose-500/10",
-    "from-indigo-500/20 via-violet-500/10",
+    "from-yellow-500/20 via-amber-500/10",
+    "from-amber-500/20 via-orange-500/10", 
+    "from-yellow-600/20 via-yellow-400/10",
+    "from-orange-500/20 via-amber-500/10",
+    "from-yellow-400/20 via-yellow-600/10",
+    "from-amber-600/20 via-orange-400/10",
   ];
   
   const accentGradient = gradientColors[index % gradientColors.length];
