@@ -34,6 +34,8 @@ import AdminAddProduct from "./pages/admin/AdminAddProduct";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminReturnRequests from "./pages/admin/AdminReturnRequests";
+import AdminBrands from "./pages/admin/AdminBrands";
+import AdminCategories from "./pages/admin/AdminCategories";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +77,8 @@ const App = () => (
               <Route path="/admin/orders" element={<ProtectedRoute requireAdmin><AdminOrders /></ProtectedRoute>} />
               <Route path="/admin/messages" element={<ProtectedRoute requireAdmin><AdminMessages /></ProtectedRoute>} />
               <Route path="/admin/return-requests" element={<ProtectedRoute requireAdmin><AdminReturnRequests /></ProtectedRoute>} />
+              <Route path="/admin/brands" element={<ProtectedRoute requireAdmin><AdminBrands /></ProtectedRoute>} />
+              <Route path="/admin/categories" element={<ProtectedRoute requireAdmin><AdminCategories /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

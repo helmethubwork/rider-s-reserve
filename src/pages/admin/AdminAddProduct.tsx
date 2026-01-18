@@ -3,15 +3,18 @@
  * 
  * Step-by-step form to add products by category.
  * Step 1: Select category → Step 2: Fill category-specific fields
+ * Now includes brand selection from database, featured toggle, and sale options.
  */
 
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -20,7 +23,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench } from 'lucide-react';
+import { SupabaseBrand } from '@/hooks/useBrands';
+import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -73,6 +77,8 @@ const categoryConfig = {
 
 type CategoryKey = keyof typeof categoryConfig;
 
+const saleBadgeOptions = ['Sale', 'Clearance Sale', 'Summer Special', 'New Arrival', 'Best Seller', 'Limited Edition'];
+
 const AdminAddProduct = () => {
   const navigate = useNavigate();
   
@@ -88,11 +94,34 @@ const AdminAddProduct = () => {
   const [sizes, setSizes] = useState('');
   const [colors, setColors] = useState('');
   const [brand, setBrand] = useState('');
+  const [brandId, setBrandId] = useState<string>('');
   const [subType, setSubType] = useState('');
   const [compatibility, setCompatibility] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // New fields for featured products and sales
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [isOnSale, setIsOnSale] = useState(false);
+  const [salePrice, setSalePrice] = useState('');
+  const [saleBadge, setSaleBadge] = useState('');
+  const [displayOrder, setDisplayOrder] = useState('0');
+
+  // Fetch brands from database
+  const { data: brands = [] } = useQuery({
+    queryKey: ['admin', 'brands'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('brands')
+        .select('*')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return data as SupabaseBrand[];
+    },
+  });
 
   // Handle category selection
   const handleCategorySelect = (category: CategoryKey) => {
@@ -106,10 +135,16 @@ const AdminAddProduct = () => {
     setSizes('');
     setColors('');
     setBrand('');
+    setBrandId('');
     setSubType('');
     setCompatibility('');
     setImageFile(null);
     setImagePreview(null);
+    setIsFeatured(false);
+    setIsOnSale(false);
+    setSalePrice('');
+    setSaleBadge('');
+    setDisplayOrder('0');
   };
 
   // Go back to category selection
@@ -209,6 +244,12 @@ const AdminAddProduct = () => {
         colors: colorsArray,
         image_url: imageUrl,
         is_active: true,
+        brand_id: brandId || null,
+        is_featured: isFeatured,
+        is_on_sale: isOnSale,
+        sale_price: isOnSale && salePrice ? parseFloat(salePrice) : null,
+        sale_badge: isOnSale && saleBadge ? saleBadge : null,
+        display_order: parseInt(displayOrder) || 0,
       });
 
       if (insertError) {
