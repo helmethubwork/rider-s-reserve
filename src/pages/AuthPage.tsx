@@ -71,20 +71,20 @@ const AuthPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
+      <section className="py-8 md:py-24 px-4">
+        <div className="container mx-auto">
           <div className="max-w-md mx-auto">
-            <h1 className="text-center text-3xl md:text-4xl font-bold text-foreground tracking-wide mb-12">
+            <h1 className="text-center text-2xl md:text-4xl font-bold text-foreground tracking-wide mb-8 md:mb-12">
               {isLogin ? "LOGIN" : "CREATE ACCOUNT"}
             </h1>
 
             {error && (
-              <div className="bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-4 mb-6">
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive rounded-lg p-3 md:p-4 mb-4 md:mb-6 text-sm md:text-base">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               {!isLogin && (
                 <div className="space-y-2">
                   <label htmlFor="name" className="block text-xs font-medium tracking-[0.2em] text-muted-foreground">
@@ -96,7 +96,8 @@ const AuthPage = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required={!isLogin}
-                    className="h-12 border-foreground/30 focus:border-foreground rounded-none bg-transparent"
+                    className="h-12 md:h-14 border-2 border-white/30 focus:border-primary rounded-lg bg-white text-gray-900 placeholder:text-gray-500"
+                    placeholder="Enter your full name"
                   />
                 </div>
               )}
@@ -111,7 +112,8 @@ const AuthPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 border-foreground/30 focus:border-foreground rounded-none bg-transparent"
+                  className="h-12 md:h-14 border-2 border-white/30 focus:border-primary rounded-lg bg-white text-gray-900 placeholder:text-gray-500"
+                  placeholder="Enter your email"
                 />
               </div>
 
@@ -126,24 +128,25 @@ const AuthPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="h-12 border-foreground/30 focus:border-foreground rounded-none bg-transparent"
+                  className="h-12 md:h-14 border-2 border-white/30 focus:border-primary rounded-lg bg-white text-gray-900 placeholder:text-gray-500"
+                  placeholder="Enter your password"
                 />
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-semibold tracking-[0.15em] rounded-none mt-8" 
+                className="w-full h-12 md:h-14 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-semibold tracking-[0.15em] rounded-lg mt-6 md:mt-8 text-sm md:text-base active:scale-[0.98] transition-transform touch-manipulation" 
                 disabled={loading}
               >
                 {loading ? "PLEASE WAIT..." : isLogin ? "SIGN IN" : "CREATE ACCOUNT"}
               </Button>
             </form>
 
-            <div className="mt-8 text-center">
+            <div className="mt-6 md:mt-8 text-center">
               <button
                 type="button"
                 onClick={() => { setIsLogin(!isLogin); setError(""); }}
-                className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                className="text-muted-foreground hover:text-foreground transition-colors text-sm md:text-base py-2 touch-manipulation"
               >
                 {isLogin ? "Create account" : "Already have an account? Sign in"}
               </button>
