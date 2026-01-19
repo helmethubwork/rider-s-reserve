@@ -73,7 +73,9 @@ const StoreLocatorPage = () => {
                               <span className="text-primary font-black italic tracking-tight" style={{ letterSpacing: '-0.02em' }}>HELMET</span>
                               <span className="text-foreground font-black italic tracking-tight ml-1" style={{ letterSpacing: '-0.02em' }}>HUB</span>
                             </span>
-                            <span className="text-muted-foreground font-medium text-base">– {store.name}</span>
+                            {store.name && (
+                              <span className="text-muted-foreground font-medium text-base">– {store.name}</span>
+                            )}
                             {store.is_main_branch && (
                               <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                                 <Star size={12} className="fill-primary" />
@@ -90,25 +92,27 @@ const StoreLocatorPage = () => {
                                 <p>{store.state}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <Phone size={18} className="text-primary flex-shrink-0" />
-                              <div className="flex flex-wrap gap-x-4">
-                                <a 
-                                  href={`tel:${store.phone_primary}`} 
-                                  className="hover:text-primary transition-colors"
-                                >
-                                  Contact: {store.phone_primary}
-                                </a>
-                                {store.phone_secondary && (
+                            {store.phone_primary && (
+                              <div className="flex items-center gap-3">
+                                <Phone size={18} className="text-primary flex-shrink-0" />
+                                <div className="flex flex-wrap gap-x-4">
                                   <a 
-                                    href={`tel:${store.phone_secondary}`} 
+                                    href={`tel:${store.phone_primary}`} 
                                     className="hover:text-primary transition-colors"
                                   >
-                                    {store.phone_secondary}
+                                    Contact: {store.phone_primary}
                                   </a>
-                                )}
+                                  {store.phone_secondary && (
+                                    <a 
+                                      href={`tel:${store.phone_secondary}`} 
+                                      className="hover:text-primary transition-colors"
+                                    >
+                                      {store.phone_secondary}
+                                    </a>
+                                  )}
+                                </div>
                               </div>
-                            </div>
+                            )}
                             {store.opening_hours && (
                               <div className="flex items-center gap-3">
                                 <Clock size={18} className="text-primary flex-shrink-0" />
