@@ -13,8 +13,13 @@ interface PromoCard {
   accent?: string;
 }
 
+const SECTION_VISIBILITY_KEY = 'featured_promos_visible';
+
 const FeaturedPromo = () => {
   const { data: dbPromos, isLoading } = useFeaturedPromos();
+
+  // Check if section is hidden via admin toggle
+  const sectionVisible = localStorage.getItem(SECTION_VISIBILITY_KEY) !== 'false';
 
   // Map database promos, filter out any without valid images
   const promos: PromoCard[] = (dbPromos || []).map(p => ({
@@ -26,6 +31,11 @@ const FeaturedPromo = () => {
     image: p.image_url || '',
     accent: p.accent || undefined,
   })).filter(p => p.image);
+
+  // Don't render if section is hidden via admin toggle
+  if (!sectionVisible) {
+    return null;
+  }
 
   if (isLoading) {
     return (
