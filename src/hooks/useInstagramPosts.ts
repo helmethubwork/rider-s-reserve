@@ -18,25 +18,10 @@ export interface InstagramReel {
   created_at: string;
 }
 
-const STORAGE_KEY = 'instagram_posts_fallback';
-
-// Get localStorage fallback data
-const getLocalStorageFallback = (): InstagramReel[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.error('Error reading localStorage fallback:', error);
-  }
-  
-  // Return defaults from static file
+// Get static default reels (used as fallback when DB is empty/unavailable)
+const getStaticDefaults = (): InstagramReel[] => {
   return instagramReelIds.map((reelId, index) => ({
-    id: crypto.randomUUID(),
+    id: `default-${index}`,
     reel_url: reelId,
     title: `Reel ${index + 1}`,
     is_active: true,
@@ -58,13 +43,13 @@ export const useInstagramPosts = () => {
 
       if (error) {
         console.error('Error fetching instagram reels:', error);
-        // Return localStorage fallback on error
-        return getLocalStorageFallback().filter(r => r.is_active);
+        // Return static defaults on error
+        return getStaticDefaults().filter(r => r.is_active);
       }
 
       // If database is empty, return fallback
       if (!data || data.length === 0) {
-        return getLocalStorageFallback().filter(r => r.is_active);
+        return getStaticDefaults().filter(r => r.is_active);
       }
 
       return data as InstagramReel[];
@@ -86,12 +71,12 @@ export const useAllInstagramPosts = () => {
 
       if (error) {
         console.error('Error fetching all instagram reels:', error);
-        return getLocalStorageFallback();
+        return getStaticDefaults();
       }
 
       // If database is empty, return fallback
       if (!data || data.length === 0) {
-        return getLocalStorageFallback();
+        return getStaticDefaults();
       }
 
       return data as InstagramReel[];
