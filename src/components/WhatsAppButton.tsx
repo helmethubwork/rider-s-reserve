@@ -1,8 +1,11 @@
 import { MessageCircle } from "lucide-react";
+import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
 
 const WhatsAppButton = () => {
-  const phoneNumber = "917842646888";
-  const message = "Hi! I'm interested in your motorcycle gear.";
+  const { data: contactSettings } = useSiteSettings('contact');
+  
+  const phoneNumber = getSettingValue(contactSettings, 'whatsapp_number', '917842646888');
+  const message = getSettingValue(contactSettings, 'whatsapp_message', "Hi! I'm interested in your motorcycle gear.");
   
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 

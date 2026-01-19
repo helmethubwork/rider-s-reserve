@@ -1,7 +1,22 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
+import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
 
 const Footer = () => {
+  const { data: contactSettings } = useSiteSettings('contact');
+  const { data: socialSettings } = useSiteSettings('social');
+
+  // Contact settings with fallbacks
+  const primaryPhone = getSettingValue(contactSettings, 'primary_phone', '+91 7842646888');
+  const secondaryPhone = getSettingValue(contactSettings, 'secondary_phone', '+91 9063880550');
+  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.com');
+  const storeAddress = getSettingValue(contactSettings, 'store_address', 'HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Gachibowli, Hyd-500033');
+  const storeMapUrl = getSettingValue(contactSettings, 'store_map_url', 'https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6');
+
+  // Social settings with fallbacks
+  const instagramUrl = getSettingValue(socialSettings, 'instagram_url', 'https://www.instagram.com/helmethub46');
+  const facebookUrl = getSettingValue(socialSettings, 'facebook_url', '#');
+
   return (
     <footer className="bg-background border-t border-border">
       {/* Main Footer */}
@@ -39,7 +54,7 @@ const Footer = () => {
             </p>
             <div className="flex gap-2 sm:gap-3">
               <a 
-                href="https://www.instagram.com/helmethub46" 
+                href={instagramUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="p-2 sm:p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded active:scale-95"
@@ -48,7 +63,9 @@ const Footer = () => {
                 <Instagram size={16} className="sm:w-[18px] sm:h-[18px]" />
               </a>
               <a 
-                href="#" 
+                href={facebookUrl} 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="p-2 sm:p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded active:scale-95"
                 aria-label="Facebook"
               >
@@ -110,29 +127,31 @@ const Footer = () => {
               <li className="flex items-start gap-2 sm:gap-3 text-muted-foreground text-xs sm:text-sm">
                 <MapPin size={16} className="sm:w-[18px] sm:h-[18px] text-primary mt-0.5 flex-shrink-0" />
                 <a 
-                  href="https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6" 
+                  href={storeMapUrl} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-primary active:text-primary transition-colors leading-relaxed"
                 >
-                  HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Gachibowli, Hyd-500033
+                  {storeAddress}
                 </a>
               </li>
               <li className="flex items-start gap-2 sm:gap-3 text-muted-foreground text-xs sm:text-sm">
                 <Phone size={16} className="sm:w-[18px] sm:h-[18px] text-primary flex-shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1">
-                  <a className="hover:text-primary active:text-primary transition-colors" href="tel:+917842646888">
-                    +91 7842646888
+                  <a className="hover:text-primary active:text-primary transition-colors" href={`tel:${primaryPhone.replace(/\s/g, '')}`}>
+                    {primaryPhone}
                   </a>
-                  <a className="hover:text-primary active:text-primary transition-colors" href="tel:+919063880550">
-                    +91 9063880550
-                  </a>
+                  {secondaryPhone && (
+                    <a className="hover:text-primary active:text-primary transition-colors" href={`tel:${secondaryPhone.replace(/\s/g, '')}`}>
+                      {secondaryPhone}
+                    </a>
+                  )}
                 </div>
               </li>
               <li className="flex items-center gap-2 sm:gap-3 text-muted-foreground text-xs sm:text-sm">
                 <Mail size={16} className="sm:w-[18px] sm:h-[18px] text-primary flex-shrink-0" />
-                <a href="mailto:support@helmethub.com" className="hover:text-primary active:text-primary transition-colors">
-                  support@helmethub.com
+                <a href={`mailto:${supportEmail}`} className="hover:text-primary active:text-primary transition-colors">
+                  {supportEmail}
                 </a>
               </li>
             </ul>
