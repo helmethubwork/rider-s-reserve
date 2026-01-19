@@ -26,12 +26,27 @@ export const defaultReelIds = [
 
 const STORAGE_KEY = 'instagram_posts';
 
+const createDefaultPosts = (): InstagramPost[] => {
+  return defaultReelIds.map((reelId, index) => ({
+    id: crypto.randomUUID(),
+    reel_id: reelId,
+    display_order: index + 1,
+    is_active: true,
+    created_at: new Date().toISOString(),
+  }));
+};
+
 const getStoredPosts = (): InstagramPost[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (parsed.length > 0) return parsed;
     }
+    // Initialize with defaults if empty or not set
+    const defaults = createDefaultPosts();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+    return defaults;
   } catch (error) {
     console.error('Error reading instagram posts from localStorage:', error);
   }
