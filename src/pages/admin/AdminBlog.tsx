@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, FileText } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, FileText, Database } from 'lucide-react';
 import {
   useAdminBlogPosts,
   useAddBlogPost,
@@ -38,6 +38,8 @@ import {
   useToggleBlogPostPublished,
   BlogPostInput,
 } from '@/hooks/useBlogPosts';
+import { seedBlogPosts } from '@/utils/seedBlogPosts';
+import { toast } from 'sonner';
 
 interface FormData {
   title: string;
@@ -67,12 +69,34 @@ const AdminBlog = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyFormData);
+  const [isSeeding, setIsSeeding] = useState(false);
 
-  const { data: posts = [], isLoading } = useAdminBlogPosts();
+  const { data: posts = [], isLoading, refetch } = useAdminBlogPosts();
   const addMutation = useAddBlogPost();
   const updateMutation = useUpdateBlogPost();
   const deleteMutation = useDeleteBlogPost();
   const togglePublishedMutation = useToggleBlogPostPublished();
+
+  const handleSeedPosts = async () => {
+    setIsSeeding(true);
+    try {
+      const result = await seedBlogPosts();
+      if (result.success) {
+        if (result.message === 'Posts already exist') {
+          toast.info('Blog posts already exist in the database');
+        } else {
+          toast.success('Successfully seeded 4 blog posts!');
+        }
+        refetch();
+      } else {
+        toast.error(`Failed to seed: ${result.error}`);
+      }
+    } catch (error) {
+      toast.error('Failed to seed blog posts');
+    } finally {
+      setIsSeeding(false);
+    }
+  };
 
   const handleTitleChange = (title: string) => {
     setFormData({
@@ -167,11 +191,26 @@ const AdminBlog = () => {
           <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
             <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No blog posts yet</h3>
-            <p className="text-gray-500 mb-4">Create your first blog post to get started.</p>
-            <Button onClick={() => setDialogOpen(true)} className="gap-2">
-              <Plus size={18} />
-              Add Post
-            </Button>
+            <p className="text-gray-500 mb-4">Create your first blog post or seed with sample data.</p>
+            <div className="flex items-center justify-center gap-3">
+              <Button onClick={() => setDialogOpen(true)} className="gap-2">
+                <Plus size={18} />
+                Add Post
+              </Button>
+              <Button 
+                onClick={handleSeedPosts} 
+                variant="outline" 
+                className="gap-2"
+                disabled={isSeeding}
+              >
+                {isSeeding ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Database size={18} />
+                )}
+                Seed Sample Posts
+              </Button>
+            </div>
           </div>
         )}
 
