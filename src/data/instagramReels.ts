@@ -8,10 +8,12 @@
  */
 
 export const instagramReelIds = [
-  "C-C3abzBKYd",
-  "C6YW6r6LI9-",
-  "DTNVmDwgTon",
-  "DRzgIPrjMNT",
-  "DRUl9StDEsX",
   "DPngJf0Af1H",
+  "C-C3abzBKYd",
+  "DTXvb5CjJR8",
+  "DTVatrDgVy_",
+  "DTNVmDwgTon",
+  "DSwvecZASNh",
+  "DSKpNMrDKzy",
+  "DRzgIPrjMNT",
 ];
