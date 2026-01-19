@@ -23,7 +23,6 @@ export interface StoreLocation {
   is_active: boolean;
   display_order: number;
   created_at: string;
-  updated_at: string;
 }
 
 // Map database columns to interface properties
@@ -44,7 +43,6 @@ const mapStoreData = (row: any): StoreLocation => ({
   is_active: row.is_active,
   display_order: row.display_order,
   created_at: row.created_at,
-  updated_at: row.updated_at,
 });
 
 const dedupeStores = (rows: StoreLocation[]) => {
