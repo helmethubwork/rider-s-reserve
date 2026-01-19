@@ -7,10 +7,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
+
 const ContactPage = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { data: contactSettings } = useSiteSettings('contact');
+  const { data: businessSettings } = useSiteSettings('business');
+
+  // Contact settings with fallbacks
+  const primaryPhone = getSettingValue(contactSettings, 'primary_phone', '+91 7842646888');
+  const secondaryPhone = getSettingValue(contactSettings, 'secondary_phone', '+91 9063880550');
+  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.com');
+  const ordersEmail = getSettingValue(contactSettings, 'orders_email', 'orders@helmethub.com');
+  const storeAddress = getSettingValue(contactSettings, 'store_address', '1st Branch: HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.\n2nd Branch: HELMET HUB, 1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur, Hyd-500084. T.G.');
+
+  // Business settings with fallbacks
+  const businessHours = getSettingValue(businessSettings, 'business_hours', '10:00 AM - 11:00 PM');
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,7 +38,6 @@ const ContactPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Import supabase dynamically to keep component clean
       const { supabase } = await import("@/lib/supabase");
       
       const { error } = await supabase.from("contact_messages").insert({
@@ -54,13 +66,16 @@ const ContactPage = () => {
       setIsSubmitting(false);
     }
   };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-  return <div className="min-h-screen flex flex-col bg-white">
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
       <main className="flex-1 pt-0 pb-4">
@@ -87,8 +102,8 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
-                      <p className="text-gray-600">+91 7842646888</p>
-                      <p className="text-gray-600">+91 9063880550</p>
+                      <p className="text-gray-600">{primaryPhone}</p>
+                      {secondaryPhone && <p className="text-gray-600">{secondaryPhone}</p>}
                     </div>
                   </div>
 
@@ -98,8 +113,8 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                      <p className="text-gray-600">support@helmethub.com</p>
-                      <p className="text-gray-600">orders@helmethub.com</p>
+                      <p className="text-gray-600">{supportEmail}</p>
+                      {ordersEmail && <p className="text-gray-600">{ordersEmail}</p>}
                     </div>
                   </div>
 
@@ -109,9 +124,7 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
-                      <p className="text-gray-600">​1st Branch: HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.<br />
-                        2nd Branch: HELMET HUB, 1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur, Hyd-500084. T.G.
-                      </p>
+                      <p className="text-gray-600 whitespace-pre-line">{storeAddress}</p>
                     </div>
                   </div>
 
@@ -121,8 +134,7 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Business Hours</h3>
-                      <p className="text-gray-600">Monday - Sunday: 10:00 AM - 11:00 PM</p>
-                      
+                      <p className="text-gray-600">Monday - Sunday: {businessHours}</p>
                     </div>
                   </div>
                 </div>
@@ -179,6 +191,8 @@ const ContactPage = () => {
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default ContactPage;
