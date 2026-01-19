@@ -295,7 +295,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 variant="ghost"
                 size="sm"
                 onClick={handleBack}
-                className="hidden sm:flex items-center gap-1.5 text-gray-600 hover:text-gray-900 hover:bg-amber-50 h-8 px-2"
+                className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 hover:bg-amber-50 h-8 px-2"
               >
                 <ArrowLeft size={16} />
                 <span className="text-sm">Back</span>
