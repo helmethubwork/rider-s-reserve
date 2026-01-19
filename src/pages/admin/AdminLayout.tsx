@@ -24,7 +24,8 @@ import {
   Menu,
   ChevronLeft,
   Home,
-  Circle
+  Circle,
+  Instagram
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,7 @@ const navItems = [
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, trackUnread: true, storageKey: 'admin_read_orders' },
   { href: '/admin/messages', label: 'Messages', icon: MessageSquare, trackUnread: true, storageKey: 'admin_read_messages' },
   { href: '/admin/return-requests', label: 'Returns', icon: RotateCcw, trackUnread: true, storageKey: 'admin_read_returns' },
+  { href: '/admin/instagram', label: 'Instagram', icon: Instagram, trackUnread: false },
   { href: '/admin/site-settings', label: 'Settings', icon: Settings, trackUnread: false },
   { href: '/admin/store-locations', label: 'Stores', icon: MapPin, trackUnread: false },
 ];

@@ -1,17 +1,13 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
-
-const instagramReels = [
-  "C-C3abzBKYd",
-  "C6YW6r6LI9-",
-  "DTNVmDwgTon",
-  "DRzgIPrjMNT",
-  "DRUl9StDEsX",
-  "DPngJf0Af1H",
-];
+import { useInstagramPosts, defaultReelIds } from "@/hooks/useInstagramPosts";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { data: posts = [] } = useInstagramPosts();
+  
+  // Use database posts if available, otherwise fall back to default
+  const reelIds = posts.length > 0 ? posts.map(p => p.reel_id) : defaultReelIds;
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -96,7 +92,7 @@ const InstagramFeed = () => {
           ref={scrollRef}
           className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-4 sm:px-8"
         >
-          {instagramReels.map((reelId) => (
+          {reelIds.map((reelId) => (
             <div 
               key={reelId} 
               className="flex-shrink-0 w-[240px] sm:w-[300px] md:w-[340px] aspect-[4/5] overflow-hidden relative instagram-video-container rounded-lg sm:rounded-xl border border-border/50 shadow-lg"
