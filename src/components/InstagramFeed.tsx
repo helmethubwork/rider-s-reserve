@@ -1,13 +1,12 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
-import { useInstagramPosts, defaultReelIds } from "@/hooks/useInstagramPosts";
+import { instagramReelIds } from "@/data/instagramReels";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { data: posts = [] } = useInstagramPosts();
   
-  // Use database posts if available, otherwise fall back to default
-  const reelIds = posts.length > 0 ? posts.map(p => p.reel_id) : defaultReelIds;
+  // Use hardcoded reels for reliable production deployment
+  const reelIds = instagramReelIds;
 
   useEffect(() => {
     const script = document.createElement("script");
