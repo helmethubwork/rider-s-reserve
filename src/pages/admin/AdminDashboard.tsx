@@ -2,8 +2,10 @@
  * Admin Dashboard
  * 
  * Clean overview page with stats and quick actions.
+ * Shows recent orders and messages with read/unread indicators.
  */
 
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import { 
@@ -15,14 +17,71 @@ import {
   Plus,
   Eye,
   Settings,
-  MapPin
+  MapPin,
+  Circle
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { format } from 'date-fns';
+
+interface Order {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  total_amount: number;
+  order_status: string;
+  created_at: string;
+}
+
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  phone: string | null;
+  created_at: string;
+}
+
+// Helper to manage read status in localStorage
+const getReadItems = (key: string): string[] => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const markAsRead = (key: string, id: string) => {
+  const items = getReadItems(key);
+  if (!items.includes(id)) {
+    items.push(id);
+    localStorage.setItem(key, JSON.stringify(items));
+  }
+};
 
 const AdminDashboard = () => {
+  const [readOrders, setReadOrders] = useState<string[]>([]);
+  const [readMessages, setReadMessages] = useState<string[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+
+  useEffect(() => {
+    setReadOrders(getReadItems('admin_read_orders'));
+    setReadMessages(getReadItems('admin_read_messages'));
+  }, []);
+
   // Fetch product count
   const { data: productCount = 0, isLoading: loadingProducts } = useQuery({
     queryKey: ['admin', 'products', 'count'],
@@ -72,6 +131,81 @@ const AdminDashboard = () => {
       return count || 0;
     },
   });
+
+  // Fetch recent orders (last 5)
+  const { data: recentOrders = [] } = useQuery({
+    queryKey: ['admin', 'orders', 'recent'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data as Order[];
+    },
+  });
+
+  // Fetch recent messages (last 5)
+  const { data: recentMessages = [] } = useQuery({
+    queryKey: ['admin', 'messages', 'recent'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data as ContactMessage[];
+    },
+  });
+
+  // Handle viewing order details
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    if (!readOrders.includes(order.id)) {
+      markAsRead('admin_read_orders', order.id);
+      setReadOrders([...readOrders, order.id]);
+    }
+  };
+
+  // Handle viewing message details
+  const handleViewMessage = (message: ContactMessage) => {
+    setSelectedMessage(message);
+    if (!readMessages.includes(message.id)) {
+      markAsRead('admin_read_messages', message.id);
+      setReadMessages([...readMessages, message.id]);
+    }
+  };
+
+  // Format price
+  const formatPrice = (value: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
+  // Get status badge color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'placed':
+        return 'bg-amber-100 text-amber-700';
+      case 'shipped':
+        return 'bg-blue-100 text-blue-700';
+      case 'delivered':
+        return 'bg-green-100 text-green-700';
+      case 'cancelled':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  // Count unread items
+  const unreadOrdersCount = recentOrders.filter(o => !readOrders.includes(o.id)).length;
+  const unreadMessagesCount = recentMessages.filter(m => !readMessages.includes(m.id)).length;
 
   const stats = [
     {
@@ -189,37 +323,207 @@ const AdminDashboard = () => {
 
         {/* Activity Cards */}
         <div className="grid md:grid-cols-2 gap-4">
+          {/* Recent Orders */}
           <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900 text-sm">Recent Orders</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-gray-900 text-sm">Recent Orders</h2>
+                {unreadOrdersCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {unreadOrdersCount}
+                  </span>
+                )}
+              </div>
               <Link to="/admin/orders" className="text-xs text-amber-600 hover:text-amber-700 font-medium">
                 View all →
               </Link>
             </div>
-            <div className="text-center py-6">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
-                <ShoppingCart size={18} className="text-gray-400" />
+            {recentOrders.length === 0 ? (
+              <div className="text-center py-6">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                  <ShoppingCart size={18} className="text-gray-400" />
+                </div>
+                <p className="text-sm text-gray-500">No orders yet</p>
               </div>
-              <p className="text-sm text-gray-500">Orders will appear here</p>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                {recentOrders.map((order) => {
+                  const isUnread = !readOrders.includes(order.id);
+                  return (
+                    <button
+                      key={order.id}
+                      onClick={() => handleViewOrder(order)}
+                      className={`w-full text-left p-3 rounded-lg border transition-all hover:shadow-sm ${
+                        isUnread 
+                          ? 'bg-red-50 border-red-200 hover:bg-red-100' 
+                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {isUnread && (
+                            <Circle size={8} className="text-red-500 fill-red-500 flex-shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-semibold text-gray-900 text-sm truncate">
+                              {order.order_number}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">{order.customer_name}</p>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-bold text-gray-900 text-sm">{formatPrice(order.total_amount)}</p>
+                          <span className={`inline-block text-xs font-medium px-1.5 py-0.5 rounded capitalize ${getStatusColor(order.order_status)}`}>
+                            {order.order_status}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           
+          {/* Recent Messages */}
           <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900 text-sm">Messages</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-gray-900 text-sm">Messages</h2>
+                {unreadMessagesCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {unreadMessagesCount}
+                  </span>
+                )}
+              </div>
               <Link to="/admin/messages" className="text-xs text-amber-600 hover:text-amber-700 font-medium">
                 View all →
               </Link>
             </div>
-            <div className="text-center py-6">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
-                <MessageSquare size={18} className="text-gray-400" />
+            {recentMessages.length === 0 ? (
+              <div className="text-center py-6">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                  <MessageSquare size={18} className="text-gray-400" />
+                </div>
+                <p className="text-sm text-gray-500">No messages yet</p>
               </div>
-              <p className="text-sm text-gray-500">Messages will appear here</p>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                {recentMessages.map((message) => {
+                  const isUnread = !readMessages.includes(message.id);
+                  return (
+                    <button
+                      key={message.id}
+                      onClick={() => handleViewMessage(message)}
+                      className={`w-full text-left p-3 rounded-lg border transition-all hover:shadow-sm ${
+                        isUnread 
+                          ? 'bg-red-50 border-red-200 hover:bg-red-100' 
+                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {isUnread && (
+                          <Circle size={8} className="text-red-500 fill-red-500 flex-shrink-0 mt-1.5" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-semibold text-gray-900 text-sm truncate">{message.name}</p>
+                            <span className="text-xs text-gray-400 flex-shrink-0">
+                              {format(new Date(message.created_at), 'MMM d')}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-700 font-medium truncate">{message.subject}</p>
+                          <p className="text-xs text-gray-500 truncate">{message.message}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Order Details Dialog */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 font-bold">
+              Order {selectedOrder?.order_number}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500">
+              {selectedOrder && format(new Date(selectedOrder.created_at), 'MMMM d, yyyy h:mm a')}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-gray-500 text-xs">Customer</p>
+                    <p className="font-semibold text-gray-900">{selectedOrder.customer_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Email</p>
+                    <p className="font-medium text-gray-700">{selectedOrder.customer_email}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Total</p>
+                    <p className="font-bold text-gray-900">{formatPrice(selectedOrder.total_amount)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Status</p>
+                    <span className={`inline-block text-xs font-medium px-2 py-1 rounded capitalize ${getStatusColor(selectedOrder.order_status)}`}>
+                      {selectedOrder.order_status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold">
+                <Link to="/admin/orders">View Full Details</Link>
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Message Details Dialog */}
+      <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 font-bold">
+              {selectedMessage?.subject}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500">
+              From {selectedMessage?.name} • {selectedMessage && format(new Date(selectedMessage.created_at), 'MMMM d, yyyy h:mm a')}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedMessage && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-gray-500 text-xs">Email</p>
+                  <p className="font-medium text-gray-700">{selectedMessage.email}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs">Phone</p>
+                  <p className="font-medium text-gray-700">{selectedMessage.phone || 'Not provided'}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs mb-2">Message</p>
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-gray-900 text-sm whitespace-pre-wrap">{selectedMessage.message}</p>
+                </div>
+              </div>
+              <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold">
+                <Link to="/admin/messages">View All Messages</Link>
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
