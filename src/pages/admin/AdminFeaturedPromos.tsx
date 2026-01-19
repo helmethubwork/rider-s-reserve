@@ -441,25 +441,43 @@ const AdminFeaturedPromos = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex sm:flex-col gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(promo)}
-                    className="flex-1 sm:flex-none"
-                  >
-                    <Pencil size={14} className="mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(promo.id)}
-                    className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 size={14} className="mr-1" />
-                    Delete
-                  </Button>
+                <div className="flex sm:flex-col gap-2 items-end">
+                  {/* Quick visibility toggle */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <Switch
+                      checked={promo.is_active}
+                      onCheckedChange={(checked) => {
+                        updatePromo.mutate({
+                          id: promo.id,
+                          data: { is_active: checked }
+                        });
+                      }}
+                      className="data-[state=checked]:bg-green-500"
+                    />
+                    <span className={`text-xs font-medium ${promo.is_active ? 'text-green-600' : 'text-gray-400'}`}>
+                      {promo.is_active ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                  <div className="flex sm:flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(promo)}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Pencil size={14} className="mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(promo.id)}
+                      className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 size={14} className="mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
