@@ -154,7 +154,6 @@ const InstagramFeed = () => {
                 className="instagram-media"
                 data-instgrm-permalink={`https://www.instagram.com/reel/${reelId}/`}
                 data-instgrm-version="14"
-                data-instgrm-captioned
                 style={{
                   background: "transparent",
                   border: 0,
@@ -181,14 +180,14 @@ const InstagramFeed = () => {
           position: relative;
           overflow: hidden;
           background: #000;
-          clip-path: inset(0 0 0 0);
+          clip-path: inset(0 0 140px 0);
         }
         .instagram-video-container iframe {
           position: absolute !important;
-          top: -60px !important;
+          top: -80px !important;
           left: -1px !important;
           width: calc(100% + 2px) !important;
-          height: calc(100% + 200px) !important;
+          height: calc(100% + 280px) !important;
           border: 0 !important;
         }
         .instagram-video-container .instagram-media {
