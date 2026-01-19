@@ -41,6 +41,8 @@ const emptyFormData: PromoFormData = {
   is_active: true,
 };
 
+const SECTION_VISIBILITY_KEY = 'featured_promos_visible';
+
 const AdminFeaturedPromos = () => {
   const { data: promos, isLoading } = useAdminFeaturedPromos();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -49,9 +51,24 @@ const AdminFeaturedPromos = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sectionVisible, setSectionVisible] = useState(() => {
+    const stored = localStorage.getItem(SECTION_VISIBILITY_KEY);
+    return stored === null ? true : stored === 'true';
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handleSectionVisibilityChange = (visible: boolean) => {
+    setSectionVisible(visible);
+    localStorage.setItem(SECTION_VISIBILITY_KEY, String(visible));
+    toast({
+      title: visible ? 'Section Visible' : 'Section Hidden',
+      description: visible 
+        ? 'Featured Promos section will show on homepage' 
+        : 'Featured Promos section is hidden from homepage',
+    });
+  };
 
   // Create promo mutation
   const createPromo = useMutation({
@@ -184,6 +201,19 @@ const AdminFeaturedPromos = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Section Visibility Toggle */}
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-4 flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-gray-900">Show Featured Promos on Homepage</h3>
+            <p className="text-sm text-gray-500">Toggle to hide/show this section on the homepage</p>
+          </div>
+          <Switch
+            checked={sectionVisible}
+            onCheckedChange={handleSectionVisibilityChange}
+            className="data-[state=checked]:bg-yellow-500"
+          />
+        </div>
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
