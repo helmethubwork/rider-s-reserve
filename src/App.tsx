@@ -38,6 +38,7 @@ import AdminBrands from "./pages/admin/AdminBrands";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminHeroSlider from "./pages/admin/AdminHeroSlider";
 import AdminFeaturedPromos from "./pages/admin/AdminFeaturedPromos";
+import AdminSiteSettings from "./pages/admin/AdminSiteSettings";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/admin/categories" element={<ProtectedRoute requireAdmin><AdminCategories /></ProtectedRoute>} />
               <Route path="/admin/hero-slider" element={<ProtectedRoute requireAdmin><AdminHeroSlider /></ProtectedRoute>} />
               <Route path="/admin/featured-promos" element={<ProtectedRoute requireAdmin><AdminFeaturedPromos /></ProtectedRoute>} />
+              <Route path="/admin/site-settings" element={<ProtectedRoute requireAdmin><AdminSiteSettings /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -9,7 +9,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { Package, ShoppingCart, LayoutDashboard, ArrowLeft, MessageSquare, RotateCcw, Tag, Grid3X3, Image, Star } from 'lucide-react';
+import { Package, ShoppingCart, LayoutDashboard, ArrowLeft, MessageSquare, RotateCcw, Tag, Grid3X3, Image, Star, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
@@ -65,8 +65,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       label: 'Return Requests',
       icon: RotateCcw,
     },
+    {
+      href: '/admin/site-settings',
+      label: 'Site Settings',
+      icon: Settings,
+    },
   ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
