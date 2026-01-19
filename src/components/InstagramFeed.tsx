@@ -1,14 +1,13 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
-import { instagramReelIds } from "@/data/instagramReels";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: posts, isLoading } = useInstagramPosts();
   
-  // Use posts from localStorage if available, otherwise use static defaults
-  const reelIds = posts.length > 0 ? posts.map(p => p.reel_id) : instagramReelIds;
+  // Extract reel IDs from posts
+  const reelIds = posts?.map(p => p.reel_url) || [];
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -31,7 +30,7 @@ const InstagramFeed = () => {
 
   // Re-process embeds when reelIds change
   useEffect(() => {
-    if ((window as any).instgrm) {
+    if ((window as any).instgrm && reelIds.length > 0) {
       (window as any).instgrm.Embeds.process();
     }
   }, [reelIds]);
@@ -45,6 +44,20 @@ const InstagramFeed = () => {
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-10 sm:py-16 md:py-24 bg-secondary/30 overflow-hidden relative">
+        <div className="container mx-auto px-3 sm:px-4 text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        </div>
+      </section>
+    );
+  }
+
+  if (reelIds.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-10 sm:py-16 md:py-24 bg-secondary/30 overflow-hidden relative">

@@ -2,7 +2,7 @@
  * Admin Instagram Posts Page
  * 
  * Manage Instagram reel IDs displayed on the homepage feed.
- * Uses localStorage for persistence with static defaults as fallback.
+ * Uses Supabase for persistence with localStorage as fallback.
  */
 
 import { useState } from 'react';
@@ -26,31 +26,45 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Instagram, Plus, Trash2, Edit2, ArrowUp, ArrowDown, ExternalLink, RotateCcw } from 'lucide-react';
+import { Instagram, Plus, Trash2, Edit2, ArrowUp, ArrowDown, ExternalLink, RotateCcw, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAllInstagramPosts, InstagramPost } from '@/hooks/useInstagramPosts';
+import { useAllInstagramPosts, InstagramReel } from '@/hooks/useInstagramPosts';
 
 const AdminInstagramPosts = () => {
-  const { data: posts, isLoading, addPost, updatePost, deletePost, reorderPost, resetToDefaults } = useAllInstagramPosts();
+  const { 
+    data: posts, 
+    isLoading, 
+    addPost, 
+    updatePost, 
+    deletePost, 
+    reorderPost, 
+    resetToDefaults,
+    isAdding,
+    isUpdating,
+    isDeleting,
+  } = useAllInstagramPosts();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<InstagramPost | null>(null);
+  const [editingPost, setEditingPost] = useState<InstagramReel | null>(null);
   const [formData, setFormData] = useState({
-    reel_id: '',
+    reel_url: '',
+    title: '',
     is_active: true,
   });
 
-  const handleOpenDialog = (post?: InstagramPost) => {
+  const handleOpenDialog = (post?: InstagramReel) => {
     if (post) {
       setEditingPost(post);
       setFormData({
-        reel_id: post.reel_id,
+        reel_url: post.reel_url,
+        title: post.title || '',
         is_active: post.is_active,
       });
     } else {
       setEditingPost(null);
       setFormData({
-        reel_id: '',
+        reel_url: '',
+        title: '',
         is_active: true,
       });
     }
@@ -60,54 +74,90 @@ const AdminInstagramPosts = () => {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingPost(null);
-    setFormData({ reel_id: '', is_active: true });
+    setFormData({ reel_url: '', title: '', is_active: true });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.reel_id.trim()) {
+    if (!formData.reel_url.trim()) {
       toast.error('Please enter a reel ID');
       return;
     }
 
-    if (editingPost) {
-      updatePost(editingPost.id, formData);
-      toast.success('Post updated');
-    } else {
-      addPost(formData.reel_id.trim(), formData.is_active);
-      toast.success('Instagram reel added');
+    try {
+      if (editingPost) {
+        await updatePost(editingPost.id, {
+          reel_url: formData.reel_url.trim(),
+          title: formData.title.trim() || null,
+          is_active: formData.is_active,
+        });
+        toast.success('Post updated');
+      } else {
+        await addPost(formData.reel_url.trim(), formData.title.trim() || undefined, formData.is_active);
+        toast.success('Instagram reel added');
+      }
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Error saving reel:', error);
+      toast.error('Failed to save reel. Make sure you have admin permissions.');
     }
-    handleCloseDialog();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this reel?')) {
-      deletePost(id);
-      toast.success('Reel deleted');
+      try {
+        await deletePost(id);
+        toast.success('Reel deleted');
+      } catch (error) {
+        console.error('Error deleting reel:', error);
+        toast.error('Failed to delete reel. Make sure you have admin permissions.');
+      }
     }
   };
 
-  const handleMoveUp = (post: InstagramPost, index: number) => {
+  const handleMoveUp = async (post: InstagramReel, index: number) => {
     if (index === 0) return;
-    reorderPost(post.id, 'up');
-  };
-
-  const handleMoveDown = (post: InstagramPost, index: number) => {
-    if (index === posts.length - 1) return;
-    reorderPost(post.id, 'down');
-  };
-
-  const handleToggleActive = (post: InstagramPost) => {
-    updatePost(post.id, { is_active: !post.is_active });
-    toast.success(post.is_active ? 'Reel hidden' : 'Reel shown');
-  };
-
-  const handleResetDefaults = () => {
-    if (confirm('Reset to default reels? This will remove all custom changes.')) {
-      resetToDefaults();
-      toast.success('Reset to default reels');
+    try {
+      await reorderPost(post.id, 'up');
+    } catch (error) {
+      console.error('Error reordering:', error);
+      toast.error('Failed to reorder');
     }
   };
+
+  const handleMoveDown = async (post: InstagramReel, index: number) => {
+    if (index === posts.length - 1) return;
+    try {
+      await reorderPost(post.id, 'down');
+    } catch (error) {
+      console.error('Error reordering:', error);
+      toast.error('Failed to reorder');
+    }
+  };
+
+  const handleToggleActive = async (post: InstagramReel) => {
+    try {
+      await updatePost(post.id, { is_active: !post.is_active });
+      toast.success(post.is_active ? 'Reel hidden' : 'Reel shown');
+    } catch (error) {
+      console.error('Error toggling status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleResetDefaults = async () => {
+    if (confirm('Reset to default reels? This will remove all custom changes.')) {
+      try {
+        await resetToDefaults();
+        toast.success('Reset to default reels');
+      } catch (error) {
+        console.error('Error resetting:', error);
+        toast.error('Failed to reset. Make sure you have admin permissions.');
+      }
+    }
+  };
+
+  const isBusy = isAdding || isUpdating || isDeleting;
 
   return (
     <AdminLayout>
@@ -123,6 +173,7 @@ const AdminInstagramPosts = () => {
               variant="outline"
               onClick={handleResetDefaults}
               className="border-gray-300"
+              disabled={isBusy}
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Reset Defaults
@@ -130,6 +181,7 @@ const AdminInstagramPosts = () => {
             <Button
               onClick={() => handleOpenDialog()}
               className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold"
+              disabled={isBusy}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Reel
@@ -170,6 +222,7 @@ const AdminInstagramPosts = () => {
                 <TableRow>
                   <TableHead className="w-24 font-bold text-gray-700">Order</TableHead>
                   <TableHead className="font-bold text-gray-700">Reel ID</TableHead>
+                  <TableHead className="font-bold text-gray-700">Title</TableHead>
                   <TableHead className="font-bold text-gray-700">Preview</TableHead>
                   <TableHead className="font-bold text-gray-700">Status</TableHead>
                   <TableHead className="text-right font-bold text-gray-700">Actions</TableHead>
@@ -187,7 +240,7 @@ const AdminInstagramPosts = () => {
                             size="icon"
                             className="h-6 w-6"
                             onClick={() => handleMoveUp(post, index)}
-                            disabled={index === 0}
+                            disabled={index === 0 || isBusy}
                           >
                             <ArrowUp className="h-3 w-3" />
                           </Button>
@@ -196,7 +249,7 @@ const AdminInstagramPosts = () => {
                             size="icon"
                             className="h-6 w-6"
                             onClick={() => handleMoveDown(post, index)}
-                            disabled={index === posts.length - 1}
+                            disabled={index === posts.length - 1 || isBusy}
                           >
                             <ArrowDown className="h-3 w-3" />
                           </Button>
@@ -204,11 +257,14 @@ const AdminInstagramPosts = () => {
                       </div>
                     </TableCell>
                     <TableCell className="font-mono font-bold text-gray-900">
-                      {post.reel_id}
+                      {post.reel_url}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {post.title || '-'}
                     </TableCell>
                     <TableCell>
                       <a
-                        href={`https://www.instagram.com/reel/${post.reel_id}/`}
+                        href={`https://www.instagram.com/reel/${post.reel_url}/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-pink-600 hover:text-pink-700 text-sm"
@@ -221,6 +277,7 @@ const AdminInstagramPosts = () => {
                       <Switch
                         checked={post.is_active}
                         onCheckedChange={() => handleToggleActive(post)}
+                        disabled={isBusy}
                       />
                     </TableCell>
                     <TableCell className="text-right">
@@ -230,6 +287,7 @@ const AdminInstagramPosts = () => {
                           size="icon"
                           onClick={() => handleOpenDialog(post)}
                           className="border-gray-300 hover:bg-gray-100"
+                          disabled={isBusy}
                         >
                           <Edit2 size={16} className="text-gray-700" />
                         </Button>
@@ -238,6 +296,7 @@ const AdminInstagramPosts = () => {
                           size="icon"
                           onClick={() => handleDelete(post.id)}
                           className="border-red-300 text-red-600 hover:bg-red-50"
+                          disabled={isBusy}
                         >
                           <Trash2 size={16} />
                         </Button>
@@ -269,15 +328,29 @@ const AdminInstagramPosts = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="reel_id" className="text-gray-900 font-semibold">
-                Reel ID
+              <Label htmlFor="reel_url" className="text-gray-900 font-semibold">
+                Reel ID *
               </Label>
               <Input
-                id="reel_id"
-                value={formData.reel_id}
-                onChange={(e) => setFormData({ ...formData, reel_id: e.target.value })}
+                id="reel_url"
+                value={formData.reel_url}
+                onChange={(e) => setFormData({ ...formData, reel_url: e.target.value })}
                 placeholder="e.g., C-C3abzBKYd"
                 className="font-mono"
+                disabled={isBusy}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-gray-900 font-semibold">
+                Title (optional)
+              </Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g., New Helmet Launch"
+                disabled={isBusy}
               />
             </div>
 
@@ -289,6 +362,7 @@ const AdminInstagramPosts = () => {
                 id="is_active"
                 checked={formData.is_active}
                 onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                disabled={isBusy}
               />
             </div>
 
@@ -298,13 +372,16 @@ const AdminInstagramPosts = () => {
                 variant="outline"
                 onClick={handleCloseDialog}
                 className="flex-1 border-gray-300"
+                disabled={isBusy}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 className="flex-1 bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold"
+                disabled={isBusy}
               >
+                {isBusy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {editingPost ? 'Save Changes' : 'Add Reel'}
               </Button>
             </div>

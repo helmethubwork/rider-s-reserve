@@ -1,34 +1,27 @@
 /**
  * Instagram Posts Hook
  * 
- * Manages Instagram reel IDs using localStorage for persistence.
- * Falls back to static defaults from instagramReels.ts for new visitors.
+ * Manages Instagram reel data using Supabase as primary storage.
+ * Falls back to localStorage/static defaults if database is empty.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 import { instagramReelIds } from '@/data/instagramReels';
 
-export interface InstagramPost {
+export interface InstagramReel {
   id: string;
-  reel_id: string;
-  display_order: number;
+  reel_url: string;
+  title: string | null;
   is_active: boolean;
+  display_order: number;
   created_at: string;
 }
 
-const STORAGE_KEY = 'instagram_posts';
+const STORAGE_KEY = 'instagram_posts_fallback';
 
-const createDefaultPosts = (): InstagramPost[] => {
-  return instagramReelIds.map((reelId, index) => ({
-    id: crypto.randomUUID(),
-    reel_id: reelId,
-    display_order: index + 1,
-    is_active: true,
-    created_at: new Date().toISOString(),
-  }));
-};
-
-const getStoredPosts = (): InstagramPost[] => {
+// Get localStorage fallback data
+const getLocalStorageFallback = (): InstagramReel[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -38,124 +31,209 @@ const getStoredPosts = (): InstagramPost[] => {
       }
     }
   } catch (error) {
-    console.error('Error reading instagram posts:', error);
+    console.error('Error reading localStorage fallback:', error);
   }
-  // Return defaults if nothing stored
-  const defaults = createDefaultPosts();
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-  } catch {}
-  return defaults;
+  
+  // Return defaults from static file
+  return instagramReelIds.map((reelId, index) => ({
+    id: crypto.randomUUID(),
+    reel_url: reelId,
+    title: `Reel ${index + 1}`,
+    is_active: true,
+    display_order: index + 1,
+    created_at: new Date().toISOString(),
+  }));
 };
 
-const savePostsToStorage = (posts: InstagramPost[]) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-  } catch (error) {
-    console.error('Error saving instagram posts:', error);
-  }
-};
-
-// Hook for public-facing feed (only active posts)
+// Hook for public-facing feed (only active reels)
 export const useInstagramPosts = () => {
-  const [posts, setPosts] = useState<InstagramPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  return useQuery({
+    queryKey: ['instagram-reels', 'active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('instagram_reels')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
 
-  useEffect(() => {
-    const stored = getStoredPosts();
-    const activePosts = stored
-      .filter(p => p.is_active)
-      .sort((a, b) => a.display_order - b.display_order);
-    setPosts(activePosts);
-    setIsLoading(false);
-  }, []);
+      if (error) {
+        console.error('Error fetching instagram reels:', error);
+        // Return localStorage fallback on error
+        return getLocalStorageFallback().filter(r => r.is_active);
+      }
 
-  return { data: posts, isLoading };
+      // If database is empty, return fallback
+      if (!data || data.length === 0) {
+        return getLocalStorageFallback().filter(r => r.is_active);
+      }
+
+      return data as InstagramReel[];
+    },
+  });
 };
 
-// Hook for admin panel (all posts with CRUD operations)
+// Hook for admin panel (all reels with CRUD operations)
 export const useAllInstagramPosts = () => {
-  const [posts, setPosts] = useState<InstagramPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const refetch = useCallback(() => {
-    const stored = getStoredPosts();
-    setPosts(stored.sort((a, b) => a.display_order - b.display_order));
-  }, []);
+  const query = useQuery({
+    queryKey: ['instagram-reels', 'all'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('instagram_reels')
+        .select('*')
+        .order('display_order', { ascending: true });
 
-  useEffect(() => {
-    refetch();
-    setIsLoading(false);
-  }, [refetch]);
+      if (error) {
+        console.error('Error fetching all instagram reels:', error);
+        return getLocalStorageFallback();
+      }
 
-  const addPost = useCallback((reelId: string, isActive: boolean = true) => {
-    const stored = getStoredPosts();
-    const maxOrder = stored.length > 0 ? Math.max(...stored.map(p => p.display_order)) : 0;
-    const newPost: InstagramPost = {
-      id: crypto.randomUUID(),
-      reel_id: reelId,
-      display_order: maxOrder + 1,
-      is_active: isActive,
-      created_at: new Date().toISOString(),
-    };
-    const updated = [...stored, newPost];
-    savePostsToStorage(updated);
-    refetch();
-    return newPost;
-  }, [refetch]);
+      // If database is empty, return fallback
+      if (!data || data.length === 0) {
+        return getLocalStorageFallback();
+      }
 
-  const updatePost = useCallback((id: string, updates: Partial<InstagramPost>) => {
-    const stored = getStoredPosts();
-    const updated = stored.map(p => p.id === id ? { ...p, ...updates } : p);
-    savePostsToStorage(updated);
-    refetch();
-  }, [refetch]);
+      return data as InstagramReel[];
+    },
+  });
 
-  const deletePost = useCallback((id: string) => {
-    const stored = getStoredPosts();
-    const filtered = stored.filter(p => p.id !== id);
-    // Re-order remaining posts
-    const reordered = filtered
-      .sort((a, b) => a.display_order - b.display_order)
-      .map((p, idx) => ({ ...p, display_order: idx + 1 }));
-    savePostsToStorage(reordered);
-    refetch();
-  }, [refetch]);
+  const addMutation = useMutation({
+    mutationFn: async ({ reelUrl, title, isActive }: { reelUrl: string; title?: string; isActive?: boolean }) => {
+      // Get max display_order
+      const { data: existing } = await supabase
+        .from('instagram_reels')
+        .select('display_order')
+        .order('display_order', { ascending: false })
+        .limit(1);
 
-  const reorderPost = useCallback((id: string, direction: 'up' | 'down') => {
-    const stored = getStoredPosts().sort((a, b) => a.display_order - b.display_order);
-    const index = stored.findIndex(p => p.id === id);
-    if (index === -1) return;
-    
-    const swapIndex = direction === 'up' ? index - 1 : index + 1;
-    if (swapIndex < 0 || swapIndex >= stored.length) return;
-    
-    // Swap display_order values
-    const tempOrder = stored[index].display_order;
-    stored[index].display_order = stored[swapIndex].display_order;
-    stored[swapIndex].display_order = tempOrder;
-    
-    savePostsToStorage(stored);
-    refetch();
-  }, [refetch]);
+      const maxOrder = existing?.[0]?.display_order || 0;
 
-  const resetToDefaults = useCallback(() => {
-    const defaults = createDefaultPosts();
-    savePostsToStorage(defaults);
-    refetch();
-  }, [refetch]);
+      const { data, error } = await supabase
+        .from('instagram_reels')
+        .insert({
+          reel_url: reelUrl,
+          title: title || null,
+          is_active: isActive ?? true,
+          display_order: maxOrder + 1,
+        })
+        .select()
+        .single();
 
-  return { 
-    data: posts, 
-    isLoading, 
-    refetch,
-    addPost,
-    updatePost,
-    deletePost,
-    reorderPost,
-    resetToDefaults,
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instagram-reels'] });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<InstagramReel> }) => {
+      const { data, error } = await supabase
+        .from('instagram_reels')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instagram-reels'] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('instagram_reels')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instagram-reels'] });
+    },
+  });
+
+  const reorderMutation = useMutation({
+    mutationFn: async ({ id, direction }: { id: string; direction: 'up' | 'down' }) => {
+      const { data: reels } = await supabase
+        .from('instagram_reels')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (!reels) throw new Error('Failed to fetch reels');
+
+      const index = reels.findIndex(r => r.id === id);
+      if (index === -1) throw new Error('Reel not found');
+
+      const swapIndex = direction === 'up' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= reels.length) return;
+
+      // Swap display orders
+      const currentReel = reels[index];
+      const swapReel = reels[swapIndex];
+
+      await supabase
+        .from('instagram_reels')
+        .update({ display_order: swapReel.display_order })
+        .eq('id', currentReel.id);
+
+      await supabase
+        .from('instagram_reels')
+        .update({ display_order: currentReel.display_order })
+        .eq('id', swapReel.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instagram-reels'] });
+    },
+  });
+
+  const seedDefaultsMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all existing reels
+      await supabase.from('instagram_reels').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+      // Insert defaults
+      const defaults = instagramReelIds.map((reelId, index) => ({
+        reel_url: reelId,
+        title: `Reel ${index + 1}`,
+        is_active: true,
+        display_order: index + 1,
+      }));
+
+      const { error } = await supabase.from('instagram_reels').insert(defaults);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instagram-reels'] });
+    },
+  });
+
+  return {
+    data: query.data || [],
+    isLoading: query.isLoading,
+    refetch: query.refetch,
+    addPost: (reelUrl: string, title?: string, isActive?: boolean) => 
+      addMutation.mutateAsync({ reelUrl, title, isActive }),
+    updatePost: (id: string, updates: Partial<InstagramReel>) => 
+      updateMutation.mutateAsync({ id, updates }),
+    deletePost: (id: string) => deleteMutation.mutateAsync(id),
+    reorderPost: (id: string, direction: 'up' | 'down') => 
+      reorderMutation.mutateAsync({ id, direction }),
+    resetToDefaults: () => seedDefaultsMutation.mutateAsync(),
+    isAdding: addMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
 };
+
+// Export type for backward compatibility
+export type InstagramPost = InstagramReel;
 
 // Export default reel IDs for reference
 export { instagramReelIds as defaultReelIds } from '@/data/instagramReels';
