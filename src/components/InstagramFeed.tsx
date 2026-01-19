@@ -43,28 +43,28 @@ const InstagramFeed = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-secondary/30 overflow-hidden relative">
+    <section className="py-10 sm:py-16 md:py-24 bg-secondary/30 overflow-hidden relative">
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-50">
-        <div className="absolute top-10 right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-20 w-60 h-60 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-5 sm:top-10 right-10 sm:right-20 w-24 sm:w-40 h-24 sm:h-40 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-5 sm:bottom-10 left-10 sm:left-20 w-32 sm:w-60 h-32 sm:h-60 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-4 mb-10 relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 mb-6 sm:mb-10 relative z-10">
         {/* Section header */}
         <div className="text-center">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-6 py-3 rounded-full mb-6 shadow-lg">
-            <Instagram size={20} />
-            <span className="text-sm font-bold tracking-wider uppercase">Follow Us</span>
+          <div className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full mb-4 sm:mb-6 shadow-lg">
+            <Instagram size={16} className="sm:w-5 sm:h-5" />
+            <span className="text-xs sm:text-sm font-bold tracking-wider uppercase">Follow Us</span>
           </div>
-          <h2 className="text-2xl md:text-4xl font-black text-foreground tracking-tight mb-2">
+          <h2 className="text-xl sm:text-2xl md:text-4xl font-black text-foreground tracking-tight mb-2">
             Join Our Insta Story
           </h2>
           <a 
             href="https://www.instagram.com/helmethub46" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors font-bold text-lg"
+            className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors font-bold text-sm sm:text-lg"
           >
             @HELMETHUB46
           </a>
@@ -76,30 +76,30 @@ const InstagramFeed = () => {
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-background/90 backdrop-blur-sm hover:bg-primary rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border"
+          className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-9 sm:w-12 h-9 sm:h-12 bg-background/90 backdrop-blur-sm hover:bg-primary rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-6 h-6 text-foreground" />
+          <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6 text-foreground" />
         </button>
 
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-background/90 backdrop-blur-sm hover:bg-primary rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border"
+          className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-9 sm:w-12 h-9 sm:h-12 bg-background/90 backdrop-blur-sm hover:bg-primary rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border"
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-6 h-6 text-foreground" />
+          <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6 text-foreground" />
         </button>
 
         {/* Scrollable Container */}
         <div 
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-8"
+          className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-4 sm:px-8"
         >
           {instagramReels.map((reelId) => (
             <div 
               key={reelId} 
-              className="flex-shrink-0 w-[300px] md:w-[340px] aspect-[4/5] overflow-hidden relative instagram-video-container rounded-xl border border-border/50 shadow-lg"
+              className="flex-shrink-0 w-[240px] sm:w-[300px] md:w-[340px] aspect-[4/5] overflow-hidden relative instagram-video-container rounded-lg sm:rounded-xl border border-border/50 shadow-lg"
             >
               <blockquote
                 className="instagram-media"
