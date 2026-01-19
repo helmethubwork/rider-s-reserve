@@ -2,9 +2,10 @@
  * Admin Return Requests Page
  * 
  * Displays all return/exchange requests submitted by customers.
+ * Marks requests as read when viewed.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from './AdminLayout';
@@ -25,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Loader2, RefreshCw, Eye } from 'lucide-react';
+import { Loader2, RefreshCw, Eye, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ReturnRequest {
@@ -43,8 +44,31 @@ interface ReturnRequest {
   created_at: string;
 }
 
+// Helper to manage read status in localStorage
+const getReadItems = (key: string): string[] => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const markAsRead = (key: string, id: string) => {
+  const items = getReadItems(key);
+  if (!items.includes(id)) {
+    items.push(id);
+    localStorage.setItem(key, JSON.stringify(items));
+  }
+};
+
 const AdminReturnRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState<ReturnRequest | null>(null);
+  const [readReturns, setReadReturns] = useState<string[]>([]);
+
+  useEffect(() => {
+    setReadReturns(getReadItems('admin_read_returns'));
+  }, []);
 
   const { data: requests, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['return-requests'],
@@ -58,6 +82,14 @@ const AdminReturnRequests = () => {
       return data as ReturnRequest[];
     },
   });
+
+  const handleViewRequest = (request: ReturnRequest) => {
+    setSelectedRequest(request);
+    if (!readReturns.includes(request.id)) {
+      markAsRead('admin_read_returns', request.id);
+      setReadReturns([...readReturns, request.id]);
+    }
+  };
 
   return (
     <AdminLayout>
@@ -100,42 +132,51 @@ const AdminReturnRequests = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {requests.map((request) => (
-                    <TableRow key={request.id} className="hover:bg-gray-50">
-                      <TableCell className="whitespace-nowrap text-gray-900">
-                        {format(new Date(request.created_at), 'dd MMM yyyy')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-bold text-gray-900">{request.full_name}</div>
-                        <div className="text-sm text-gray-500">{request.email}</div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="border-gray-300 text-gray-700 font-bold">{request.order_number}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-bold text-gray-900">{request.original_product}</div>
-                        <div className="text-sm text-gray-500">{request.product_type}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="bg-gray-200 text-gray-700 font-bold">{request.size_ordered}</Badge>
-                          <span className="text-gray-500">→</span>
-                          <Badge className="bg-yellow-500 text-gray-900 font-bold">{request.size_needed}</Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setSelectedRequest(request)}
-                          title="View details"
-                          className="border-gray-300 hover:bg-gray-100"
-                        >
-                          <Eye size={18} className="text-gray-700" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {requests.map((request) => {
+                    const isUnread = !readReturns.includes(request.id);
+                    return (
+                      <TableRow 
+                        key={request.id} 
+                        className={isUnread ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'}
+                      >
+                        <TableCell className="whitespace-nowrap text-gray-900">
+                          <div className="flex items-center gap-2">
+                            {isUnread && <Circle size={8} className="text-red-500 fill-red-500 flex-shrink-0" />}
+                            {format(new Date(request.created_at), 'dd MMM yyyy')}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-bold text-gray-900">{request.full_name}</div>
+                          <div className="text-sm text-gray-500">{request.email}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="border-gray-300 text-gray-700 font-bold">{request.order_number}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-bold text-gray-900">{request.original_product}</div>
+                          <div className="text-sm text-gray-500">{request.product_type}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="bg-gray-200 text-gray-700 font-bold">{request.size_ordered}</Badge>
+                            <span className="text-gray-500">→</span>
+                            <Badge className="bg-yellow-500 text-gray-900 font-bold">{request.size_needed}</Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleViewRequest(request)}
+                            title="View details"
+                            className="border-gray-300 hover:bg-gray-100"
+                          >
+                            <Eye size={18} className="text-gray-700" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
