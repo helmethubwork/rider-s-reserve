@@ -5,9 +5,10 @@
  * - View all orders
  * - Update order status
  * - Add tracking information
+ * Marks orders as read when viewed.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,8 +29,26 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Order, OrderItemDB } from '@/hooks/useOrders';
-import { Eye, Loader2, Package, Truck } from 'lucide-react';
+import { Eye, Loader2, Package, Truck, Circle } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Helper to manage read status in localStorage
+const getReadItems = (key: string): string[] => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const markAsRead = (key: string, id: string) => {
+  const items = getReadItems(key);
+  if (!items.includes(id)) {
+    items.push(id);
+    localStorage.setItem(key, JSON.stringify(items));
+  }
+};
 
 const orderStatuses = [
   { value: 'placed', label: 'Placed' },
@@ -43,6 +62,11 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [readOrders, setReadOrders] = useState<string[]>([]);
+
+  useEffect(() => {
+    setReadOrders(getReadItems('admin_read_orders'));
+  }, []);
 
   // Edit form state
   const [editData, setEditData] = useState({
@@ -126,13 +150,17 @@ const AdminOrders = () => {
     });
   };
 
-  // Open details dialog
+  // Open details dialog and mark as read
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
     setIsDetailsOpen(true);
+    if (!readOrders.includes(order.id)) {
+      markAsRead('admin_read_orders', order.id);
+      setReadOrders([...readOrders, order.id]);
+    }
   };
 
-  // Open edit dialog
+  // Open edit dialog and mark as read
   const handleEdit = (order: Order) => {
     setSelectedOrder(order);
     setEditData({
@@ -141,7 +169,12 @@ const AdminOrders = () => {
       courier_name: order.courier_name || '',
     });
     setIsEditOpen(true);
+    if (!readOrders.includes(order.id)) {
+      markAsRead('admin_read_orders', order.id);
+      setReadOrders([...readOrders, order.id]);
+    }
   };
+
 
   // Handle edit submit
   const handleEditSubmit = (e: React.FormEvent) => {
@@ -232,11 +265,19 @@ const AdminOrders = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <p className="font-bold text-gray-900">{order.order_number}</p>
-                      </td>
+                  {orders.map((order) => {
+                    const isUnread = !readOrders.includes(order.id);
+                    return (
+                      <tr 
+                        key={order.id} 
+                        className={isUnread ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {isUnread && <Circle size={8} className="text-red-500 fill-red-500 flex-shrink-0" />}
+                            <p className="font-bold text-gray-900">{order.order_number}</p>
+                          </div>
+                        </td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-gray-900">{order.customer_name}</p>
                         <p className="text-xs text-gray-500">{order.customer_email}</p>
@@ -287,8 +328,9 @@ const AdminOrders = () => {
                           </Button>
                         </div>
                       </td>
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

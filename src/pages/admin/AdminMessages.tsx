@@ -2,9 +2,10 @@
  * Admin Messages
  * 
  * View and manage contact form submissions from users.
+ * Marks messages as read when viewed.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from './AdminLayout';
@@ -24,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Eye, Loader2, MessageSquare } from 'lucide-react';
+import { Trash2, Eye, Loader2, MessageSquare, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -38,9 +39,32 @@ interface ContactMessage {
   created_at: string;
 }
 
+// Helper to manage read status in localStorage
+const getReadItems = (key: string): string[] => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const markAsRead = (key: string, id: string) => {
+  const items = getReadItems(key);
+  if (!items.includes(id)) {
+    items.push(id);
+    localStorage.setItem(key, JSON.stringify(items));
+  }
+};
+
 const AdminMessages = () => {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [readMessages, setReadMessages] = useState<string[]>([]);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setReadMessages(getReadItems('admin_read_messages'));
+  }, []);
 
   // Fetch all contact messages
   const { data: messages = [], isLoading } = useQuery({
@@ -81,6 +105,14 @@ const AdminMessages = () => {
     }
   };
 
+  const handleViewMessage = (message: ContactMessage) => {
+    setSelectedMessage(message);
+    if (!readMessages.includes(message.id)) {
+      markAsRead('admin_read_messages', message.id);
+      setReadMessages([...readMessages, message.id]);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -115,44 +147,55 @@ const AdminMessages = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {messages.map((msg) => (
-                  <TableRow key={msg.id} className="hover:bg-gray-50">
-                    <TableCell className="font-bold text-gray-900">{msg.name}</TableCell>
-                    <TableCell className="text-gray-700">{msg.email}</TableCell>
-                    <TableCell className="hidden md:table-cell text-gray-600">
-                      {msg.phone || '-'}
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate text-gray-700">
-                      {msg.subject}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-gray-600">
-                      {format(new Date(msg.created_at), 'MMM d, yyyy')}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setSelectedMessage(msg)}
-                          title="View message"
-                          className="border-gray-300 hover:bg-gray-100"
-                        >
-                          <Eye size={18} className="text-gray-700" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleDelete(msg.id)}
-                          disabled={deleteMutation.isPending}
-                          title="Delete message"
-                          className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                        >
-                          <Trash2 size={18} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {messages.map((msg) => {
+                  const isUnread = !readMessages.includes(msg.id);
+                  return (
+                    <TableRow 
+                      key={msg.id} 
+                      className={isUnread ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'}
+                    >
+                      <TableCell className="font-bold text-gray-900">
+                        <div className="flex items-center gap-2">
+                          {isUnread && <Circle size={8} className="text-red-500 fill-red-500 flex-shrink-0" />}
+                          {msg.name}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-700">{msg.email}</TableCell>
+                      <TableCell className="hidden md:table-cell text-gray-600">
+                        {msg.phone || '-'}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate text-gray-700">
+                        {msg.subject}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell text-gray-600">
+                        {format(new Date(msg.created_at), 'MMM d, yyyy')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleViewMessage(msg)}
+                            title="View message"
+                            className="border-gray-300 hover:bg-gray-100"
+                          >
+                            <Eye size={18} className="text-gray-700" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleDelete(msg.id)}
+                            disabled={deleteMutation.isPending}
+                            title="Delete message"
+                            className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
