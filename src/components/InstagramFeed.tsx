@@ -1,12 +1,14 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
+import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 import { instagramReelIds } from "@/data/instagramReels";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { data: posts, isLoading } = useInstagramPosts();
   
-  // Use hardcoded reels for reliable production deployment
-  const reelIds = instagramReelIds;
+  // Use posts from localStorage if available, otherwise use static defaults
+  const reelIds = posts.length > 0 ? posts.map(p => p.reel_id) : instagramReelIds;
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -26,6 +28,13 @@ const InstagramFeed = () => {
       }
     };
   }, []);
+
+  // Re-process embeds when reelIds change
+  useEffect(() => {
+    if ((window as any).instgrm) {
+      (window as any).instgrm.Embeds.process();
+    }
+  }, [reelIds]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
