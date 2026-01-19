@@ -1,12 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight, LogOut, Package, Shield } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 
-// Navigation data with mega menu structure
-const navigationData = [
+// Static fallback for Support subcategories
+const staticSupportSubcategories = [
+  { name: "Contact Us", href: "/contact" },
+  { name: "Shipping Policy", href: "/shipping-policy" },
+  { name: "Exchange, Returns & Cancellation", href: "/exchange-returns" },
+  { name: "Warranty Policy", href: "/warranty-policy" },
+];
+
+// Base navigation data (Support subcategories will be injected dynamically)
+const baseNavigationData = [
   { name: "Home", href: "/", subcategories: [] },
   {
     name: "Products",
@@ -71,16 +80,7 @@ const navigationData = [
     ],
   },
   { name: "Track Orders", href: "/track-order", subcategories: [] },
-  {
-    name: "Support",
-    href: "/support",
-    subcategories: [
-      { name: "Contact Us", href: "/contact" },
-      { name: "Shipping Policy", href: "/shipping-policy" },
-      { name: "Exchange, Returns & Cancellation", href: "/exchange-returns" },
-      { name: "Warranty Policy", href: "/warranty-policy" },
-    ],
-  },
+  // Support item will be injected with dynamic subcategories
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
@@ -122,7 +122,7 @@ const Logo = () => (
 );
 
 // Mega Menu Component
-const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] }) => (
+const MegaMenu = ({ columns }: { columns: typeof baseNavigationData[1]['columns'] }) => (
   <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-10 z-50 animate-fade-in">
     <div className="container mx-auto px-8">
       <div className="grid grid-cols-4 gap-16">
@@ -158,7 +158,7 @@ const MegaMenu = ({ columns }: { columns: typeof navigationData[1]['columns'] })
 
 // Dropdown Component
 const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: { 
-  item: typeof navigationData[0]; 
+  item: typeof baseNavigationData[0]; 
   isOpen: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -232,10 +232,28 @@ const Header = () => {
   const { totalItems } = useCart();
   const { user, profile, isAdmin, signOut } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
+  const { data: dbSupportLinks = [] } = useNavigationLinks('support');
 
   const [hideOnScroll, setHideOnScroll] = useState(false);
   const lastScrollYRef = useRef(0);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Build dynamic navigation data with Support subcategories from DB
+  const navigationData = useMemo(() => {
+    const supportSubcategories = dbSupportLinks.length > 0
+      ? dbSupportLinks.map(link => ({ name: link.name, href: link.href }))
+      : staticSupportSubcategories;
+    
+    // Insert Support item before Blog
+    const navWithSupport = [...baseNavigationData];
+    const blogIndex = navWithSupport.findIndex(item => item.name === 'Blog');
+    navWithSupport.splice(blogIndex, 0, {
+      name: 'Support',
+      href: '/support',
+      subcategories: supportSubcategories,
+    });
+    return navWithSupport;
+  }, [dbSupportLinks]);
 
   // Close account dropdown when clicking outside
   useEffect(() => {

@@ -1,10 +1,25 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
 import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
+import { useNavigationLinks } from "@/hooks/useNavigationLinks";
+
+// Static fallback for customer service links
+const staticCustomerServiceLinks = [
+  { name: "Track Orders", href: "/track-order" },
+  { name: "Contact Us", href: "/contact" },
+  { name: "Shipping Policy", href: "/shipping-policy" },
+  { name: "Returns", href: "/exchange-returns" },
+];
 
 const Footer = () => {
   const { data: contactSettings } = useSiteSettings('contact');
   const { data: socialSettings } = useSiteSettings('social');
+  const { data: dbLinks = [] } = useNavigationLinks('customer_service');
+
+  // Use database links if available, otherwise static fallback
+  const customerServiceLinks = dbLinks.length > 0
+    ? dbLinks.map(link => ({ name: link.name, href: link.href }))
+    : staticCustomerServiceLinks;
 
   // Contact settings with fallbacks
   const primaryPhone = getSettingValue(contactSettings, 'primary_phone', '+91 7842646888');
@@ -101,12 +116,7 @@ const Footer = () => {
           <div className="space-y-4 sm:space-y-5">
             <h4 className="text-xs sm:text-sm font-bold text-primary tracking-wider uppercase">Customer Service</h4>
             <ul className="space-y-2 sm:space-y-3">
-              {[
-                { name: "Track Orders", href: "/track-order" },
-                { name: "Contact Us", href: "/contact" },
-                { name: "Shipping Policy", href: "/shipping-policy" },
-                { name: "Returns", href: "/exchange-returns" },
-              ].map((link) => (
+              {customerServiceLinks.map((link) => (
                 <li key={link.name}>
                   <Link 
                     to={link.href} 

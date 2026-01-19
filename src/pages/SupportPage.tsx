@@ -10,11 +10,27 @@ import {
   MapPin,
   Package,
   HelpCircle,
-  Loader2
+  Loader2,
+  LucideIcon
 } from 'lucide-react';
 import { useFaqs } from '@/hooks/useFaqs';
+import { useNavigationLinks } from '@/hooks/useNavigationLinks';
 
-const supportLinks = [
+// Icon mapping for dynamic icons
+const iconMap: Record<string, LucideIcon> = {
+  Truck,
+  RefreshCw,
+  Shield,
+  MessageCircle,
+  MapPin,
+  Package,
+  HelpCircle,
+};
+
+const getIcon = (name: string): LucideIcon => iconMap[name] || HelpCircle;
+
+// Static fallback support links
+const staticSupportLinks = [
   {
     title: 'Shipping Policy',
     description: 'Learn about our shipping methods, delivery times, and charges.',
@@ -74,7 +90,8 @@ const staticFaqs = [
 ];
 
 const SupportPage = () => {
-  const { data: dbFaqs, isLoading } = useFaqs();
+  const { data: dbFaqs, isLoading: faqsLoading } = useFaqs();
+  const { data: dbLinks = [] } = useNavigationLinks('support');
   
   // Use database FAQs if available, otherwise fall back to static
   const faqs = dbFaqs && dbFaqs.length > 0 
@@ -83,6 +100,16 @@ const SupportPage = () => {
         answer: faq.answer,
       }))
     : staticFaqs;
+
+  // Use database support links if available, otherwise fall back to static
+  const supportLinks = dbLinks.length > 0
+    ? dbLinks.map(link => ({
+        title: link.name,
+        description: link.description || '',
+        icon: getIcon(link.icon),
+        href: link.href,
+      }))
+    : staticSupportLinks;
 
   return (
     <div className="min-h-screen bg-background">
@@ -156,7 +183,7 @@ const SupportPage = () => {
               Frequently Asked Questions
             </h2>
             
-            {isLoading ? (
+            {faqsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
