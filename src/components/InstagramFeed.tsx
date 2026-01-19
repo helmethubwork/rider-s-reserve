@@ -180,16 +180,16 @@ const InstagramFeed = () => {
         .instagram-video-container {
           position: relative;
           overflow: hidden;
-          background: hsl(var(--card));
+          background: #000;
+          clip-path: inset(0 0 0 0);
         }
         .instagram-video-container iframe {
           position: absolute !important;
-          top: -1px !important;
+          top: -60px !important;
           left: -1px !important;
           width: calc(100% + 2px) !important;
-          height: calc(100% + 2px) !important;
+          height: calc(100% + 140px) !important;
           border: 0 !important;
-          background: hsl(var(--card)) !important;
         }
         .instagram-video-container .instagram-media {
           min-width: 100% !important;
