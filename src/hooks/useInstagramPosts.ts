@@ -1,11 +1,10 @@
 /**
  * Instagram Posts Hook
  * 
- * Fetches Instagram reel IDs from the database for the Instagram feed section.
+ * Manages Instagram reel IDs using localStorage for persistence.
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface InstagramPost {
   id: string;
@@ -15,7 +14,7 @@ export interface InstagramPost {
   created_at: string;
 }
 
-// Default fallback reel IDs if no database entries exist
+// Default fallback reel IDs
 export const defaultReelIds = [
   "C-C3abzBKYd",
   "C6YW6r6LI9-",
@@ -25,39 +24,103 @@ export const defaultReelIds = [
   "DPngJf0Af1H",
 ];
 
-export const useInstagramPosts = () => {
-  return useQuery({
-    queryKey: ['instagram-posts'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('instagram_posts')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
+const STORAGE_KEY = 'instagram_posts';
 
-      if (error) {
-        console.error('Error fetching instagram posts:', error);
-        return [];
-      }
-      return data as InstagramPost[];
-    },
-  });
+const getStoredPosts = (): InstagramPost[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Error reading instagram posts from localStorage:', error);
+  }
+  return [];
+};
+
+const savePostsToStorage = (posts: InstagramPost[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  } catch (error) {
+    console.error('Error saving instagram posts to localStorage:', error);
+  }
+};
+
+export const useInstagramPosts = () => {
+  const [posts, setPosts] = useState<InstagramPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const stored = getStoredPosts();
+    setPosts(stored.filter(p => p.is_active).sort((a, b) => a.display_order - b.display_order));
+    setIsLoading(false);
+  }, []);
+
+  return { data: posts, isLoading };
 };
 
 export const useAllInstagramPosts = () => {
-  return useQuery({
-    queryKey: ['instagram-posts', 'all'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('instagram_posts')
-        .select('*')
-        .order('display_order', { ascending: true });
+  const [posts, setPosts] = useState<InstagramPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-      if (error) {
-        console.error('Error fetching instagram posts:', error);
-        return [];
-      }
-      return data as InstagramPost[];
-    },
-  });
+  const refetch = useCallback(() => {
+    const stored = getStoredPosts();
+    setPosts(stored.sort((a, b) => a.display_order - b.display_order));
+  }, []);
+
+  useEffect(() => {
+    refetch();
+    setIsLoading(false);
+  }, [refetch]);
+
+  const addPost = useCallback((reelId: string) => {
+    const stored = getStoredPosts();
+    const newPost: InstagramPost = {
+      id: crypto.randomUUID(),
+      reel_id: reelId,
+      display_order: stored.length + 1,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [...stored, newPost];
+    savePostsToStorage(updated);
+    refetch();
+    return newPost;
+  }, [refetch]);
+
+  const updatePost = useCallback((id: string, updates: Partial<InstagramPost>) => {
+    const stored = getStoredPosts();
+    const updated = stored.map(p => p.id === id ? { ...p, ...updates } : p);
+    savePostsToStorage(updated);
+    refetch();
+  }, [refetch]);
+
+  const deletePost = useCallback((id: string) => {
+    const stored = getStoredPosts();
+    const updated = stored.filter(p => p.id !== id);
+    savePostsToStorage(updated);
+    refetch();
+  }, [refetch]);
+
+  const seedDefaults = useCallback(() => {
+    const defaultPosts: InstagramPost[] = defaultReelIds.map((reelId, index) => ({
+      id: crypto.randomUUID(),
+      reel_id: reelId,
+      display_order: index + 1,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    }));
+    savePostsToStorage(defaultPosts);
+    refetch();
+  }, [refetch]);
+
+  return { 
+    data: posts, 
+    isLoading, 
+    refetch,
+    addPost,
+    updatePost,
+    deletePost,
+    seedDefaults,
+  };
 };
