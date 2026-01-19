@@ -188,7 +188,7 @@ const InstagramFeed = () => {
           top: -60px !important;
           left: -1px !important;
           width: calc(100% + 2px) !important;
-          height: calc(100% + 140px) !important;
+          height: calc(100% + 200px) !important;
           border: 0 !important;
         }
         .instagram-video-container .instagram-media {
