@@ -9,7 +9,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { Package, ShoppingCart, LayoutDashboard, ArrowLeft, MessageSquare, RotateCcw, Tag, Grid3X3, Image } from 'lucide-react';
+import { Package, ShoppingCart, LayoutDashboard, ArrowLeft, MessageSquare, RotateCcw, Tag, Grid3X3, Image, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
@@ -44,6 +44,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       href: '/admin/hero-slider',
       label: 'Hero Slider',
       icon: Image,
+    },
+    {
+      href: '/admin/featured-promos',
+      label: 'Featured Promos',
+      icon: Star,
     },
     {
       href: '/admin/orders',
