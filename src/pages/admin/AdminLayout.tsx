@@ -3,9 +3,10 @@
  * 
  * Modern responsive admin layout with clean white theme.
  * Optimized for laptop, tablet, and mobile.
+ * Includes unread indicators for orders, messages, and returns.
  */
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Package, 
@@ -23,28 +24,40 @@ import {
   Menu,
   ChevronLeft,
   Home,
-  X
+  Circle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
+// Helper to get read items from localStorage
+const getReadItems = (key: string): string[] => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/brands', label: 'Brands', icon: Tag },
-  { href: '/admin/categories', label: 'Categories', icon: Grid3X3 },
-  { href: '/admin/hero-slider', label: 'Hero Slider', icon: Image },
-  { href: '/admin/featured-promos', label: 'Promos', icon: Star },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
-  { href: '/admin/return-requests', label: 'Returns', icon: RotateCcw },
-  { href: '/admin/site-settings', label: 'Settings', icon: Settings },
-  { href: '/admin/store-locations', label: 'Stores', icon: MapPin },
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, trackUnread: false },
+  { href: '/admin/products', label: 'Products', icon: Package, trackUnread: false },
+  { href: '/admin/brands', label: 'Brands', icon: Tag, trackUnread: false },
+  { href: '/admin/categories', label: 'Categories', icon: Grid3X3, trackUnread: false },
+  { href: '/admin/hero-slider', label: 'Hero Slider', icon: Image, trackUnread: false },
+  { href: '/admin/featured-promos', label: 'Promos', icon: Star, trackUnread: false },
+  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, trackUnread: true, storageKey: 'admin_read_orders' },
+  { href: '/admin/messages', label: 'Messages', icon: MessageSquare, trackUnread: true, storageKey: 'admin_read_messages' },
+  { href: '/admin/return-requests', label: 'Returns', icon: RotateCcw, trackUnread: true, storageKey: 'admin_read_returns' },
+  { href: '/admin/site-settings', label: 'Settings', icon: Settings, trackUnread: false },
+  { href: '/admin/store-locations', label: 'Stores', icon: MapPin, trackUnread: false },
 ];
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
@@ -52,14 +65,70 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [readOrders, setReadOrders] = useState<string[]>([]);
+  const [readMessages, setReadMessages] = useState<string[]>([]);
+  const [readReturns, setReadReturns] = useState<string[]>([]);
+
+  useEffect(() => {
+    setReadOrders(getReadItems('admin_read_orders'));
+    setReadMessages(getReadItems('admin_read_messages'));
+    setReadReturns(getReadItems('admin_read_returns'));
+  }, []);
+
+  // Fetch recent orders for unread count
+  const { data: recentOrders = [] } = useQuery({
+    queryKey: ['admin', 'orders', 'recent-ids'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch recent messages for unread count
+  const { data: recentMessages = [] } = useQuery({
+    queryKey: ['admin', 'messages', 'recent-ids'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch recent return requests for unread count
+  const { data: recentReturns = [] } = useQuery({
+    queryKey: ['admin', 'returns', 'recent-ids'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('return_requests')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) return [];
+      return data || [];
+    },
+  });
+
+  // Calculate unread counts
+  const unreadCounts: Record<string, number> = {
+    '/admin/orders': recentOrders.filter(o => !readOrders.includes(o.id)).length,
+    '/admin/messages': recentMessages.filter(m => !readMessages.includes(m.id)).length,
+    '/admin/return-requests': recentReturns.filter(r => !readReturns.includes(r.id)).length,
+  };
 
   // Check if we can go back within admin or should go to store
   const handleBack = () => {
-    // If we're on a sub-page within admin, go to admin dashboard
     if (location.pathname !== '/admin' && location.pathname.startsWith('/admin')) {
       navigate('/admin');
     } else {
-      // Otherwise go to home
       navigate('/');
     }
   };
@@ -68,21 +137,40 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     <nav className="flex-1 py-3 space-y-1 overflow-y-auto px-3">
       {navItems.map((item) => {
         const isActive = location.pathname === item.href;
+        const unreadCount = item.trackUnread ? unreadCounts[item.href] || 0 : 0;
+        const hasUnread = unreadCount > 0;
+        
         return (
           <Link
             key={item.href}
             to={item.href}
             onClick={onItemClick}
             className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium',
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium relative',
               collapsed && 'justify-center px-2',
               isActive
                 ? 'bg-amber-500 text-gray-900 shadow-md font-semibold'
-                : 'text-gray-700 hover:bg-amber-50 hover:text-amber-700'
+                : hasUnread
+                  ? 'text-gray-800 bg-red-50 hover:bg-red-100 border border-red-200'
+                  : 'text-gray-700 hover:bg-amber-50 hover:text-amber-700'
             )}
           >
-            <item.icon size={18} className={cn('flex-shrink-0', isActive ? 'text-gray-900' : 'text-gray-500')} />
-            {!collapsed && <span>{item.label}</span>}
+            <div className="relative">
+              <item.icon size={18} className={cn('flex-shrink-0', isActive ? 'text-gray-900' : hasUnread ? 'text-red-600' : 'text-gray-500')} />
+              {hasUnread && collapsed && (
+                <Circle size={8} className="absolute -top-1 -right-1 text-red-500 fill-red-500" />
+              )}
+            </div>
+            {!collapsed && (
+              <>
+                <span className={hasUnread && !isActive ? 'text-red-700 font-semibold' : ''}>{item.label}</span>
+                {hasUnread && (
+                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </>
+            )}
           </Link>
         );
       })}
