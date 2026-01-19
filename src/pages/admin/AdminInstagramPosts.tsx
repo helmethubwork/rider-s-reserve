@@ -2,11 +2,10 @@
  * Admin Instagram Posts Page
  * 
  * Manage Instagram reel IDs displayed on the homepage feed.
+ * Uses localStorage for persistence.
  */
 
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,125 +28,16 @@ import {
 } from '@/components/ui/table';
 import { Instagram, Plus, Trash2, Edit2, Loader2, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
-import { InstagramPost, defaultReelIds } from '@/hooks/useInstagramPosts';
+import { useAllInstagramPosts, InstagramPost } from '@/hooks/useInstagramPosts';
 
 const AdminInstagramPosts = () => {
-  const queryClient = useQueryClient();
+  const { data: posts, isLoading, addPost, updatePost, deletePost, reorderPost } = useAllInstagramPosts();
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<InstagramPost | null>(null);
   const [formData, setFormData] = useState({
     reel_id: '',
     is_active: true,
-  });
-
-  // Fetch all posts
-  const { data: posts = [], isLoading } = useQuery({
-    queryKey: ['instagram-posts', 'admin'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('instagram_posts')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      return data as InstagramPost[];
-    },
-  });
-
-  // Create post mutation
-  const createMutation = useMutation({
-    mutationFn: async (data: { reel_id: string; is_active: boolean }) => {
-      const maxOrder = posts.length > 0 ? Math.max(...posts.map(p => p.display_order)) : 0;
-      const { error } = await supabase
-        .from('instagram_posts')
-        .insert({
-          reel_id: data.reel_id,
-          is_active: data.is_active,
-          display_order: maxOrder + 1,
-        });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['instagram-posts'] });
-      toast.success('Instagram post added');
-      handleCloseDialog();
-    },
-    onError: (error) => {
-      toast.error('Failed to add post: ' + error.message);
-    },
-  });
-
-  // Update post mutation
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<InstagramPost> }) => {
-      const { error } = await supabase
-        .from('instagram_posts')
-        .update(data)
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['instagram-posts'] });
-      toast.success('Post updated');
-      handleCloseDialog();
-    },
-    onError: (error) => {
-      toast.error('Failed to update post: ' + error.message);
-    },
-  });
-
-  // Delete post mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('instagram_posts')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['instagram-posts'] });
-      toast.success('Post deleted');
-    },
-    onError: (error) => {
-      toast.error('Failed to delete post: ' + error.message);
-    },
-  });
-
-  // Reorder mutation
-  const reorderMutation = useMutation({
-    mutationFn: async ({ id, newOrder }: { id: string; newOrder: number }) => {
-      const { error } = await supabase
-        .from('instagram_posts')
-        .update({ display_order: newOrder })
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['instagram-posts'] });
-    },
-  });
-
-  // Seed default posts mutation
-  const seedMutation = useMutation({
-    mutationFn: async () => {
-      const postsToInsert = defaultReelIds.map((reelId, index) => ({
-        reel_id: reelId,
-        display_order: index + 1,
-        is_active: true,
-      }));
-      const { error } = await supabase
-        .from('instagram_posts')
-        .insert(postsToInsert);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['instagram-posts'] });
-      toast.success('Default posts added');
-    },
-    onError: (error) => {
-      toast.error('Failed to seed posts: ' + error.message);
-    },
   });
 
   const handleOpenDialog = (post?: InstagramPost) => {
@@ -181,34 +71,35 @@ const AdminInstagramPosts = () => {
     }
 
     if (editingPost) {
-      updateMutation.mutate({ id: editingPost.id, data: formData });
+      updatePost(editingPost.id, formData);
+      toast.success('Post updated');
     } else {
-      createMutation.mutate(formData);
+      addPost(formData.reel_id.trim(), formData.is_active);
+      toast.success('Instagram post added');
     }
+    handleCloseDialog();
   };
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this post?')) {
-      deleteMutation.mutate(id);
+      deletePost(id);
+      toast.success('Post deleted');
     }
   };
 
   const handleMoveUp = (post: InstagramPost, index: number) => {
     if (index === 0) return;
-    const prevPost = posts[index - 1];
-    reorderMutation.mutate({ id: post.id, newOrder: prevPost.display_order });
-    reorderMutation.mutate({ id: prevPost.id, newOrder: post.display_order });
+    reorderPost(post.id, 'up');
   };
 
   const handleMoveDown = (post: InstagramPost, index: number) => {
     if (index === posts.length - 1) return;
-    const nextPost = posts[index + 1];
-    reorderMutation.mutate({ id: post.id, newOrder: nextPost.display_order });
-    reorderMutation.mutate({ id: nextPost.id, newOrder: post.display_order });
+    reorderPost(post.id, 'down');
   };
 
   const handleToggleActive = (post: InstagramPost) => {
-    updateMutation.mutate({ id: post.id, data: { is_active: !post.is_active } });
+    updatePost(post.id, { is_active: !post.is_active });
+    toast.success(post.is_active ? 'Post hidden' : 'Post shown');
   };
 
   return (
@@ -220,30 +111,13 @@ const AdminInstagramPosts = () => {
             <h1 className="text-2xl font-bold text-gray-900">Instagram Feed</h1>
             <p className="text-gray-600">Manage Instagram reels displayed on the homepage</p>
           </div>
-          <div className="flex gap-2">
-            {posts.length === 0 && (
-              <Button
-                variant="outline"
-                onClick={() => seedMutation.mutate()}
-                disabled={seedMutation.isPending}
-                className="border-gray-300"
-              >
-                {seedMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Instagram className="h-4 w-4 mr-2" />
-                )}
-                Add Default Posts
-              </Button>
-            )}
-            <Button
-              onClick={() => handleOpenDialog()}
-              className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Reel
-            </Button>
-          </div>
+          <Button
+            onClick={() => handleOpenDialog()}
+            className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Reel
+          </Button>
         </div>
 
         {/* Info Card */}
@@ -405,11 +279,7 @@ const AdminInstagramPosts = () => {
               <Button
                 type="submit"
                 className="flex-1 bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold"
-                disabled={createMutation.isPending || updateMutation.isPending}
               >
-                {(createMutation.isPending || updateMutation.isPending) && (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                )}
                 {editingPost ? 'Save Changes' : 'Add Reel'}
               </Button>
             </div>
