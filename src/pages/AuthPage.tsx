@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { z } from "zod";
+import { ArrowLeft } from "lucide-react";
 
 // Validation schemas
 const emailSchema = z.string().trim().email("Please enter a valid email");
@@ -67,6 +68,12 @@ const AuthPage = () => {
     setLoading(false);
   };
 
+  const fromPath = (location.state as any)?.from?.pathname;
+
+  const handleBack = () => {
+    navigate(fromPath || "/");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -74,6 +81,16 @@ const AuthPage = () => {
       <section className="py-8 md:py-24 px-4">
         <div className="container mx-auto">
           <div className="max-w-md mx-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBack}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground mb-6"
+            >
+              <ArrowLeft size={16} />
+              <span className="text-sm">Back</span>
+            </Button>
+
             <h1 className="text-center text-2xl md:text-4xl font-bold text-foreground tracking-wide mb-8 md:mb-12">
               {isLogin ? "LOGIN" : "CREATE ACCOUNT"}
             </h1>
