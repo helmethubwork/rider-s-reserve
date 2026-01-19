@@ -44,6 +44,7 @@ import AdminInstagramPosts from "./pages/admin/AdminInstagramPosts";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminFaqs from "./pages/admin/AdminFaqs";
 import AdminNavigationLinks from "./pages/admin/AdminNavigationLinks";
+import AdminContentPages from "./pages/admin/AdminContentPages";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
               <Route path="/admin/instagram" element={<ProtectedRoute requireAdmin><AdminInstagramPosts /></ProtectedRoute>} />
               <Route path="/admin/blog" element={<ProtectedRoute requireAdmin><AdminBlog /></ProtectedRoute>} />
               <Route path="/admin/faqs" element={<ProtectedRoute requireAdmin><AdminFaqs /></ProtectedRoute>} />
+              <Route path="/admin/content-pages" element={<ProtectedRoute requireAdmin><AdminContentPages /></ProtectedRoute>} />
               <Route path="/admin/navigation-links" element={<ProtectedRoute requireAdmin><AdminNavigationLinks /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
