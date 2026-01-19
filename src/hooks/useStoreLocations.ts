@@ -63,7 +63,7 @@ export const useMainStore = () => {
           .eq('is_active', true)
           .order('display_order')
           .limit(1)
-          .single();
+          .maybeSingle();
         
         if (fallbackError) return null;
         return firstStore as StoreLocation;
