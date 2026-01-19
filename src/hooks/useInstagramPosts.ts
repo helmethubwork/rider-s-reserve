@@ -2,6 +2,7 @@
  * Instagram Posts Hook
  * 
  * Manages Instagram reel IDs using localStorage for persistence.
+ * Auto-seeds with default reels on first load.
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -49,8 +50,13 @@ const getStoredPosts = (): InstagramPost[] => {
     return defaults;
   } catch (error) {
     console.error('Error reading instagram posts from localStorage:', error);
+    // Return defaults on error
+    const defaults = createDefaultPosts();
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+    } catch {}
+    return defaults;
   }
-  return [];
 };
 
 const savePostsToStorage = (posts: InstagramPost[]) => {
@@ -88,13 +94,13 @@ export const useAllInstagramPosts = () => {
     setIsLoading(false);
   }, [refetch]);
 
-  const addPost = useCallback((reelId: string) => {
+  const addPost = useCallback((reelId: string, isActive: boolean = true) => {
     const stored = getStoredPosts();
     const newPost: InstagramPost = {
       id: crypto.randomUUID(),
       reel_id: reelId,
       display_order: stored.length + 1,
-      is_active: true,
+      is_active: isActive,
       created_at: new Date().toISOString(),
     };
     const updated = [...stored, newPost];
@@ -113,18 +119,31 @@ export const useAllInstagramPosts = () => {
   const deletePost = useCallback((id: string) => {
     const stored = getStoredPosts();
     const updated = stored.filter(p => p.id !== id);
-    savePostsToStorage(updated);
+    // Re-order remaining posts
+    const reordered = updated.map((p, idx) => ({ ...p, display_order: idx + 1 }));
+    savePostsToStorage(reordered);
+    refetch();
+  }, [refetch]);
+
+  const reorderPost = useCallback((id: string, direction: 'up' | 'down') => {
+    const stored = getStoredPosts().sort((a, b) => a.display_order - b.display_order);
+    const index = stored.findIndex(p => p.id === id);
+    if (index === -1) return;
+    
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= stored.length) return;
+    
+    // Swap display_order values
+    const tempOrder = stored[index].display_order;
+    stored[index].display_order = stored[swapIndex].display_order;
+    stored[swapIndex].display_order = tempOrder;
+    
+    savePostsToStorage(stored);
     refetch();
   }, [refetch]);
 
   const seedDefaults = useCallback(() => {
-    const defaultPosts: InstagramPost[] = defaultReelIds.map((reelId, index) => ({
-      id: crypto.randomUUID(),
-      reel_id: reelId,
-      display_order: index + 1,
-      is_active: true,
-      created_at: new Date().toISOString(),
-    }));
+    const defaultPosts = createDefaultPosts();
     savePostsToStorage(defaultPosts);
     refetch();
   }, [refetch]);
@@ -136,6 +155,7 @@ export const useAllInstagramPosts = () => {
     addPost,
     updatePost,
     deletePost,
+    reorderPost,
     seedDefaults,
   };
 };
