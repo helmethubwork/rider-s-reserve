@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, FileText, Edit, Eye, EyeOff, ExternalLink, Plus, Save } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import AdminLayout from "./AdminLayout";
 
 // Default content pages that should exist
 const DEFAULT_PAGES = [
@@ -150,32 +151,35 @@ const AdminContentPages = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-72" />
+      <AdminLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+          </div>
+          <div className="grid gap-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
           </div>
         </div>
-        <div className="grid gap-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium mb-2">Unable to load content pages</h3>
-        <p className="text-muted-foreground mb-4">
-          The content_pages table may not exist. Please create it in Supabase.
-        </p>
-        <div className="bg-muted p-4 rounded-lg text-left max-w-2xl mx-auto">
-          <p className="text-sm font-mono text-muted-foreground whitespace-pre-wrap">
+      <AdminLayout>
+        <div className="text-center py-12">
+          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Unable to load content pages</h3>
+          <p className="text-muted-foreground mb-4">
+            The content_pages table may not exist. Please create it in Supabase.
+          </p>
+          <div className="bg-muted p-4 rounded-lg text-left max-w-2xl mx-auto">
+            <p className="text-sm font-mono text-muted-foreground whitespace-pre-wrap">
 {`CREATE TABLE public.content_pages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   slug text UNIQUE NOT NULL,
@@ -201,15 +205,17 @@ CREATE POLICY "Admins can manage content pages"
   TO authenticated
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));`}
-          </p>
+            </p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Content Pages</h2>
           <p className="text-muted-foreground">
@@ -389,8 +395,9 @@ CREATE POLICY "Admins can manage content pages"
             </div>
           )}
         </DialogContent>
-      </Dialog>
-    </div>
+        </Dialog>
+      </div>
+    </AdminLayout>
   );
 };
 
