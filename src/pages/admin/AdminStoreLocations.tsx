@@ -70,7 +70,7 @@ const AdminStoreLocations = () => {
   const [formData, setFormData] = useState<StoreFormData>(emptyFormData);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Fetch all stores (including inactive)
+  // Fetch all stores (including inactive) - map DB columns to interface
   const { data: stores = [], isLoading } = useQuery({
     queryKey: ['admin', 'store-locations'],
     queryFn: async () => {
@@ -80,7 +80,25 @@ const AdminStoreLocations = () => {
         .order('display_order', { ascending: true });
 
       if (error) throw error;
-      return data as StoreLocation[];
+      
+      // Map database columns to interface
+      return (data || []).map((row: any): StoreLocation => ({
+        id: row.id,
+        name: row.branch_name || row.name || '',
+        address: row.address || '',
+        city: row.city || '',
+        state: row.state || '',
+        pincode: row.pincode || '',
+        phone_primary: row.phone || row.phone_primary || '',
+        phone_secondary: row.phone_secondary,
+        email: row.email,
+        map_url: row.map_url,
+        opening_hours: row.timing || row.opening_hours,
+        is_main_branch: Boolean(row.is_primary ?? row.is_main_branch),
+        is_active: row.is_active,
+        display_order: row.display_order,
+        created_at: row.created_at,
+      }));
     },
   });
 
@@ -88,17 +106,17 @@ const AdminStoreLocations = () => {
   const createStore = useMutation({
     mutationFn: async (data: StoreFormData) => {
       const { error } = await supabase.from('store_locations').insert({
-        name: data.name.trim(),
+        branch_name: data.name.trim(),
         address: data.address.trim(),
         city: data.city.trim(),
         state: data.state.trim(),
         pincode: data.pincode.trim(),
-        phone_primary: data.phone_primary.trim(),
+        phone: data.phone_primary.trim(),
         phone_secondary: data.phone_secondary.trim() || null,
         email: data.email.trim() || null,
         map_url: data.map_url.trim() || null,
-        opening_hours: data.opening_hours.trim() || null,
-        is_main_branch: data.is_main_branch,
+        timing: data.opening_hours.trim() || null,
+        is_primary: data.is_main_branch,
         display_order: parseInt(data.display_order) || 0,
         is_active: true,
       });
@@ -122,19 +140,18 @@ const AdminStoreLocations = () => {
       const { error } = await supabase
         .from('store_locations')
         .update({
-          name: data.name.trim(),
+          branch_name: data.name.trim(),
           address: data.address.trim(),
           city: data.city.trim(),
           state: data.state.trim(),
           pincode: data.pincode.trim(),
-          phone_primary: data.phone_primary.trim(),
+          phone: data.phone_primary.trim(),
           phone_secondary: data.phone_secondary.trim() || null,
           email: data.email.trim() || null,
           map_url: data.map_url.trim() || null,
-          opening_hours: data.opening_hours.trim() || null,
-          is_main_branch: data.is_main_branch,
+          timing: data.opening_hours.trim() || null,
+          is_primary: data.is_main_branch,
           display_order: parseInt(data.display_order) || 0,
-          updated_at: new Date().toISOString(),
         })
         .eq('id', id);
 
@@ -156,7 +173,7 @@ const AdminStoreLocations = () => {
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
       const { error } = await supabase
         .from('store_locations')
-        .update({ is_active: !isActive, updated_at: new Date().toISOString() })
+        .update({ is_active: !isActive })
         .eq('id', id);
 
       if (error) throw error;
