@@ -5,9 +5,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Phone, Package, Upload } from "lucide-react";
+import { Mail, Phone, Package, Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useContentPage } from "@/hooks/useContentPages";
+
+// Static fallback content for the policy section
+const STATIC_POLICY_CONTENT = `
+<div>
+  <h2 class="text-lg font-bold text-black mb-3">Exchange Policy:</h2>
+  <p class="mb-4">Your favorite gear purchased from us doesn't fit well? No problem, we are happy to exchange it for the right size.</p>
+  <ul class="list-disc pl-6 space-y-2 text-gray-700">
+    <li>Please note that products purchased can be exchanged for size only. Product must be unused with all the tags and packing material must be intact. Products sent without proper packaging and without the helmet box and tags will be returned to the customer as is.</li>
+    <li>Customer must fill the form below and then ship the product within 48hrs of receiving the product.</li>
+    <li>Please ship the product to the address mentioned in the invoice received with the product.</li>
+    <li>The cost of sending the product will be compensated to the customer in the form of store credit only at actuals but upto a maximum of Rs. 500. No cash compensation will be made.</li>
+    <li>Helmet Hub will send the replacement free of cost.</li>
+  </ul>
+  <p class="text-black mt-4">* Please note that products that are on sale or purchased using a discount, luggage and all accessories cannot be exchanged.*</p>
+  <p class="text-black mt-3">*The Store credit issued to the customer must be used within 30 days. The credit won't be reissued once it has expired.</p>
+  <p class="text-black mt-3">*The Store credit can be used only on specific collections like helmets, jackets, gloves, pants, boots, intercoms and luggage. It cannot be used to buy accessories.</p>
+  <p class="text-black mt-3">*The store credit for the shipping cost will be issued after the exchanged item is shipped. It is the customer's responsibility to send the shipping invoice to us within 7 days of the exchange to get the store credit. Store credit will not be issued if we do not get the shipping invoice within 7 days of the exchange.</p>
+</div>
+
+<div>
+  <h2 class="text-lg font-bold text-black mb-3">Returns & Refund Policy:</h2>
+  <p>Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.</p>
+</div>
+
+<div>
+  <h2 class="text-lg font-bold text-black mb-3">Cancellation Policy:</h2>
+  <p>We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.</p>
+</div>
+`;
+
 const ExchangeReturnsPage = () => {
+  const { data: dbContent, isLoading: isLoadingContent } = useContentPage("exchange-returns");
   const {
     toast
   } = useToast();
@@ -83,6 +115,9 @@ const ExchangeReturnsPage = () => {
       [field]: value
     }));
   };
+  const title = dbContent?.title || "Exchange, Returns, Refund & Cancellation Policy";
+  const policyContent = dbContent?.content || STATIC_POLICY_CONTENT;
+
   return <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
@@ -90,50 +125,19 @@ const ExchangeReturnsPage = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-6 uppercase">
-              Exchange, Returns, Refund & Cancellation Policy
+              {title}
             </h1>
             
-            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-8">
-              <div>
-                <h2 className="text-lg font-bold text-black mb-3">Exchange Policy:</h2>
-                <p className="mb-4">
-                  Your favorite gear purchased from us doesn't fit well? No problem, we are happy to exchange it for the right size.
-                </p>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>Please note that products purchased can be exchanged for size only. Product must be unused with all the tags and packing material must be intact. Products sent without proper packaging and without the helmet box and tags will be returned to the customer as is.</li>
-                  <li>Customer must fill the form below and then ship the product within 48hrs of receiving the product.</li>
-                  <li>Please ship the product to the address mentioned in the invoice received with the product.</li>
-                  <li>The cost of sending the product will be compensated to the customer in the form of store credit only at actuals but upto a maximum of Rs. 500. No cash compensation will be made.</li>
-                  <li>Helmet Hub will send the replacement free of cost.</li>
-                </ul>
-                <p className="text-black mt-4">
-                  * Please note that products that are on sale or purchased using a discount, luggage and all accessories cannot be exchanged.*
-                </p>
-                <p className="text-black mt-3">
-                  *The Store credit issued to the customer must be used within 30 days. The credit won't be reissued once it has expired.
-                </p>
-                <p className="text-black mt-3">
-                  *The Store credit can be used only on specific collections like helmets, jackets, gloves, pants, boots, intercoms and luggage. It cannot be used to buy accessories.
-                </p>
-                <p className="text-black mt-3">
-                  *The store credit for the shipping cost will be issued after the exchanged item is shipped. It is the customer's responsibility to send the shipping invoice to us within 7 days of the exchange to get the store credit. Store credit will not be issued if we do not get the shipping invoice within 7 days of the exchange.
-                </p>
+            {isLoadingContent ? (
+              <div className="flex justify-center py-12 mb-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-
-              <div>
-                <h2 className="text-lg font-bold text-black mb-3">Returns & Refund Policy:</h2>
-                <p>
-                  Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-lg font-bold text-black mb-3">Cancellation Policy:</h2>
-                <p>
-                  We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.
-                </p>
-              </div>
-            </div>
+            ) : (
+              <div 
+                className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-8 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-black [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ul]:text-gray-700"
+                dangerouslySetInnerHTML={{ __html: policyContent }}
+              />
+            )}
 
             <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200">
               <h2 className="text-xl md:text-2xl font-serif text-center text-navy-900 mb-6">

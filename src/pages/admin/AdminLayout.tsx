@@ -62,6 +62,7 @@ const navItems = [
   { href: '/admin/return-requests', label: 'Returns', icon: RotateCcw, trackUnread: true, storageKey: 'admin_read_returns' },
   { href: '/admin/blog', label: 'Blog', icon: FileText, trackUnread: false },
   { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle, trackUnread: false },
+  { href: '/admin/content-pages', label: 'Pages', icon: FileText, trackUnread: false },
   { href: '/admin/navigation-links', label: 'Navigation', icon: LinkIcon, trackUnread: false },
   { href: '/admin/instagram', label: 'Instagram', icon: Instagram, trackUnread: false },
   { href: '/admin/site-settings', label: 'Settings', icon: Settings, trackUnread: false },
