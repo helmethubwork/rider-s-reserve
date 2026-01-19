@@ -86,7 +86,7 @@ const StoreLocatorPage = () => {
                               <MapPin size={18} className="text-primary mt-0.5 flex-shrink-0" />
                               <div>
                                 <p>{store.address},</p>
-                                <p>{store.city} - {store.pincode}.</p>
+                                <p>{store.city}{store.pincode ? ` - ${store.pincode}` : ''}.</p>
                                 <p>{store.state}</p>
                               </div>
                             </div>
