@@ -1,37 +1,59 @@
-import { useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Instagram, Play } from "lucide-react";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: posts, isLoading } = useInstagramPosts();
+  const [embedsLoaded, setEmbedsLoaded] = useState(false);
   
   // Extract reel IDs from posts
   const reelIds = posts?.map(p => p.reel_url) || [];
 
+  // Load Instagram embed script
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://www.instagram.com/embed.js";
-    script.async = true;
-    document.body.appendChild(script);
+    if (reelIds.length === 0) return;
 
-    script.onload = () => {
-      if ((window as any).instgrm) {
-        (window as any).instgrm.Embeds.process();
+    const loadInstagramScript = () => {
+      // Remove existing script if any
+      const existingScript = document.querySelector('script[src*="instagram.com/embed.js"]');
+      if (existingScript) {
+        existingScript.remove();
       }
+
+      const script = document.createElement("script");
+      script.src = "https://www.instagram.com/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      script.onload = () => {
+        // Give a small delay for script to initialize
+        setTimeout(() => {
+          if ((window as any).instgrm) {
+            (window as any).instgrm.Embeds.process();
+            setEmbedsLoaded(true);
+          }
+        }, 300);
+      };
+
+      return script;
     };
 
+    const script = loadInstagramScript();
+
     return () => {
-      if (document.body.contains(script)) {
+      if (script && document.body.contains(script)) {
         document.body.removeChild(script);
       }
     };
-  }, []);
+  }, [reelIds.length]);
 
   // Re-process embeds when reelIds change
   useEffect(() => {
     if ((window as any).instgrm && reelIds.length > 0) {
-      (window as any).instgrm.Embeds.process();
+      setTimeout(() => {
+        (window as any).instgrm.Embeds.process();
+      }, 100);
     }
   }, [reelIds]);
 
@@ -116,12 +138,23 @@ const InstagramFeed = () => {
           {reelIds.map((reelId) => (
             <div 
               key={reelId} 
-              className="flex-shrink-0 w-[240px] sm:w-[300px] md:w-[340px] aspect-[4/5] overflow-hidden relative instagram-video-container rounded-lg sm:rounded-xl border border-border/50 shadow-lg"
+              className="flex-shrink-0 w-[240px] sm:w-[300px] md:w-[340px] aspect-[9/16] overflow-hidden relative instagram-video-container rounded-lg sm:rounded-xl border border-border/50 shadow-lg bg-card"
             >
+              {/* Loading placeholder */}
+              {!embedsLoaded && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-orange-400/20 z-10">
+                  <div className="w-16 h-16 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center mb-3 shadow-lg">
+                    <Play className="w-8 h-8 text-foreground ml-1" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Loading reel...</p>
+                </div>
+              )}
+              
               <blockquote
                 className="instagram-media"
                 data-instgrm-permalink={`https://www.instagram.com/reel/${reelId}/`}
                 data-instgrm-version="14"
+                data-instgrm-captioned
                 style={{
                   background: "transparent",
                   border: 0,
@@ -135,7 +168,7 @@ const InstagramFeed = () => {
                   href={`https://www.instagram.com/reel/${reelId}/`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full h-full bg-card"
+                  className="block w-full h-full"
                 />
               </blockquote>
             </div>
@@ -151,20 +184,20 @@ const InstagramFeed = () => {
         }
         .instagram-video-container iframe {
           position: absolute !important;
-          top: -64px !important;
-          left: 0 !important;
-          width: 100% !important;
-          height: calc(100% + 240px) !important;
+          top: -1px !important;
+          left: -1px !important;
+          width: calc(100% + 2px) !important;
+          height: calc(100% + 2px) !important;
           border: 0 !important;
           background: hsl(var(--card)) !important;
         }
         .instagram-video-container .instagram-media {
           min-width: 100% !important;
           width: 100% !important;
-          background: hsl(var(--card)) !important;
+          background: transparent !important;
         }
         .instagram-video-container .instagram-media-rendered {
-          background: hsl(var(--card)) !important;
+          background: transparent !important;
         }
       `}</style>
     </section>
