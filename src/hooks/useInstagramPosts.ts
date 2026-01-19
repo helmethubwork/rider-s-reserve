@@ -2,10 +2,11 @@
  * Instagram Posts Hook
  * 
  * Manages Instagram reel IDs using localStorage for persistence.
- * Auto-seeds with default reels on first load.
+ * Falls back to static defaults from instagramReels.ts for new visitors.
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { instagramReelIds } from '@/data/instagramReels';
 
 export interface InstagramPost {
   id: string;
@@ -15,20 +16,10 @@ export interface InstagramPost {
   created_at: string;
 }
 
-// Default fallback reel IDs
-export const defaultReelIds = [
-  "C-C3abzBKYd",
-  "C6YW6r6LI9-",
-  "DTNVmDwgTon",
-  "DRzgIPrjMNT",
-  "DRUl9StDEsX",
-  "DPngJf0Af1H",
-];
-
 const STORAGE_KEY = 'instagram_posts';
 
 const createDefaultPosts = (): InstagramPost[] => {
-  return defaultReelIds.map((reelId, index) => ({
+  return instagramReelIds.map((reelId, index) => ({
     id: crypto.randomUUID(),
     reel_id: reelId,
     display_order: index + 1,
@@ -42,44 +33,47 @@ const getStoredPosts = (): InstagramPost[] => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     }
-    // Initialize with defaults if empty or not set
-    const defaults = createDefaultPosts();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-    return defaults;
   } catch (error) {
-    console.error('Error reading instagram posts from localStorage:', error);
-    // Return defaults on error
-    const defaults = createDefaultPosts();
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-    } catch {}
-    return defaults;
+    console.error('Error reading instagram posts:', error);
   }
+  // Return defaults if nothing stored
+  const defaults = createDefaultPosts();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+  } catch {}
+  return defaults;
 };
 
 const savePostsToStorage = (posts: InstagramPost[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
   } catch (error) {
-    console.error('Error saving instagram posts to localStorage:', error);
+    console.error('Error saving instagram posts:', error);
   }
 };
 
+// Hook for public-facing feed (only active posts)
 export const useInstagramPosts = () => {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const stored = getStoredPosts();
-    setPosts(stored.filter(p => p.is_active).sort((a, b) => a.display_order - b.display_order));
+    const activePosts = stored
+      .filter(p => p.is_active)
+      .sort((a, b) => a.display_order - b.display_order);
+    setPosts(activePosts);
     setIsLoading(false);
   }, []);
 
   return { data: posts, isLoading };
 };
 
+// Hook for admin panel (all posts with CRUD operations)
 export const useAllInstagramPosts = () => {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,10 +90,11 @@ export const useAllInstagramPosts = () => {
 
   const addPost = useCallback((reelId: string, isActive: boolean = true) => {
     const stored = getStoredPosts();
+    const maxOrder = stored.length > 0 ? Math.max(...stored.map(p => p.display_order)) : 0;
     const newPost: InstagramPost = {
       id: crypto.randomUUID(),
       reel_id: reelId,
-      display_order: stored.length + 1,
+      display_order: maxOrder + 1,
       is_active: isActive,
       created_at: new Date().toISOString(),
     };
@@ -118,9 +113,11 @@ export const useAllInstagramPosts = () => {
 
   const deletePost = useCallback((id: string) => {
     const stored = getStoredPosts();
-    const updated = stored.filter(p => p.id !== id);
+    const filtered = stored.filter(p => p.id !== id);
     // Re-order remaining posts
-    const reordered = updated.map((p, idx) => ({ ...p, display_order: idx + 1 }));
+    const reordered = filtered
+      .sort((a, b) => a.display_order - b.display_order)
+      .map((p, idx) => ({ ...p, display_order: idx + 1 }));
     savePostsToStorage(reordered);
     refetch();
   }, [refetch]);
@@ -142,9 +139,9 @@ export const useAllInstagramPosts = () => {
     refetch();
   }, [refetch]);
 
-  const seedDefaults = useCallback(() => {
-    const defaultPosts = createDefaultPosts();
-    savePostsToStorage(defaultPosts);
+  const resetToDefaults = useCallback(() => {
+    const defaults = createDefaultPosts();
+    savePostsToStorage(defaults);
     refetch();
   }, [refetch]);
 
@@ -156,6 +153,9 @@ export const useAllInstagramPosts = () => {
     updatePost,
     deletePost,
     reorderPost,
-    seedDefaults,
+    resetToDefaults,
   };
 };
+
+// Export default reel IDs for reference
+export { instagramReelIds as defaultReelIds } from '@/data/instagramReels';
