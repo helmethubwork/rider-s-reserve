@@ -41,6 +41,8 @@ import AdminFeaturedPromos from "./pages/admin/AdminFeaturedPromos";
 import AdminSiteSettings from "./pages/admin/AdminSiteSettings";
 import AdminStoreLocations from "./pages/admin/AdminStoreLocations";
 import AdminInstagramPosts from "./pages/admin/AdminInstagramPosts";
+import AdminBlog from "./pages/admin/AdminBlog";
+import AdminFaqs from "./pages/admin/AdminFaqs";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +91,8 @@ const App = () => (
               <Route path="/admin/site-settings" element={<ProtectedRoute requireAdmin><AdminSiteSettings /></ProtectedRoute>} />
               <Route path="/admin/store-locations" element={<ProtectedRoute requireAdmin><AdminStoreLocations /></ProtectedRoute>} />
               <Route path="/admin/instagram" element={<ProtectedRoute requireAdmin><AdminInstagramPosts /></ProtectedRoute>} />
+              <Route path="/admin/blog" element={<ProtectedRoute requireAdmin><AdminBlog /></ProtectedRoute>} />
+              <Route path="/admin/faqs" element={<ProtectedRoute requireAdmin><AdminFaqs /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

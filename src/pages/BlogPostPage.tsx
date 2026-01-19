@@ -1,13 +1,73 @@
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { blogPosts } from "@/data/blogPosts";
-import { ArrowLeft } from "lucide-react";
+import { blogPosts as staticBlogPosts } from "@/data/blogPosts";
+import { useBlogPost, useBlogPosts } from "@/hooks/useBlogPosts";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = blogPosts.find((p) => p.slug === slug);
+  
+  // Try to fetch from database first
+  const { data: dbPost, isLoading } = useBlogPost(slug);
+  const { data: dbPosts = [] } = useBlogPosts();
+  
+  // Fall back to static post if not found in DB
+  const staticPost = staticBlogPosts.find((p) => p.slug === slug);
+  
+  // Transform DB post to match static format
+  const post = dbPost 
+    ? {
+        id: dbPost.id,
+        slug: dbPost.slug,
+        title: dbPost.title,
+        excerpt: dbPost.excerpt,
+        content: dbPost.content,
+        image: dbPost.image_url || '/placeholder.svg',
+        date: new Date(dbPost.created_at).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        }),
+        category: dbPost.category,
+      }
+    : staticPost;
 
+  // Get related posts (from DB or static)
+  const allPosts = dbPosts.length > 0 
+    ? dbPosts.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        image: p.image_url || '/placeholder.svg',
+        date: new Date(p.created_at).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        }),
+      }))
+    : staticBlogPosts.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        image: p.image,
+        date: p.date,
+      }));
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Not found
   if (!post) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
@@ -109,7 +169,7 @@ const BlogPostPage = () => {
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">More Articles</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {blogPosts
+                {allPosts
                   .filter((p) => p.id !== post.id)
                   .slice(0, 2)
                   .map((relatedPost) => (

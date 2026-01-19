@@ -9,8 +9,10 @@ import {
   MessageCircle,
   MapPin,
   Package,
-  HelpCircle
+  HelpCircle,
+  Loader2
 } from 'lucide-react';
+import { useFaqs } from '@/hooks/useFaqs';
 
 const supportLinks = [
   {
@@ -51,7 +53,8 @@ const supportLinks = [
   },
 ];
 
-const faqs = [
+// Static fallback FAQs
+const staticFaqs = [
   {
     question: 'How long does delivery take?',
     answer: 'Standard delivery takes 5-7 business days. Express delivery is available in select cities with 2-3 day delivery.',
@@ -71,6 +74,16 @@ const faqs = [
 ];
 
 const SupportPage = () => {
+  const { data: dbFaqs, isLoading } = useFaqs();
+  
+  // Use database FAQs if available, otherwise fall back to static
+  const faqs = dbFaqs && dbFaqs.length > 0 
+    ? dbFaqs.map(faq => ({
+        question: faq.question,
+        answer: faq.answer,
+      }))
+    : staticFaqs;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -142,21 +155,29 @@ const SupportPage = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
               Frequently Asked Questions
             </h2>
-            <div className="max-w-3xl mx-auto space-y-4">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className="bg-card border border-border rounded-xl p-6"
-                >
-                  <h3 className="font-semibold text-foreground mb-2">
-                    {faq.question}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {faq.answer}
-                  </p>
-                </div>
-              ))}
-            </div>
+            
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="max-w-3xl mx-auto space-y-4">
+                {faqs.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="bg-card border border-border rounded-xl p-6"
+                  >
+                    <h3 className="font-semibold text-foreground mb-2">
+                      {faq.question}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <div className="text-center mt-8">
               <p className="text-muted-foreground mb-4">
                 Still have questions?

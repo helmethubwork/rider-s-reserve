@@ -1,9 +1,31 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BlogCard from "@/components/BlogCard";
-import { blogPosts } from "@/data/blogPosts";
+import { blogPosts as staticBlogPosts } from "@/data/blogPosts";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
+import { Loader2 } from "lucide-react";
 
 const BlogPage = () => {
+  const { data: dbPosts, isLoading } = useBlogPosts();
+  
+  // Use database posts if available, otherwise fall back to static posts
+  const posts = dbPosts && dbPosts.length > 0 
+    ? dbPosts.map(post => ({
+        id: post.id,
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        image: post.image_url || '/placeholder.svg',
+        date: new Date(post.created_at).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        }),
+        category: post.category,
+      }))
+    : staticBlogPosts;
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -20,12 +42,21 @@ const BlogPage = () => {
             </p>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+
           {/* Blog Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {blogPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
-          </div>
+          {!isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {posts.map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
       
