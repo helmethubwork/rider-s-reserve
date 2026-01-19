@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useFeaturedPromos } from "@/hooks/useFeaturedPromos";
 import { Skeleton } from "@/components/ui/skeleton";
-import helmet2 from "@/assets/products/helmet-2.jpg";
-import helmet3 from "@/assets/products/helmet-3.jpg";
 
 interface PromoCard {
   brand: string;
@@ -15,43 +13,19 @@ interface PromoCard {
   accent?: string;
 }
 
-// Fallback static data when database is not available
-const fallbackPromos: PromoCard[] = [
-  {
-    brand: "KORDA",
-    title: "TOURMASTER WITH D3O",
-    subtitle: "Just Launched",
-    buttonText: "SHOP NOW",
-    buttonLink: "/category/riding-gears?type=boots",
-    image: helmet2,
-    accent: "New Arrival",
-  },
-  {
-    brand: "MT TARGO",
-    title: "SUMMER SPECIAL",
-    subtitle: "Now available at just Rs. 3,999!",
-    buttonText: "SHOP TARGO",
-    buttonLink: "/category/helmets?brand=mt",
-    image: helmet3,
-    accent: "Limited Time",
-  },
-];
-
 const FeaturedPromo = () => {
-  const { data: dbPromos, isLoading, error } = useFeaturedPromos();
+  const { data: dbPromos, isLoading } = useFeaturedPromos();
 
-  // Use database promos if available, otherwise use fallback
-  const promos: PromoCard[] = (dbPromos && dbPromos.length > 0)
-    ? dbPromos.map(p => ({
-        brand: p.brand,
-        title: p.title,
-        subtitle: p.subtitle,
-        buttonText: p.button_text,
-        buttonLink: p.button_link,
-        image: p.image_url || helmet2,
-        accent: p.accent || undefined,
-      }))
-    : fallbackPromos;
+  // Map database promos, filter out any without valid images
+  const promos: PromoCard[] = (dbPromos || []).map(p => ({
+    brand: p.brand,
+    title: p.title,
+    subtitle: p.subtitle,
+    buttonText: p.button_text,
+    buttonLink: p.button_link,
+    image: p.image_url || '',
+    accent: p.accent || undefined,
+  })).filter(p => p.image);
 
   if (isLoading) {
     return (
@@ -63,6 +37,11 @@ const FeaturedPromo = () => {
         </div>
       </section>
     );
+  }
+
+  // Don't render section if no active promos with images
+  if (promos.length === 0) {
+    return null;
   }
 
   return (
