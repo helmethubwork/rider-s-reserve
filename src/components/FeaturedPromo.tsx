@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useFeaturedPromos } from "@/hooks/useFeaturedPromos";
+import { Skeleton } from "@/components/ui/skeleton";
 import helmet2 from "@/assets/products/helmet-2.jpg";
 import helmet3 from "@/assets/products/helmet-3.jpg";
 
@@ -13,7 +15,8 @@ interface PromoCard {
   accent?: string;
 }
 
-const promos: PromoCard[] = [
+// Fallback static data when database is not available
+const fallbackPromos: PromoCard[] = [
   {
     brand: "KORDA",
     title: "TOURMASTER WITH D3O",
@@ -35,6 +38,33 @@ const promos: PromoCard[] = [
 ];
 
 const FeaturedPromo = () => {
+  const { data: dbPromos, isLoading, error } = useFeaturedPromos();
+
+  // Use database promos if available, otherwise use fallback
+  const promos: PromoCard[] = (dbPromos && dbPromos.length > 0)
+    ? dbPromos.map(p => ({
+        brand: p.brand,
+        title: p.title,
+        subtitle: p.subtitle,
+        buttonText: p.button_text,
+        buttonLink: p.button_link,
+        image: p.image_url || helmet2,
+        accent: p.accent || undefined,
+      }))
+    : fallbackPromos;
+
+  if (isLoading) {
+    return (
+      <section className="py-2 sm:py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+          {[1, 2].map((i) => (
+            <Skeleton key={i} className="h-[45vh] sm:h-[50vh] md:h-[65vh]" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-2 sm:py-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
