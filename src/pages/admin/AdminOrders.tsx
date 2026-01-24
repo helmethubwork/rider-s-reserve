@@ -8,7 +8,7 @@
  * Marks orders as read when viewed.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,24 +31,7 @@ import { supabase } from '@/lib/supabase';
 import { Order, OrderItemDB } from '@/hooks/useOrders';
 import { Eye, Loader2, Package, Truck, Circle } from 'lucide-react';
 import { toast } from 'sonner';
-
-// Helper to manage read status in localStorage
-const getReadItems = (key: string): string[] => {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
-const markAsRead = (key: string, id: string) => {
-  const items = getReadItems(key);
-  if (!items.includes(id)) {
-    items.push(id);
-    localStorage.setItem(key, JSON.stringify(items));
-  }
-};
+import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
 const orderStatuses = [
   { value: 'placed', label: 'Placed' },
@@ -62,11 +45,9 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [readOrders, setReadOrders] = useState<string[]>([]);
 
-  useEffect(() => {
-    setReadOrders(getReadItems('admin_read_orders'));
-  }, []);
+  // Use Supabase-backed read tracking
+  const { isRead, markAsRead } = useAdminReadItems('order');
 
   // Edit form state
   const [editData, setEditData] = useState({
@@ -154,10 +135,7 @@ const AdminOrders = () => {
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
     setIsDetailsOpen(true);
-    if (!readOrders.includes(order.id)) {
-      markAsRead('admin_read_orders', order.id);
-      setReadOrders([...readOrders, order.id]);
-    }
+    markAsRead(order.id);
   };
 
   // Open edit dialog and mark as read
@@ -169,12 +147,8 @@ const AdminOrders = () => {
       courier_name: order.courier_name || '',
     });
     setIsEditOpen(true);
-    if (!readOrders.includes(order.id)) {
-      markAsRead('admin_read_orders', order.id);
-      setReadOrders([...readOrders, order.id]);
-    }
+    markAsRead(order.id);
   };
-
 
   // Handle edit submit
   const handleEditSubmit = (e: React.FormEvent) => {
@@ -266,7 +240,7 @@ const AdminOrders = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {orders.map((order) => {
-                    const isUnread = !readOrders.includes(order.id);
+                    const isUnread = !isRead(order.id);
                     return (
                       <tr 
                         key={order.id} 
@@ -278,56 +252,56 @@ const AdminOrders = () => {
                             <p className="font-bold text-gray-900">{order.order_number}</p>
                           </div>
                         </td>
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{order.customer_name}</p>
-                        <p className="text-xs text-gray-500">{order.customer_email}</p>
-                      </td>
-                      <td className="px-4 py-3 font-bold text-gray-900">
-                        {formatPrice(order.total_amount)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold capitalize ${getStatusColor(
-                            order.order_status
-                          )}`}
-                        >
-                          {order.order_status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold capitalize ${getPaymentColor(
-                            order.payment_status
-                          )}`}
-                        >
-                          {order.payment_status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {formatDate(order.created_at)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleViewDetails(order)}
-                            title="View Details"
-                            className="border-gray-300 hover:bg-gray-100"
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-gray-900">{order.customer_name}</p>
+                          <p className="text-xs text-gray-500">{order.customer_email}</p>
+                        </td>
+                        <td className="px-4 py-3 font-bold text-gray-900">
+                          {formatPrice(order.total_amount)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold capitalize ${getStatusColor(
+                              order.order_status
+                            )}`}
                           >
-                            <Eye size={16} className="text-gray-700" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleEdit(order)}
-                            title="Update Order"
-                            className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+                            {order.order_status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold capitalize ${getPaymentColor(
+                              order.payment_status
+                            )}`}
                           >
-                            <Truck size={16} />
-                          </Button>
-                        </div>
-                      </td>
+                            {order.payment_status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {formatDate(order.created_at)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleViewDetails(order)}
+                              title="View Details"
+                              className="border-gray-300 hover:bg-gray-100"
+                            >
+                              <Eye size={16} className="text-gray-700" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleEdit(order)}
+                              title="Update Order"
+                              className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+                            >
+                              <Truck size={16} />
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
@@ -474,19 +448,19 @@ const AdminOrders = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditOpen(false)}
-                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100"
+                  className="flex-1"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
                   disabled={updateOrder.isPending}
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
                 >
                   {updateOrder.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Update
+                  Update Order
                 </Button>
               </div>
             </form>

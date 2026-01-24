@@ -6,7 +6,7 @@
  * Includes unread indicators for orders, messages, and returns.
  */
 
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Package, 
@@ -33,22 +33,11 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useAdminUnreadCounts } from '@/hooks/useAdminReadItems';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
-
-// Helper to get read items from localStorage
-const getReadItems = (key: string): string[] => {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, trackUnread: false },
@@ -57,9 +46,9 @@ const navItems = [
   { href: '/admin/categories', label: 'Categories', icon: Grid3X3, trackUnread: false },
   { href: '/admin/hero-slider', label: 'Hero Slider', icon: Image, trackUnread: false },
   { href: '/admin/featured-promos', label: 'Promos', icon: Star, trackUnread: false },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, trackUnread: true, storageKey: 'admin_read_orders' },
-  { href: '/admin/messages', label: 'Messages', icon: MessageSquare, trackUnread: true, storageKey: 'admin_read_messages' },
-  { href: '/admin/return-requests', label: 'Returns', icon: RotateCcw, trackUnread: true, storageKey: 'admin_read_returns' },
+  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, trackUnread: true, countKey: 'orders' as const },
+  { href: '/admin/messages', label: 'Messages', icon: MessageSquare, trackUnread: true, countKey: 'messages' as const },
+  { href: '/admin/return-requests', label: 'Returns', icon: RotateCcw, trackUnread: true, countKey: 'returns' as const },
   { href: '/admin/blog', label: 'Blog', icon: FileText, trackUnread: false },
   { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle, trackUnread: false },
   { href: '/admin/content-pages', label: 'Pages', icon: FileText, trackUnread: false },
@@ -74,64 +63,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [readOrders, setReadOrders] = useState<string[]>([]);
-  const [readMessages, setReadMessages] = useState<string[]>([]);
-  const [readReturns, setReadReturns] = useState<string[]>([]);
-
-  useEffect(() => {
-    setReadOrders(getReadItems('admin_read_orders'));
-    setReadMessages(getReadItems('admin_read_messages'));
-    setReadReturns(getReadItems('admin_read_returns'));
-  }, []);
-
-  // Fetch recent orders for unread count
-  const { data: recentOrders = [] } = useQuery({
-    queryKey: ['admin', 'orders', 'recent-ids'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('id')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Fetch recent messages for unread count
-  const { data: recentMessages = [] } = useQuery({
-    queryKey: ['admin', 'messages', 'recent-ids'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('contact_messages')
-        .select('id')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Fetch recent return requests for unread count
-  const { data: recentReturns = [] } = useQuery({
-    queryKey: ['admin', 'returns', 'recent-ids'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('return_requests')
-        .select('id')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      if (error) return [];
-      return data || [];
-    },
-  });
-
-  // Calculate unread counts
-  const unreadCounts: Record<string, number> = {
-    '/admin/orders': recentOrders.filter(o => !readOrders.includes(o.id)).length,
-    '/admin/messages': recentMessages.filter(m => !readMessages.includes(m.id)).length,
-    '/admin/return-requests': recentReturns.filter(r => !readReturns.includes(r.id)).length,
-  };
+  
+  // Get unread counts from Supabase
+  const unreadCounts = useAdminUnreadCounts();
 
   // Check if we can go back within admin or should go to store
   const handleBack = () => {
@@ -146,7 +80,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     <nav className="flex-1 py-3 space-y-1 overflow-y-auto px-3">
       {navItems.map((item) => {
         const isActive = location.pathname === item.href;
-        const unreadCount = item.trackUnread ? unreadCounts[item.href] || 0 : 0;
+        const unreadCount = item.trackUnread && item.countKey ? unreadCounts[item.countKey] : 0;
         const hasUnread = unreadCount > 0;
         
         return (

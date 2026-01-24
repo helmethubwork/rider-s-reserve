@@ -2,12 +2,14 @@
  * Admin Featured Promos Page
  * 
  * Manage homepage featured promo sections.
+ * Uses Supabase site_settings for visibility toggle.
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAdminFeaturedPromos, FeaturedPromo } from '@/hooks/useFeaturedPromos';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,27 +43,50 @@ const emptyFormData: PromoFormData = {
   is_active: true,
 };
 
-const SECTION_VISIBILITY_KEY = 'featured_promos_visible';
-
 const AdminFeaturedPromos = () => {
   const { data: promos, isLoading } = useAdminFeaturedPromos();
+  const { data: homepageSettings } = useSiteSettings('homepage');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<FeaturedPromo | null>(null);
   const [formData, setFormData] = useState<PromoFormData>(emptyFormData);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sectionVisible, setSectionVisible] = useState(() => {
-    const stored = localStorage.getItem(SECTION_VISIBILITY_KEY);
-    return stored === null ? true : stored === 'true';
-  });
+  const [sectionVisible, setSectionVisible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Sync section visibility from site_settings
+  useEffect(() => {
+    const setting = homepageSettings?.find(s => s.setting_key === 'featured_promos_visible');
+    setSectionVisible(setting?.setting_value !== 'false');
+  }, [homepageSettings]);
+
+  // Update visibility in Supabase site_settings
+  const updateVisibility = useMutation({
+    mutationFn: async (visible: boolean) => {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({
+          setting_key: 'featured_promos_visible',
+          setting_value: String(visible),
+          setting_type: 'boolean',
+          category: 'homepage',
+          label: 'Featured Promos Visibility',
+          description: 'Show or hide the Featured Promos section on homepage',
+          display_order: 1,
+        }, { onConflict: 'setting_key' });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['site-settings'] });
+    },
+  });
+
   const handleSectionVisibilityChange = (visible: boolean) => {
     setSectionVisible(visible);
-    localStorage.setItem(SECTION_VISIBILITY_KEY, String(visible));
+    updateVisibility.mutate(visible);
     toast({
       title: visible ? 'Section Visible' : 'Section Hidden',
       description: visible 
@@ -146,23 +171,17 @@ const AdminFeaturedPromos = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       let imageUrl = editingPromo?.image_url;
-
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
       }
-
       const submitData = { ...formData, image_url: imageUrl || undefined };
-
       if (editingPromo) {
         await updatePromo.mutateAsync({ id: editingPromo.id, data: submitData });
       } else {
         await createPromo.mutateAsync(submitData);
       }
-    } catch (error) {
-      console.error('Error submitting promo:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -238,140 +257,63 @@ const AdminFeaturedPromos = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="brand">Brand Name</Label>
-                    <Input
-                      id="brand"
-                      value={formData.brand}
-                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                      placeholder="e.g., KORDA"
-                      required
-                    />
+                    <Input id="brand" value={formData.brand} onChange={(e) => setFormData({ ...formData, brand: e.target.value })} placeholder="e.g., KORDA" required />
                   </div>
                   <div>
                     <Label htmlFor="accent">Accent Badge (optional)</Label>
-                    <Input
-                      id="accent"
-                      value={formData.accent}
-                      onChange={(e) => setFormData({ ...formData, accent: e.target.value })}
-                      placeholder="e.g., New Arrival"
-                    />
+                    <Input id="accent" value={formData.accent} onChange={(e) => setFormData({ ...formData, accent: e.target.value })} placeholder="e.g., New Arrival" />
                   </div>
                 </div>
-
                 <div>
                   <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., TOURMASTER WITH D3O"
-                    required
-                  />
+                  <Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="e.g., TOURMASTER WITH D3O" required />
                 </div>
-
                 <div>
                   <Label htmlFor="subtitle">Subtitle</Label>
-                  <Textarea
-                    id="subtitle"
-                    value={formData.subtitle}
-                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                    placeholder="e.g., Just Launched"
-                    required
-                  />
+                  <Textarea id="subtitle" value={formData.subtitle} onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })} placeholder="e.g., Just Launched" required />
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="button_text">Button Text</Label>
-                    <Input
-                      id="button_text"
-                      value={formData.button_text}
-                      onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
-                      placeholder="e.g., SHOP NOW"
-                      required
-                    />
+                    <Input id="button_text" value={formData.button_text} onChange={(e) => setFormData({ ...formData, button_text: e.target.value })} required />
                   </div>
                   <div>
                     <Label htmlFor="button_link">Button Link</Label>
-                    <Input
-                      id="button_link"
-                      value={formData.button_link}
-                      onChange={(e) => setFormData({ ...formData, button_link: e.target.value })}
-                      placeholder="e.g., /category/helmets"
-                      required
-                    />
+                    <Input id="button_link" value={formData.button_link} onChange={(e) => setFormData({ ...formData, button_link: e.target.value })} required />
                   </div>
                 </div>
-
-                {/* Image Upload */}
                 <div>
                   <Label>Background Image</Label>
-                  <div className="mt-2 space-y-3">
+                  <div className="mt-2">
                     {imagePreview ? (
                       <div className="relative">
-                        <img
-                          src={imagePreview}
-                          alt="Preview"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-2 right-2"
-                          onClick={() => { setImageFile(null); setImagePreview(null); }}
-                        >
+                        <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg border" />
+                        <Button type="button" variant="destructive" size="sm" className="absolute top-2 right-2" onClick={() => { setImageFile(null); setImagePreview(null); }}>
                           <Trash2 size={14} />
                         </Button>
                       </div>
                     ) : (
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500 transition-colors"
-                      >
+                      <div onClick={() => fileInputRef.current?.click()} className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500">
                         <Image size={40} className="text-gray-400 mb-2" />
                         <p className="text-sm text-gray-500">Click to upload image</p>
-                        <p className="text-xs text-gray-400">Max 5MB</p>
                       </div>
                     )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                    />
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
                   </div>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="display_order">Display Order</Label>
-                    <Input
-                      id="display_order"
-                      type="number"
-                      value={formData.display_order}
-                      onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                    />
+                    <Input id="display_order" type="number" value={formData.display_order} onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })} />
                   </div>
                   <div className="flex items-center gap-3 pt-6">
-                    <Switch
-                      id="is_active"
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                    />
+                    <Switch id="is_active" checked={formData.is_active} onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })} />
                     <Label htmlFor="is_active">Active</Label>
                   </div>
                 </div>
-
                 <div className="flex justify-end gap-3 pt-4">
-                  <Button type="button" variant="outline" onClick={closeDialog}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
-                  >
+                  <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
+                  <Button type="submit" disabled={isSubmitting} className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {editingPromo ? 'Update Promo' : 'Create Promo'}
                   </Button>
@@ -383,11 +325,7 @@ const AdminFeaturedPromos = () => {
 
         {/* Promos List */}
         {isLoading ? (
-          <div className="grid gap-4">
-            {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-32 w-full" />
-            ))}
-          </div>
+          <div className="grid gap-4">{[1, 2].map((i) => <Skeleton key={i} className="h-32 w-full" />)}</div>
         ) : promos?.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border">
             <Image size={48} className="mx-auto text-gray-300 mb-4" />
@@ -396,88 +334,19 @@ const AdminFeaturedPromos = () => {
         ) : (
           <div className="grid gap-4">
             {promos?.map((promo) => (
-              <div
-                key={promo.id}
-                className={`bg-white rounded-xl border-2 p-4 flex flex-col sm:flex-row gap-4 ${
-                  promo.is_active ? 'border-gray-200' : 'border-gray-100 opacity-60'
-                }`}
-              >
-                {/* Image */}
+              <div key={promo.id} className={`bg-white rounded-xl border-2 p-4 flex flex-col sm:flex-row gap-4 ${promo.is_active ? 'border-gray-200' : 'border-gray-100 opacity-60'}`}>
                 <div className="w-full sm:w-48 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                  {promo.image_url ? (
-                    <img
-                      src={promo.image_url}
-                      alt={promo.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Image size={32} className="text-gray-300" />
-                    </div>
-                  )}
+                  {promo.image_url ? <img src={promo.image_url} alt={promo.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Image size={32} className="text-gray-300" /></div>}
                 </div>
-
-                {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-xs text-yellow-600 font-bold tracking-wider">{promo.brand}</p>
-                      <h3 className="font-bold text-gray-900 text-lg">{promo.title}</h3>
-                      <p className="text-gray-500 text-sm">{promo.subtitle}</p>
-                    </div>
-                    {promo.accent && (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-medium">
-                        {promo.accent}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-400">
-                    <span>Button: {promo.button_text}</span>
-                    <span>•</span>
-                    <span>Link: {promo.button_link}</span>
-                    <span>•</span>
-                    <span>Order: {promo.display_order}</span>
-                  </div>
+                  <p className="text-xs text-yellow-600 font-bold tracking-wider">{promo.brand}</p>
+                  <h3 className="font-bold text-gray-900 text-lg">{promo.title}</h3>
+                  <p className="text-gray-500 text-sm">{promo.subtitle}</p>
                 </div>
-
-                {/* Actions */}
                 <div className="flex sm:flex-col gap-2 items-end">
-                  {/* Quick visibility toggle */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <Switch
-                      checked={promo.is_active}
-                      onCheckedChange={(checked) => {
-                        updatePromo.mutate({
-                          id: promo.id,
-                          data: { is_active: checked }
-                        });
-                      }}
-                      className="data-[state=checked]:bg-green-500"
-                    />
-                    <span className={`text-xs font-medium ${promo.is_active ? 'text-green-600' : 'text-gray-400'}`}>
-                      {promo.is_active ? 'Visible' : 'Hidden'}
-                    </span>
-                  </div>
-                  <div className="flex sm:flex-col gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(promo)}
-                      className="flex-1 sm:flex-none"
-                    >
-                      <Pencil size={14} className="mr-1" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(promo.id)}
-                      className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 size={14} className="mr-1" />
-                      Delete
-                    </Button>
-                  </div>
+                  <Switch checked={promo.is_active} onCheckedChange={(checked) => updatePromo.mutate({ id: promo.id, data: { is_active: checked } })} />
+                  <Button variant="outline" size="icon" onClick={() => handleEdit(promo)}><Pencil size={16} /></Button>
+                  <Button variant="outline" size="icon" onClick={() => handleDelete(promo.id)} className="text-red-500 hover:text-red-600"><Trash2 size={16} /></Button>
                 </div>
               </div>
             ))}

@@ -5,7 +5,7 @@
  * Shows recent orders and messages with read/unread indicators.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import { 
@@ -32,6 +32,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
 interface Order {
   id: string;
@@ -53,34 +54,13 @@ interface ContactMessage {
   created_at: string;
 }
 
-// Helper to manage read status in localStorage
-const getReadItems = (key: string): string[] => {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
-const markAsRead = (key: string, id: string) => {
-  const items = getReadItems(key);
-  if (!items.includes(id)) {
-    items.push(id);
-    localStorage.setItem(key, JSON.stringify(items));
-  }
-};
-
 const AdminDashboard = () => {
-  const [readOrders, setReadOrders] = useState<string[]>([]);
-  const [readMessages, setReadMessages] = useState<string[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
-  useEffect(() => {
-    setReadOrders(getReadItems('admin_read_orders'));
-    setReadMessages(getReadItems('admin_read_messages'));
-  }, []);
+  // Use Supabase-backed read tracking
+  const { isRead: isOrderRead, markAsRead: markOrderAsRead, getUnreadCount: getOrderUnreadCount } = useAdminReadItems('order');
+  const { isRead: isMessageRead, markAsRead: markMessageAsRead, getUnreadCount: getMessageUnreadCount } = useAdminReadItems('message');
 
   // Fetch product count
   const { data: productCount = 0, isLoading: loadingProducts } = useQuery({
@@ -163,19 +143,13 @@ const AdminDashboard = () => {
   // Handle viewing order details
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
-    if (!readOrders.includes(order.id)) {
-      markAsRead('admin_read_orders', order.id);
-      setReadOrders([...readOrders, order.id]);
-    }
+    markOrderAsRead(order.id);
   };
 
   // Handle viewing message details
   const handleViewMessage = (message: ContactMessage) => {
     setSelectedMessage(message);
-    if (!readMessages.includes(message.id)) {
-      markAsRead('admin_read_messages', message.id);
-      setReadMessages([...readMessages, message.id]);
-    }
+    markMessageAsRead(message.id);
   };
 
   // Format price
@@ -204,8 +178,8 @@ const AdminDashboard = () => {
   };
 
   // Count unread items
-  const unreadOrdersCount = recentOrders.filter(o => !readOrders.includes(o.id)).length;
-  const unreadMessagesCount = recentMessages.filter(m => !readMessages.includes(m.id)).length;
+  const unreadOrdersCount = getOrderUnreadCount(recentOrders);
+  const unreadMessagesCount = getMessageUnreadCount(recentMessages);
 
   const stats = [
     {
@@ -348,7 +322,7 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-2">
                 {recentOrders.map((order) => {
-                  const isUnread = !readOrders.includes(order.id);
+                  const isUnread = !isOrderRead(order.id);
                   return (
                     <button
                       key={order.id}
@@ -410,7 +384,7 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-2">
                 {recentMessages.map((message) => {
-                  const isUnread = !readMessages.includes(message.id);
+                  const isUnread = !isMessageRead(message.id);
                   return (
                     <button
                       key={message.id}
@@ -474,15 +448,17 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-gray-500 text-xs">Status</p>
-                    <span className={`inline-block text-xs font-medium px-2 py-1 rounded capitalize ${getStatusColor(selectedOrder.order_status)}`}>
+                    <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded capitalize ${getStatusColor(selectedOrder.order_status)}`}>
                       {selectedOrder.order_status}
                     </span>
                   </div>
                 </div>
               </div>
-              <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold">
-                <Link to="/admin/orders">View Full Details</Link>
-              </Button>
+              <div className="flex justify-end">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/admin/orders">View All Orders</Link>
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
@@ -496,30 +472,28 @@ const AdminDashboard = () => {
               {selectedMessage?.subject}
             </DialogTitle>
             <DialogDescription className="text-gray-500">
-              From {selectedMessage?.name} • {selectedMessage && format(new Date(selectedMessage.created_at), 'MMMM d, yyyy h:mm a')}
+              From {selectedMessage?.name} on{' '}
+              {selectedMessage?.created_at && format(new Date(selectedMessage.created_at), 'MMMM d, yyyy h:mm a')}
             </DialogDescription>
           </DialogHeader>
           {selectedMessage && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500 text-xs">Email</p>
-                  <p className="font-medium text-gray-700">{selectedMessage.email}</p>
+                  <p className="text-gray-500 font-medium">Email</p>
+                  <p className="font-bold text-gray-900">{selectedMessage.email}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs">Phone</p>
-                  <p className="font-medium text-gray-700">{selectedMessage.phone || 'Not provided'}</p>
+                  <p className="text-gray-500 font-medium">Phone</p>
+                  <p className="font-bold text-gray-900">{selectedMessage.phone || 'Not provided'}</p>
                 </div>
               </div>
               <div>
-                <p className="text-gray-500 text-xs mb-2">Message</p>
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <p className="text-gray-900 text-sm whitespace-pre-wrap">{selectedMessage.message}</p>
+                <p className="text-gray-600 font-medium text-sm mb-2">Message</p>
+                <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+                  <p className="whitespace-pre-wrap text-gray-900">{selectedMessage.message}</p>
                 </div>
               </div>
-              <Button asChild className="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold">
-                <Link to="/admin/messages">View All Messages</Link>
-              </Button>
             </div>
           )}
         </DialogContent>

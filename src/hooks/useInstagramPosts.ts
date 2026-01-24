@@ -2,7 +2,7 @@
  * Instagram Posts Hook
  * 
  * Manages Instagram reel data using Supabase as primary storage.
- * Falls back to localStorage/static defaults if database is empty.
+ * Falls back to static defaults if database is empty.
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -47,7 +47,7 @@ export const useInstagramPosts = () => {
         return getStaticDefaults().filter(r => r.is_active);
       }
 
-      // If database is empty, return fallback
+      // If database is empty, return static fallback
       if (!data || data.length === 0) {
         return getStaticDefaults().filter(r => r.is_active);
       }
@@ -74,7 +74,7 @@ export const useAllInstagramPosts = () => {
         return getStaticDefaults();
       }
 
-      // If database is empty, return fallback
+      // If database is empty, return static fallback
       if (!data || data.length === 0) {
         return getStaticDefaults();
       }

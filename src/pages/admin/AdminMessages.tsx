@@ -5,7 +5,7 @@
  * Marks messages as read when viewed.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from './AdminLayout';
@@ -28,6 +28,7 @@ import {
 import { Trash2, Eye, Loader2, MessageSquare, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
 interface ContactMessage {
   id: string;
@@ -39,32 +40,12 @@ interface ContactMessage {
   created_at: string;
 }
 
-// Helper to manage read status in localStorage
-const getReadItems = (key: string): string[] => {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
-const markAsRead = (key: string, id: string) => {
-  const items = getReadItems(key);
-  if (!items.includes(id)) {
-    items.push(id);
-    localStorage.setItem(key, JSON.stringify(items));
-  }
-};
-
 const AdminMessages = () => {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
-  const [readMessages, setReadMessages] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setReadMessages(getReadItems('admin_read_messages'));
-  }, []);
+  // Use Supabase-backed read tracking
+  const { isRead, markAsRead } = useAdminReadItems('message');
 
   // Fetch all contact messages
   const { data: messages = [], isLoading } = useQuery({
@@ -107,10 +88,7 @@ const AdminMessages = () => {
 
   const handleViewMessage = (message: ContactMessage) => {
     setSelectedMessage(message);
-    if (!readMessages.includes(message.id)) {
-      markAsRead('admin_read_messages', message.id);
-      setReadMessages([...readMessages, message.id]);
-    }
+    markAsRead(message.id);
   };
 
   return (
@@ -148,7 +126,7 @@ const AdminMessages = () => {
               </TableHeader>
               <TableBody>
                 {messages.map((msg) => {
-                  const isUnread = !readMessages.includes(msg.id);
+                  const isUnread = !isRead(msg.id);
                   return (
                     <TableRow 
                       key={msg.id} 

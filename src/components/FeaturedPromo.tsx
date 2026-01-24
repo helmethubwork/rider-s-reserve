@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useFeaturedPromos } from "@/hooks/useFeaturedPromos";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PromoCard {
@@ -13,13 +14,12 @@ interface PromoCard {
   accent?: string;
 }
 
-const SECTION_VISIBILITY_KEY = 'featured_promos_visible';
-
 const FeaturedPromo = () => {
   const { data: dbPromos, isLoading } = useFeaturedPromos();
+  const { data: homepageSettings, isLoading: loadingSettings } = useSiteSettings('homepage');
 
-  // Check if section is hidden via admin toggle
-  const sectionVisible = localStorage.getItem(SECTION_VISIBILITY_KEY) !== 'false';
+  // Check if section is hidden via site settings
+  const sectionVisible = homepageSettings?.find(s => s.setting_key === 'featured_promos_visible')?.setting_value !== 'false';
 
   // Map database promos, filter out any without valid images
   const promos: PromoCard[] = (dbPromos || []).map(p => ({
@@ -32,12 +32,12 @@ const FeaturedPromo = () => {
     accent: p.accent || undefined,
   })).filter(p => p.image);
 
-  // Don't render if section is hidden via admin toggle
-  if (!sectionVisible) {
+  // Don't render if section is hidden via site settings
+  if (!loadingSettings && !sectionVisible) {
     return null;
   }
 
-  if (isLoading) {
+  if (isLoading || loadingSettings) {
     return (
       <section className="py-2 sm:py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
