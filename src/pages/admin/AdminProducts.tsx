@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, X, ImageIcon, Filter, Image as ImageLucide } from 'lucide-react';
+import { Upload, X, ImageIcon, Filter, Image as ImageLucide, Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -111,6 +111,7 @@ const AdminProducts = () => {
   const [heroSliderData, setHeroSliderData] = useState<HeroSliderFormData>(emptyHeroSliderData);
 
   // Filter states
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterBrand, setFilterBrand] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterFeatured, setFilterFeatured] = useState<string>('all');
@@ -138,8 +139,16 @@ const AdminProducts = () => {
     },
   });
 
-  // Filter products based on selected filters
+  // Filter products based on selected filters and search query
   const filteredProducts = products.filter(product => {
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = product.name?.toLowerCase().includes(query);
+      const matchesBrand = product.brand?.name?.toLowerCase().includes(query);
+      const matchesCategory = product.category_rel?.name?.toLowerCase().includes(query);
+      if (!matchesName && !matchesBrand && !matchesCategory) return false;
+    }
     if (filterBrand !== 'all' && product.brand_id !== filterBrand) return false;
     if (filterCategory !== 'all' && product.category_id !== filterCategory) return false;
     if (filterFeatured === 'featured' && !product.is_featured) return false;
@@ -576,13 +585,14 @@ const AdminProducts = () => {
 
   // Clear all filters
   const clearFilters = () => {
+    setSearchQuery('');
     setFilterBrand('all');
     setFilterCategory('all');
     setFilterFeatured('all');
     setFilterOnSale('all');
   };
 
-  const hasActiveFilters = filterBrand !== 'all' || filterCategory !== 'all' || filterFeatured !== 'all' || filterOnSale !== 'all';
+  const hasActiveFilters = searchQuery.trim() !== '' || filterBrand !== 'all' || filterCategory !== 'all' || filterFeatured !== 'all' || filterOnSale !== 'all';
 
   // Format price
   const formatPrice = (value: number) => {
@@ -621,6 +631,21 @@ const AdminProducts = () => {
               </Button>
             )}
           </div>
+          
+          {/* Search Input */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search products by name, brand, or category..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+          </div>
+          
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Brand Filter */}
             <div className="space-y-1">
