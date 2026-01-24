@@ -91,8 +91,7 @@ const AdminSiteSettings = () => {
 
   const renderSettingField = (setting: SiteSetting) => {
     const value = formValues[setting.setting_key] || '';
-    const isTextarea = setting.setting_type === 'textarea' || 
-                       setting.setting_key === 'store_address' ||
+    const isTextarea = setting.setting_key === 'store_address' ||
                        setting.setting_key === 'whatsapp_message';
 
     const getIcon = () => {
