@@ -5,7 +5,7 @@
  * Marks requests as read when viewed.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from './AdminLayout';
@@ -28,6 +28,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Loader2, RefreshCw, Eye, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
 interface ReturnRequest {
   id: string;
@@ -44,31 +45,11 @@ interface ReturnRequest {
   created_at: string;
 }
 
-// Helper to manage read status in localStorage
-const getReadItems = (key: string): string[] => {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
-const markAsRead = (key: string, id: string) => {
-  const items = getReadItems(key);
-  if (!items.includes(id)) {
-    items.push(id);
-    localStorage.setItem(key, JSON.stringify(items));
-  }
-};
-
 const AdminReturnRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState<ReturnRequest | null>(null);
-  const [readReturns, setReadReturns] = useState<string[]>([]);
 
-  useEffect(() => {
-    setReadReturns(getReadItems('admin_read_returns'));
-  }, []);
+  // Use Supabase-backed read tracking
+  const { isRead, markAsRead } = useAdminReadItems('return');
 
   const { data: requests, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['return-requests'],
@@ -85,10 +66,7 @@ const AdminReturnRequests = () => {
 
   const handleViewRequest = (request: ReturnRequest) => {
     setSelectedRequest(request);
-    if (!readReturns.includes(request.id)) {
-      markAsRead('admin_read_returns', request.id);
-      setReadReturns([...readReturns, request.id]);
-    }
+    markAsRead(request.id);
   };
 
   return (
@@ -133,7 +111,7 @@ const AdminReturnRequests = () => {
                 </TableHeader>
                 <TableBody>
                   {requests.map((request) => {
-                    const isUnread = !readReturns.includes(request.id);
+                    const isUnread = !isRead(request.id);
                     return (
                       <TableRow 
                         key={request.id} 
