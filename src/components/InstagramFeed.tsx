@@ -114,27 +114,28 @@ const InstagramFeed = () => {
 
       {/* Instagram Video Embeds */}
       <div className="relative px-2 sm:px-0">
-        {/* Left Arrow */}
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-2 sm:left-6 lg:left-10 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-14 h-10 sm:h-14 bg-background/95 backdrop-blur-md hover:bg-primary hover:text-primary-foreground rounded-full flex items-center justify-center shadow-2xl shadow-black/30 transition-all duration-300 hover:scale-110 border border-border/50 group"
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
-        </button>
-
-        {/* Right Arrow */}
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-2 sm:right-6 lg:right-10 top-1/2 -translate-y-1/2 z-20 w-10 sm:w-14 h-10 sm:h-14 bg-background/95 backdrop-blur-md hover:bg-primary hover:text-primary-foreground rounded-full flex items-center justify-center shadow-2xl shadow-black/30 transition-all duration-300 hover:scale-110 border border-border/50 group"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-x-0.5" />
-        </button>
-
         {/* Gradient fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
+        {/* Navigation Arrows - Centered on video cards */}
+        <div className="absolute inset-0 flex items-center justify-between pointer-events-none z-20 px-2 sm:px-4 lg:px-6">
+          <button
+            onClick={() => scroll("left")}
+            className="pointer-events-auto w-10 sm:w-12 h-10 sm:h-12 bg-background/90 backdrop-blur-md hover:bg-primary hover:text-primary-foreground rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border/50 group"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
+          </button>
+
+          <button
+            onClick={() => scroll("right")}
+            className="pointer-events-auto w-10 sm:w-12 h-10 sm:h-12 bg-background/90 backdrop-blur-md hover:bg-primary hover:text-primary-foreground rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border/50 group"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </button>
+        </div>
 
         {/* Scrollable Container */}
         <div 
