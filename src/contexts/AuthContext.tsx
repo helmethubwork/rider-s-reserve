@@ -27,6 +27,7 @@ interface AuthContextType {
   isLoading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Set up auth state listener FIRST (critical for proper session handling)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         if (!isMounted) return;
         
         // Update session and user synchronously
@@ -87,7 +88,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (currentSession?.user) {
           setTimeout(async () => {
             if (!isMounted) return;
-            const profileData = await fetchProfile(currentSession.user.id);
+            
+            // Check if profile exists
+            let profileData = await fetchProfile(currentSession.user.id);
+            
+            // If no profile exists (OAuth user), create one
+            if (!profileData && event === 'SIGNED_IN') {
+              const fullName = currentSession.user.user_metadata?.full_name || 
+                               currentSession.user.user_metadata?.name || 
+                               currentSession.user.email?.split('@')[0] || 'User';
+              
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .upsert({
+                  id: currentSession.user.id,
+                  full_name: fullName,
+                  is_admin: false,
+                }, { onConflict: 'id' });
+
+              if (profileError) {
+                console.error('OAuth profile creation error:', profileError);
+              } else {
+                // Fetch the newly created profile
+                profileData = await fetchProfile(currentSession.user.id);
+              }
+            }
+            
             if (isMounted) {
               setProfile(profileData);
               setIsLoading(false);
@@ -201,6 +227,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Sign in with Google OAuth
+  const signInWithGoogle = async (): Promise<{ error: string | null }> => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (err) {
+      console.error('Google signin error:', err);
+      return { error: 'Failed to sign in with Google. Please try again.' };
+    }
+  };
+
   // Sign out
   const signOut = async () => {
     try {
@@ -226,6 +277,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         signUp,
         signIn,
+        signInWithGoogle,
         signOut,
         refreshProfile,
       }}
