@@ -5,7 +5,6 @@ export interface SiteSetting {
   id: string;
   setting_key: string;
   setting_value: string | null;
-  setting_type: string;
   category: string;
   label: string;
   description: string | null;

@@ -71,7 +71,6 @@ const AdminFeaturedPromos = () => {
         .upsert({
           setting_key: 'featured_promos_visible',
           setting_value: String(visible),
-          setting_type: 'boolean',
           category: 'homepage',
           label: 'Featured Promos Visibility',
           description: 'Show or hide the Featured Promos section on homepage',
