@@ -59,7 +59,8 @@ const InstagramFeed = () => {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 340;
+      const isMobile = window.innerWidth < 640;
+      const scrollAmount = isMobile ? 290 : 340;
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -115,8 +116,8 @@ const InstagramFeed = () => {
       {/* Instagram Video Embeds */}
       <div className="relative px-2 sm:px-0">
         {/* Gradient fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-4 sm:w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-4 sm:w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
         {/* Navigation Arrows - Centered on video cards */}
         <div className="absolute inset-0 flex items-center justify-between pointer-events-none z-20 px-2 sm:px-4 lg:px-6">
@@ -140,12 +141,12 @@ const InstagramFeed = () => {
         {/* Scrollable Container */}
         <div 
           ref={scrollRef}
-          className="flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-8 sm:px-16 lg:px-24 py-4"
+          className="flex gap-3 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-4 sm:px-16 lg:px-24 py-4"
         >
           {reelIds.map((reelId, index) => (
             <div 
               key={reelId} 
-              className="flex-shrink-0 w-[220px] sm:w-[280px] md:w-[320px] lg:w-[340px] aspect-[9/16] overflow-hidden relative instagram-video-container rounded-xl sm:rounded-2xl border-2 border-border/30 hover:border-primary/50 shadow-2xl shadow-black/40 bg-card transition-all duration-500 hover:scale-[1.02] hover:shadow-primary/10"
+              className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px] aspect-[9/16] overflow-hidden relative instagram-video-container rounded-xl sm:rounded-2xl border-2 border-border/30 hover:border-primary/50 shadow-2xl shadow-black/40 bg-card transition-all duration-500 hover:scale-[1.02] hover:shadow-primary/10"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Decorative gradient border effect */}
@@ -204,15 +205,26 @@ const InstagramFeed = () => {
           position: relative;
           overflow: hidden;
           background: #000;
-          clip-path: inset(0 0 200px 0);
+          clip-path: inset(0 0 160px 0);
+        }
+        @media (min-width: 640px) {
+          .instagram-video-container {
+            clip-path: inset(0 0 200px 0);
+          }
         }
         .instagram-video-container iframe {
           position: absolute !important;
-          top: -70px !important;
+          top: -50px !important;
           left: -1px !important;
           width: calc(100% + 2px) !important;
-          height: calc(100% + 340px) !important;
+          height: calc(100% + 260px) !important;
           border: 0 !important;
+        }
+        @media (min-width: 640px) {
+          .instagram-video-container iframe {
+            top: -70px !important;
+            height: calc(100% + 340px) !important;
+          }
         }
         .instagram-video-container .instagram-media {
           min-width: 100% !important;
