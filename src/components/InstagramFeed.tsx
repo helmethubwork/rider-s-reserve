@@ -110,6 +110,19 @@ const InstagramFeed = () => {
             @HELMETHUB46
             <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
           </a>
+          
+          {/* CTA Button - above videos */}
+          <div className="mt-6 sm:mt-8">
+            <a
+              href="https://www.instagram.com/helmethub46"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105"
+            >
+              <Instagram size={20} />
+              View All Reels
+            </a>
+          </div>
         </div>
       </div>
 
@@ -187,18 +200,6 @@ const InstagramFeed = () => {
         </div>
       </div>
 
-      {/* CTA Button */}
-      <div className="text-center mt-8 sm:mt-12 relative z-10">
-        <a
-          href="https://www.instagram.com/helmethub46"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105"
-        >
-          <Instagram size={20} />
-          View All Reels
-        </a>
-      </div>
 
       <style>{`
         .instagram-video-container {
