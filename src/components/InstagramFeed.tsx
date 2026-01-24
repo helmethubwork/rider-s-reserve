@@ -188,7 +188,7 @@ const InstagramFeed = () => {
       </div>
 
       {/* CTA Button */}
-      <div className="text-center mt-8 sm:mt-12 relative z-10">
+      <div className="text-center mt-4 sm:mt-8 relative z-10">
         <a
           href="https://www.instagram.com/helmethub46"
           target="_blank"
