@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { categories } from "@/data/products";
 import { useProduct } from "@/hooks/useProducts";
-import { Star, Truck, Minus, Plus, Check, Loader2 } from "lucide-react";
+import { Star, Truck, Minus, Plus, Check, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -109,17 +109,42 @@ const ProductDetailPage = () => {
 
   // Loading state
   if (isLoading) {
-    return <div className="min-h-screen flex flex-col bg-background">
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
-      </div>;
+      </div>
+    );
   }
   if (!product || error) {
-    return <div className="min-h-screen flex flex-col bg-background">
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground mb-4">
@@ -131,7 +156,8 @@ const ProductDetailPage = () => {
           </div>
         </main>
         <Footer />
-      </div>;
+      </div>
+    );
   }
 
   // Get colors and sizes from product data

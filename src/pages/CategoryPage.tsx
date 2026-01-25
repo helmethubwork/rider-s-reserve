@@ -20,6 +20,17 @@ const CategoryPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-3xl font-display font-bold text-foreground mb-4">
             Category Not Found

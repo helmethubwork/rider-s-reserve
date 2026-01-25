@@ -1,12 +1,14 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { blogPosts as staticBlogPosts } from "@/data/blogPosts";
 import { useBlogPost, useBlogPosts } from "@/hooks/useBlogPosts";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   
   // Try to fetch from database first
   const { data: dbPost, isLoading } = useBlogPost(slug);
@@ -59,6 +61,17 @@ const BlogPostPage = () => {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -72,6 +85,17 @@ const BlogPostPage = () => {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Post Not Found</h1>
