@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight, LogOut, Package, Shield } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight, LogOut, Package, Shield, Heart } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -367,7 +367,15 @@ const Header = () => {
                     <ChevronDown size={16} className={`transition-transform ${accountDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {accountDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[180px]">
+                    <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[200px]">
+                      <Link 
+                        to="/account" 
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                        onClick={() => setAccountDropdownOpen(false)}
+                      >
+                        <User size={16} />
+                        My Account
+                      </Link>
                       <Link 
                         to="/track-order" 
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
@@ -376,15 +384,26 @@ const Header = () => {
                         <Package size={16} />
                         My Orders
                       </Link>
+                      <Link 
+                        to="/wishlist" 
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                        onClick={() => setAccountDropdownOpen(false)}
+                      >
+                        <Heart size={16} />
+                        Wishlist
+                      </Link>
                       {isAdmin && (
-                        <Link 
-                          to="/admin" 
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-primary font-medium hover:bg-secondary transition-colors"
-                          onClick={() => setAccountDropdownOpen(false)}
-                        >
-                          <Shield size={16} />
-                          Admin Dashboard
-                        </Link>
+                        <>
+                          <hr className="my-1 border-border" />
+                          <Link 
+                            to="/admin" 
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-primary font-medium hover:bg-secondary transition-colors"
+                            onClick={() => setAccountDropdownOpen(false)}
+                          >
+                            <Shield size={16} />
+                            Admin Dashboard
+                          </Link>
+                        </>
                       )}
                       <hr className="my-1 border-border" />
                       <button 
@@ -534,8 +553,12 @@ const Header = () => {
             <div className="border-t border-border bg-card/95 mt-2 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
               {user ? (
                 <div className="space-y-2">
-                  {/* User Profile Header */}
-                  <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                  {/* User Profile Header - Now Tappable */}
+                  <Link
+                    to="/account"
+                    className="flex items-center gap-2 pb-2 border-b border-border/50 hover:bg-secondary/50 -mx-1 px-1 rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                       <User size={16} className="text-primary" />
                     </div>
@@ -545,35 +568,45 @@ const Header = () => {
                       </p>
                       <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
                     </div>
-                  </div>
+                    <ChevronRight size={14} className="text-muted-foreground flex-shrink-0" />
+                  </Link>
                   
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  {/* Quick Action Buttons - 2 Column Grid */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
                     <Link
                       to="/track-order"
-                      className="flex-1 flex items-center justify-center gap-2 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
+                      className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Package size={14} />
                       My Orders
                     </Link>
-                    
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        className="flex-1 flex items-center justify-center gap-2 py-2 px-2 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30 text-xs font-semibold"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Shield size={14} />
-                        Admin
-                      </Link>
-                    )}
+                    <Link
+                      to="/wishlist"
+                      className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Heart size={14} />
+                      Wishlist
+                    </Link>
                   </div>
+                  
+                  {/* Admin Button (if admin) */}
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center justify-center gap-2 py-2.5 px-2 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30 text-xs font-semibold"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Shield size={14} />
+                      Admin Dashboard
+                    </Link>
+                  )}
                   
                   {/* Logout Button */}
                   <button
                     onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
+                    className="flex items-center justify-center gap-2 w-full py-2 text-xs font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
                   >
                     <LogOut size={14} />
                     Logout

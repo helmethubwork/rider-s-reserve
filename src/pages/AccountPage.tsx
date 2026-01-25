@@ -1,0 +1,336 @@
+/**
+ * Account Page - Amazon/Flipkart Style
+ * 
+ * Central hub for all user account options with grid layout.
+ * Shows different options for regular users and admins.
+ */
+
+import { useState } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { 
+  User, Package, Heart, Truck, MapPin, MessageSquare, 
+  HelpCircle, Shield, LogOut, ChevronLeft, Edit2, Check, X
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'sonner';
+
+// Account option card data
+const accountOptions = [
+  { 
+    icon: Package, 
+    title: "My Orders", 
+    description: "View & track your orders", 
+    link: "/track-order",
+    color: "text-blue-500"
+  },
+  { 
+    icon: Heart, 
+    title: "Wishlist", 
+    description: "Your saved items", 
+    link: "/wishlist",
+    color: "text-red-500"
+  },
+  { 
+    icon: Truck, 
+    title: "Track Order", 
+    description: "Check delivery status", 
+    link: "/track-order",
+    color: "text-green-500"
+  },
+  { 
+    icon: MapPin, 
+    title: "Addresses", 
+    description: "Manage delivery addresses", 
+    link: "#",
+    disabled: true,
+    color: "text-orange-500"
+  },
+  { 
+    icon: MessageSquare, 
+    title: "Contact Us", 
+    description: "Get in touch with us", 
+    link: "/contact",
+    color: "text-purple-500"
+  },
+  { 
+    icon: HelpCircle, 
+    title: "Help & Support", 
+    description: "FAQs & assistance", 
+    link: "/support",
+    color: "text-cyan-500"
+  },
+];
+
+// Option Card Component
+const OptionCard = ({ 
+  icon: Icon, 
+  title, 
+  description, 
+  link, 
+  disabled = false,
+  color = "text-primary"
+}: {
+  icon: typeof Package;
+  title: string;
+  description: string;
+  link: string;
+  disabled?: boolean;
+  color?: string;
+}) => {
+  if (disabled) {
+    return (
+      <div className="relative p-4 sm:p-6 bg-card border border-border rounded-xl opacity-60 cursor-not-allowed">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-secondary flex items-center justify-center mb-3 ${color}`}>
+          <Icon size={20} className="sm:w-6 sm:h-6" />
+        </div>
+        <h3 className="font-semibold text-foreground text-sm sm:text-base">{title}</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">{description}</p>
+        <span className="absolute top-2 right-2 text-[10px] bg-secondary text-muted-foreground px-2 py-0.5 rounded-full">
+          Coming Soon
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <Link 
+      to={link}
+      className="p-4 sm:p-6 bg-card border border-border rounded-xl hover:border-primary/50 hover:shadow-lg transition-all duration-200 group"
+    >
+      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-secondary group-hover:bg-primary/10 flex items-center justify-center mb-3 transition-colors ${color}`}>
+        <Icon size={20} className="sm:w-6 sm:h-6" />
+      </div>
+      <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
+        {title}
+      </h3>
+      <p className="text-xs sm:text-sm text-muted-foreground mt-1">{description}</p>
+    </Link>
+  );
+};
+
+const AccountPage = () => {
+  const { user, profile, isAdmin, signOut, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(profile?.full_name || '');
+  const [editPhone, setEditPhone] = useState(profile?.phone || '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Redirect if not logged in
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editName.trim(),
+          phone: editPhone.trim() || null,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      await refreshProfile();
+      setIsEditing(false);
+      toast.success('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditName(profile?.full_name || '');
+    setEditPhone(profile?.phone || '');
+    setIsEditing(false);
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  // Get initials for avatar
+  const getInitials = (name: string | null) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
+      
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-medium text-sm"
+        >
+          <ChevronLeft size={18} />
+          Back
+        </button>
+      </div>
+
+      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
+        {/* Page Title */}
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8">
+          My Account
+        </h1>
+
+        {/* Profile Section */}
+        <Card className="mb-6 sm:mb-8">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Avatar */}
+              <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-primary/20">
+                <AvatarFallback className="bg-primary/10 text-primary text-xl sm:text-2xl font-bold">
+                  {getInitials(profile?.full_name)}
+                </AvatarFallback>
+              </Avatar>
+
+              {/* Profile Info */}
+              <div className="flex-1">
+                {isEditing ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Full Name</label>
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="Enter your name"
+                        className="max-w-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Phone Number</label>
+                      <Input
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        placeholder="Enter phone number"
+                        className="max-w-sm"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button 
+                        size="sm" 
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                      >
+                        <Check size={16} />
+                        {isSaving ? 'Saving...' : 'Save'}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={handleCancelEdit}
+                        disabled={isSaving}
+                      >
+                        <X size={16} />
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                      {profile?.full_name || 'User'}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    {profile?.phone && (
+                      <p className="text-sm text-muted-foreground">{profile.phone}</p>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Edit Button */}
+              {!isEditing && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setEditName(profile?.full_name || '');
+                    setEditPhone(profile?.phone || '');
+                    setIsEditing(true);
+                  }}
+                  className="self-start sm:self-center"
+                >
+                  <Edit2 size={16} />
+                  Edit Profile
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Options Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          {accountOptions.map((option) => (
+            <OptionCard key={option.title} {...option} />
+          ))}
+        </div>
+
+        {/* Admin Section */}
+        {isAdmin && (
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              Admin Access
+            </h3>
+            <Link
+              to="/admin"
+              className="flex items-center gap-4 p-4 sm:p-6 bg-primary/5 border-2 border-primary/30 rounded-xl hover:bg-primary/10 hover:border-primary/50 transition-all group"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/20 flex items-center justify-center">
+                <Shield size={24} className="text-primary sm:w-7 sm:h-7" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-foreground text-base sm:text-lg group-hover:text-primary transition-colors">
+                  Admin Dashboard
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Manage products, orders, and site settings
+                </p>
+              </div>
+              <ChevronLeft size={20} className="text-muted-foreground rotate-180" />
+            </Link>
+          </div>
+        )}
+
+        {/* Logout Button */}
+        <Button
+          variant="destructive"
+          size="lg"
+          onClick={handleLogout}
+          className="w-full sm:w-auto"
+        >
+          <LogOut size={18} />
+          Logout
+        </Button>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default AccountPage;
