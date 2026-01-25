@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight, LogOut, Package, Shield, Heart } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, ChevronRight, LogOut, Package, Shield, Heart, UserCircle } from "lucide-react";
 import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -368,6 +368,15 @@ const Header = () => {
                   </button>
                   {accountDropdownOpen && (
                     <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[200px]">
+                      <Link 
+                        to="/account" 
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                        onClick={() => setAccountDropdownOpen(false)}
+                      >
+                        <UserCircle size={16} />
+                        My Profile
+                      </Link>
+                      <hr className="my-1 border-border" />
                       <Link 
                         to="/account" 
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
