@@ -465,9 +465,9 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Menu Content */}
+        {/* Mobile Menu Content - Scrollable */}
         <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background">
-          <ul className="py-2">
+          <ul className="py-2 pb-4">
             {navigationData.map((item) => {
               const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
 
@@ -541,53 +541,55 @@ const Header = () => {
               );
             })}
           </ul>
+        </nav>
 
-          {/* Mobile Menu Footer */}
-          <div className="p-5 border-t border-border mt-4">
-            {user ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-foreground font-medium">
-                  <User size={20} />
-                  <span className="truncate">{profile?.full_name || user.email}</span>
+        {/* Mobile Menu Footer - Fixed at bottom, always visible */}
+        <div className="flex-shrink-0 border-t border-border bg-secondary/50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          {user ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 text-foreground font-medium pb-2 border-b border-border/50">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <User size={16} className="text-primary" />
                 </div>
-                <Link
-                  to="/track-order"
-                  className="flex items-center gap-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Package size={18} />
-                  My Orders
-                </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="flex items-center gap-3 py-2 text-sm text-primary font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Shield size={18} />
-                    Admin Dashboard
-                  </Link>
-                )}
-                <button
-                  onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                  className="flex items-center gap-3 py-2 text-sm text-destructive"
-                >
-                  <LogOut size={18} />
-                  Logout
-                </button>
+                <span className="truncate text-sm">{profile?.full_name || user.email}</span>
               </div>
-            ) : (
               <Link
-                to="/auth"
-                className="flex items-center gap-3 py-3 text-foreground font-medium"
+                to="/track-order"
+                className="flex items-center gap-3 py-2.5 px-2 text-sm text-foreground hover:text-primary hover:bg-background/50 rounded-lg transition-colors active:scale-95"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <User size={20} />
-                My Account
+                <Package size={18} />
+                My Orders
               </Link>
-            )}
-          </div>
-        </nav>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-3 py-2.5 px-2 text-sm text-primary font-semibold bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Shield size={18} />
+                  Admin Dashboard
+                </Link>
+              )}
+              <button
+                onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                className="flex items-center gap-3 w-full py-2.5 px-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors active:scale-95"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/auth"
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors active:scale-95"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <User size={18} />
+              Sign In / Register
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Search Modal */}
