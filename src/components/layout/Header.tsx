@@ -535,57 +535,57 @@ const Header = () => {
         {/* Mobile Menu Footer - Fixed at bottom, always visible */}
         <div className="flex-shrink-0 border-t border-border bg-card/95 backdrop-blur-sm">
           {user ? (
-            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] space-y-3">
-              {/* User Profile Header */}
-              <div className="flex items-center gap-3 pb-3 border-b border-border/50">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <User size={18} className="text-primary" />
+            <div className="p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] space-y-2">
+              {/* User Profile Header - Compact */}
+              <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <User size={16} className="text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm truncate">
+                  <p className="font-semibold text-foreground text-xs truncate">
                     {profile?.full_name || 'User'}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
                 </div>
               </div>
               
-              {/* Action Buttons - Grid Layout */}
-              <div className={`grid gap-2 ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              {/* Action Buttons - Compact Row Layout */}
+              <div className="flex gap-2">
                 <Link
                   to="/track-order"
-                  className="flex flex-col items-center gap-1.5 py-3 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Package size={20} />
-                  <span className="text-xs font-medium">My Orders</span>
+                  <Package size={16} />
+                  My Orders
                 </Link>
                 
                 {isAdmin && (
                   <Link
                     to="/admin"
-                    className="flex flex-col items-center gap-1.5 py-3 px-2 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30 text-xs font-semibold"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Shield size={20} />
-                    <span className="text-xs font-semibold">Admin</span>
+                    <Shield size={16} />
+                    Admin
                   </Link>
                 )}
               </div>
               
-              {/* Logout Button - Full Width */}
+              {/* Logout Button - Compact */}
               <button
                 onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                className="flex items-center justify-center gap-2 w-full py-3 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
+                className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
               >
-                <LogOut size={18} />
+                <LogOut size={16} />
                 Logout
               </button>
             </div>
           ) : (
-            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <div className="p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
               <Link
                 to="/auth"
-                className="flex items-center justify-center gap-2 py-3.5 px-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors active:scale-95 shadow-lg"
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors active:scale-95 shadow-lg"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <User size={18} />
