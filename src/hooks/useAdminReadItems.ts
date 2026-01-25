@@ -69,7 +69,10 @@ export const useAdminReadItems = (itemType: ItemType) => {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Invalidate the specific item type query
       queryClient.invalidateQueries({ queryKey: ['admin-read-items', itemType, user?.id] });
+      // Also invalidate the "all" query used by sidebar unread counts
+      queryClient.invalidateQueries({ queryKey: ['admin-read-items', 'all', user?.id] });
     },
   });
 
