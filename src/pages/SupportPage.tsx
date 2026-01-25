@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { 
@@ -11,8 +11,10 @@ import {
   Package,
   HelpCircle,
   Loader2,
-  LucideIcon
+  LucideIcon,
+  ArrowLeft
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useFaqs } from '@/hooks/useFaqs';
 import { useNavigationLinks } from '@/hooks/useNavigationLinks';
 
@@ -90,6 +92,7 @@ const staticFaqs = [
 ];
 
 const SupportPage = () => {
+  const navigate = useNavigate();
   const { data: dbFaqs, isLoading: faqsLoading } = useFaqs();
   const { data: dbLinks = [] } = useNavigationLinks('support');
   
@@ -115,7 +118,20 @@ const SupportPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-20">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="pt-4">
         {/* Breadcrumb */}
         <div className="bg-muted/30 border-b border-border">
           <div className="container mx-auto px-4 py-3">

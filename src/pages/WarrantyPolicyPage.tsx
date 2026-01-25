@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useContentPage } from "@/hooks/useContentPages";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Static fallback content
 const STATIC_CONTENT = `
@@ -31,6 +33,7 @@ const STATIC_CONTENT = `
 `;
 
 const WarrantyPolicyPage = () => {
+  const navigate = useNavigate();
   const { data: dbContent, isLoading } = useContentPage("warranty-policy");
 
   const title = dbContent?.title || "Warranty Policy";
@@ -40,7 +43,20 @@ const WarrantyPolicyPage = () => {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
-      <main className="flex-1 pt-0 pb-4">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="flex-1 pt-4 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-4 uppercase">

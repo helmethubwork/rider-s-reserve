@@ -1,10 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { MapPin, Phone, Clock, Star } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowLeft } from "lucide-react";
 import { useStoreLocations } from "@/hooks/useStoreLocations";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const StoreLocatorPage = () => {
+  const navigate = useNavigate();
   const { data: stores, isLoading, error } = useStoreLocations(true);
 
   // Group stores by state and city
@@ -20,7 +23,21 @@ const StoreLocatorPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <main className="flex-grow pt-0 pb-8">
+      
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="flex-grow pt-4 pb-8">
         <div className="container mx-auto px-4">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4 text-center">
             Store Locator

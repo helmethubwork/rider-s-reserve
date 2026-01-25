@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Package, Search, Truck } from "lucide-react";
+import { Package, Search, Truck, ArrowLeft } from "lucide-react";
 
 const TrackOrdersPage = () => {
+  const navigate = useNavigate();
   const [orderNumber, setOrderNumber] = useState("");
   const [email, setEmail] = useState("");
   const { toast } = useToast();
@@ -35,7 +37,20 @@ const TrackOrdersPage = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 py-16 md:py-24">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="flex-1 py-12 md:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-lg mx-auto">
             {/* Icon */}

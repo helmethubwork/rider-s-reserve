@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCreateOrder } from '@/hooks/useOrders';
-import { ShoppingBag, CreditCard, Truck, AlertCircle } from 'lucide-react';
+import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 
 // Form validation schema
@@ -138,7 +138,20 @@ const CheckoutPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <section className="py-12">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/cart')}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back to Cart</span>
+        </Button>
+      </div>
+
+      <section className="py-8">
         <div className="container mx-auto px-4">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-8">
             Checkout
