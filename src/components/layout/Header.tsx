@@ -354,6 +354,27 @@ const Header = () => {
               >
                 <Search size={20} />
               </button>
+
+              {/* Mobile account/profile shortcut (visible below sm) */}
+              {user ? (
+                <Link
+                  to="/account"
+                  className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all sm:hidden active:scale-95"
+                  aria-label="My profile"
+                  onClick={() => setAccountDropdownOpen(false)}
+                >
+                  <UserCircle size={20} />
+                </Link>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all sm:hidden active:scale-95"
+                  aria-label="Account"
+                >
+                  <User size={20} />
+                </Link>
+              )}
+
               {user ? (
                 <div ref={accountDropdownRef} className="relative hidden sm:block">
                   <button
