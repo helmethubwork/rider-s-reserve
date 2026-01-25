@@ -461,14 +461,6 @@ const Header = () => {
                         <Package size={16} />
                         My Orders
                       </Link>
-                      <Link 
-                        to="/wishlist" 
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
-                        onClick={() => setAccountDropdownOpen(false)}
-                      >
-                        <Heart size={16} />
-                        Wishlist
-                      </Link>
                       {isAdmin && (
                         <>
                           <hr className="my-1 border-border" />
