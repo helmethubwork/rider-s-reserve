@@ -581,24 +581,32 @@ const Header = () => {
                   </Link>
                   
                   {/* Quick Action Buttons - 2 Column Grid */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <Link
-                      to="/track-order"
-                      className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Package size={14} />
-                      My Orders
-                    </Link>
-                    <Link
-                      to="/wishlist"
-                      className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Heart size={14} />
-                      Wishlist
-                    </Link>
-                  </div>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <Link
+                          to="/account"
+                          className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <UserCircle size={14} />
+                          My Profile
+                        </Link>
+                        <Link
+                          to="/track-order"
+                          className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Package size={14} />
+                          My Orders
+                        </Link>
+                        <Link
+                          to="/wishlist"
+                          className="col-span-2 flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Heart size={14} />
+                          Wishlist
+                        </Link>
+                      </div>
                   
                   {/* Admin Button (if admin) */}
                   {isAdmin && (
