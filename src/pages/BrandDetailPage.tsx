@@ -1,14 +1,16 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/ProductCard';
 import { useBrand } from '@/hooks/useBrands';
 import { useProductsByBrand } from '@/hooks/useProducts';
-import { ChevronRight, Package, Loader2 } from 'lucide-react';
+import { ChevronRight, Package, Loader2, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 const BrandDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   
   // Fetch brand from Supabase
   const { data: brand, isLoading: brandLoading } = useBrand(slug || '');
@@ -22,6 +24,17 @@ const BrandDetailPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <main className="pt-20">
           <div className="bg-muted/30 border-b border-border">
             <div className="container mx-auto px-4 py-3">
@@ -58,6 +71,17 @@ const BrandDetailPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <div className="container mx-auto px-4 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} />
+            <span className="text-sm">Back</span>
+          </Button>
+        </div>
         <main className="pt-20">
           <div className="container mx-auto px-4 py-16 text-center">
             <h1 className="text-2xl font-bold text-foreground mb-4">Brand Not Found</h1>
