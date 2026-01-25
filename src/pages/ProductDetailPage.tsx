@@ -117,7 +117,7 @@ const ProductDetailPage = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1.5 text-foreground hover:text-primary"
           >
             <ArrowLeft size={16} />
             <span className="text-sm">Back</span>
@@ -139,7 +139,7 @@ const ProductDetailPage = () => {
             variant="ghost"
             size="sm"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1.5 text-foreground hover:text-primary"
           >
             <ArrowLeft size={16} />
             <span className="text-sm">Back</span>

@@ -106,7 +106,7 @@ const AuthPage = () => {
               variant="ghost"
               size="sm"
               onClick={handleBack}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground mb-6"
+              className="flex items-center gap-1.5 text-foreground hover:text-primary mb-6"
             >
               <ArrowLeft size={16} />
               <span className="text-sm">Back</span>
