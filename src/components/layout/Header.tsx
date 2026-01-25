@@ -666,14 +666,6 @@ const Header = () => {
                           <Package size={14} />
                           My Orders
                         </Link>
-                        <Link
-                          to="/wishlist"
-                          className="col-span-2 flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <Heart size={14} />
-                          Wishlist
-                        </Link>
                       </div>
                   
                   {/* Admin Button (if admin) */}
