@@ -422,10 +422,10 @@ const SalePage = () => {
                 </Sheet>
 
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="flex-1 max-w-[180px] bg-card border-border">
+                  <SelectTrigger className="flex-1 max-w-[180px]">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
+                  <SelectContent>
                     <SelectItem value="featured">Featured</SelectItem>
                     <SelectItem value="price-low">Price: Low to High</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
@@ -441,10 +441,10 @@ const SalePage = () => {
                   <span className="font-medium text-foreground">{filteredProducts.length}</span> products
                 </p>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[180px] bg-card border-border">
+                  <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
+                  <SelectContent>
                     <SelectItem value="featured">Featured</SelectItem>
                     <SelectItem value="price-low">Price: Low to High</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
