@@ -31,13 +31,6 @@ const accountOptions = [
     color: "text-blue-500"
   },
   { 
-    icon: Heart, 
-    title: "Wishlist", 
-    description: "Your saved items", 
-    link: "/wishlist",
-    color: "text-red-500"
-  },
-  { 
     icon: Truck, 
     title: "Track Order", 
     description: "Check delivery status", 
