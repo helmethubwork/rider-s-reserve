@@ -450,7 +450,7 @@ const Header = () => {
       )}
 
       {/* Mobile Menu Drawer */}
-      <div className={`fixed top-0 left-0 h-[100dvh] w-[280px] max-w-[85vw] bg-background border-r border-border z-[70] transform transition-transform duration-300 ease-out md:hidden shadow-2xl flex flex-col ${
+      <div className={`fixed top-0 left-0 h-[100dvh] w-[280px] max-w-[85vw] bg-background border-r border-border z-[70] transform transition-transform duration-300 ease-out md:hidden shadow-2xl flex flex-col will-change-transform ${
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         {/* Mobile Menu Header */}

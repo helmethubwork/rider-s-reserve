@@ -126,9 +126,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
+    // THEN check for existing session with error handling for invalid refresh tokens
+    supabase.auth.getSession().then(async ({ data: { session: existingSession }, error }) => {
       if (!isMounted) return;
+      
+      // Handle refresh token errors silently - just clear the session
+      if (error) {
+        console.warn('Session recovery failed, clearing auth state:', error.message);
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setIsLoading(false);
+        return;
+      }
       
       setSession(existingSession);
       setUser(existingSession?.user ?? null);
@@ -141,6 +151,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (isMounted) {
+        setIsLoading(false);
+      }
+    }).catch((err) => {
+      // Catch any unexpected errors during session retrieval
+      console.warn('Auth initialization error:', err);
+      if (isMounted) {
+        setSession(null);
+        setUser(null);
+        setProfile(null);
         setIsLoading(false);
       }
     });
