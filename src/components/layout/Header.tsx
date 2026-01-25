@@ -229,6 +229,7 @@ const Header = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [mobileAccountDropdownOpen, setMobileAccountDropdownOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, profile, isAdmin, signOut } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -237,6 +238,7 @@ const Header = () => {
   const [hideOnScroll, setHideOnScroll] = useState(false);
   const lastScrollYRef = useRef(0);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileAccountDropdownRef = useRef<HTMLDivElement>(null);
 
   // Build dynamic navigation data with Support subcategories from DB
   const navigationData = useMemo(() => {
@@ -260,6 +262,9 @@ const Header = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (accountDropdownRef.current && !accountDropdownRef.current.contains(event.target as Node)) {
         setAccountDropdownOpen(false);
+      }
+      if (mobileAccountDropdownRef.current && !mobileAccountDropdownRef.current.contains(event.target as Node)) {
+        setMobileAccountDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -355,16 +360,58 @@ const Header = () => {
                 <Search size={20} />
               </button>
 
-              {/* Mobile account/profile shortcut (visible below sm) */}
+              {/* Mobile account/profile shortcut with dropdown (visible below sm) */}
               {user ? (
-                <Link
-                  to="/account"
-                  className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all sm:hidden active:scale-95"
-                  aria-label="My profile"
-                  onClick={() => setAccountDropdownOpen(false)}
-                >
-                  <UserCircle size={20} />
-                </Link>
+                <div ref={mobileAccountDropdownRef} className="relative sm:hidden">
+                  <button
+                    onClick={() => setMobileAccountDropdownOpen(!mobileAccountDropdownOpen)}
+                    className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
+                    aria-label="My profile"
+                  >
+                    <UserCircle size={20} />
+                  </button>
+                  {mobileAccountDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[180px]">
+                      <Link 
+                        to="/account" 
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                        onClick={() => setMobileAccountDropdownOpen(false)}
+                      >
+                        <UserCircle size={16} />
+                        My Profile
+                      </Link>
+                      <Link 
+                        to="/track-order" 
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                        onClick={() => setMobileAccountDropdownOpen(false)}
+                      >
+                        <Package size={16} />
+                        My Orders
+                      </Link>
+                      {isAdmin && (
+                        <>
+                          <hr className="my-1 border-border" />
+                          <Link 
+                            to="/admin" 
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-primary font-medium hover:bg-secondary transition-colors"
+                            onClick={() => setMobileAccountDropdownOpen(false)}
+                          >
+                            <Shield size={16} />
+                            Admin Dashboard
+                          </Link>
+                        </>
+                      )}
+                      <hr className="my-1 border-border" />
+                      <button 
+                        onClick={() => { signOut(); setMobileAccountDropdownOpen(false); }}
+                        className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-secondary transition-colors"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <Link
                   to="/auth"
