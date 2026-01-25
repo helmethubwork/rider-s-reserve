@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { products, Product } from "@/data/products";
-import { ChevronDown, Star, Filter, X } from "lucide-react";
+import { ChevronDown, Star, Filter, X, ArrowLeft } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sheet";
 
 const SalePage = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { addToCart } = useCart();
   const [sortBy, setSortBy] = useState("featured");
@@ -330,7 +331,20 @@ const SalePage = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      <main className="flex-1 pt-0 pb-12">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="flex-1 pt-4 pb-12">
         <div className="container mx-auto px-4">
           {/* Title */}
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center text-foreground tracking-wide mb-4 uppercase">

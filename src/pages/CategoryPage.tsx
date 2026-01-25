@@ -1,5 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProductsByCategory } from "@/hooks/useProducts";
@@ -7,6 +9,7 @@ import { categories } from "@/data/products";
 import { Loader2 } from "lucide-react";
 
 const CategoryPage = () => {
+  const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   const category = categories.find(c => c.slug === slug);
   
@@ -34,6 +37,19 @@ const CategoryPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
       {/* Category Header */}
       <section className="py-12 bg-secondary border-b border-border">
         <div className="container mx-auto px-4 text-center">

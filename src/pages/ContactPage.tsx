@@ -1,15 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
 
 const ContactPage = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { data: contactSettings } = useSiteSettings('contact');
   const { data: businessSettings } = useSiteSettings('business');
@@ -78,7 +80,20 @@ const ContactPage = () => {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
-      <main className="flex-1 pt-0 pb-4">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="flex-1 pt-4 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-4 uppercase">

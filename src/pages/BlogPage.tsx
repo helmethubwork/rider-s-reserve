@@ -1,11 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BlogCard from "@/components/BlogCard";
 import { blogPosts as staticBlogPosts } from "@/data/blogPosts";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const BlogPage = () => {
+  const navigate = useNavigate();
   const { data: dbPosts, isLoading } = useBlogPosts();
   
   // Use database posts if available, otherwise fall back to static posts
@@ -30,7 +33,20 @@ const BlogPage = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       
-      <main className="flex-1 pt-0 pb-12">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="flex-1 pt-4 pb-12">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-10">

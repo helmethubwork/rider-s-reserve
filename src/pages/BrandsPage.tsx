@@ -1,12 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useBrands } from '@/hooks/useBrands';
 import { useProducts } from '@/hooks/useProducts';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 const BrandsPage = () => {
+  const navigate = useNavigate();
   const { data: brands = [], isLoading: brandsLoading } = useBrands();
   const { data: products = [], isLoading: productsLoading } = useProducts();
 
@@ -20,7 +22,20 @@ const BrandsPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-20">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
+      <main className="pt-4">
 
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-primary/10 to-background py-12 md:py-16">
