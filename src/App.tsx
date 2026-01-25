@@ -14,6 +14,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import WishlistPage from "./pages/WishlistPage";
 import AuthPage from "./pages/AuthPage";
+import AccountPage from "./pages/AccountPage";
 import NotFound from "./pages/NotFound";
 import ShippingPolicyPage from "./pages/ShippingPolicyPage";
 import WarrantyPolicyPage from "./pages/WarrantyPolicyPage";
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
               <Route path="/latest-offers" element={<CategoryPage />} />
               <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
               <Route path="/warranty-policy" element={<WarrantyPolicyPage />} />
