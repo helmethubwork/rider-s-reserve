@@ -465,129 +465,133 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Menu Content - Scrollable */}
-        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background">
-          <ul className="py-2 pb-4">
-            {navigationData.map((item) => {
-              const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('megaMenu' in item && item.megaMenu);
-
-              return (
-                <li key={item.name}>
-                  {!hasSubmenu ? (
-                    <Link
-                      to={item.href}
-                      className="flex items-center gap-3 px-4 py-3 text-foreground text-sm font-medium border-b border-border/30 hover:bg-secondary/50 active:bg-secondary transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {item.name}
-                    </Link>
-                  ) : (
-                    <>
+          {/* Mobile Menu Content - Scrollable with scroll indicator */}
+          <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background relative">
+            <ul className="py-2 pb-4">
+              {navigationData.map((item) => {
+                const hasSubmenu = (item.subcategories && item.subcategories.length > 0) || ('columns' in item && item.columns);
+                const isExpanded = expandedMobileCategory === item.name;
+                
+                // For mega menu items, flatten columns into submenu items
+                const submenuItems = 'columns' in item && item.columns 
+                  ? item.columns.flatMap(col => col.items)
+                  : item.subcategories || [];
+                
+                if (hasSubmenu && submenuItems.length > 0) {
+                  return (
+                    <li key={item.name}>
                       <button
-                        onClick={() => toggleMobileCategory(item.name)}
-                        className="w-full flex items-center justify-between px-4 py-3 text-primary text-sm font-bold uppercase tracking-wide border-b border-border/30 bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors"
+                        onClick={() => setExpandedMobileCategory(isExpanded ? null : item.name)}
+                        className="w-full flex items-center justify-between px-5 py-3.5 text-primary text-sm font-bold uppercase tracking-wide border-b border-border/30 bg-secondary/30 hover:bg-secondary/50 active:bg-secondary transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          {item.name}
-                        </div>
+                        <span>{item.name}</span>
                         <ChevronDown 
-                          size={16} 
-                          className={`text-primary transition-transform duration-300 ${
-                            expandedMobileCategory === item.name ? 'rotate-180' : 'animate-bounce'
-                          }`} 
+                          size={18} 
+                          className={`transition-transform duration-200 text-primary ${isExpanded ? 'rotate-180' : ''}`}
                         />
                       </button>
                       
-                      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        expandedMobileCategory === item.name ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-                      }`}>
-                        <ul className="bg-card/50 border-b border-border/30">
-                          {'megaMenu' in item && item.megaMenu && 'columns' in item && item.columns ? (
-                            item.columns.map((col) => (
-                              col.items.map((subItem) => (
-                                <li key={subItem.name}>
-                                  <Link
-                                    to={subItem.href}
-                                    className="flex items-center gap-3 pl-8 pr-4 py-2.5 text-foreground text-xs font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                  >
-                                    <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-                                    {subItem.name}
-                                  </Link>
-                                </li>
-                              ))
-                            ))
-                          ) : (
-                            item.subcategories?.map((sub) => (
-                              <li key={sub.name}>
-                                <Link
-                                  to={sub.href}
-                                  className="flex items-center gap-3 pl-8 pr-4 py-2.5 text-foreground text-xs font-medium hover:bg-secondary/50 active:bg-secondary transition-colors"
-                                  onClick={() => setMobileMenuOpen(false)}
-                                >
-                                  <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-                                  {sub.name}
-                                </Link>
-                              </li>
-                            ))
-                          )}
+                      <div
+                        className={`overflow-hidden transition-all duration-200 bg-secondary/10 ${isExpanded ? 'max-h-[500px]' : 'max-h-0'}`}
+                      >
+                        <ul className="py-1">
+                          {submenuItems.map((subItem) => (
+                            <li key={subItem.name}>
+                              <Link
+                                to={subItem.href}
+                                className="flex items-center gap-3 pl-7 pr-5 py-3 text-foreground text-sm hover:bg-secondary/50 active:bg-secondary transition-colors"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                                {subItem.name}
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
                       </div>
-                    </>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+                    </li>
+                  );
+                }
+                
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      className="flex items-center gap-3 px-5 py-3.5 text-foreground text-sm font-medium border-b border-border/20 hover:bg-secondary/50 active:bg-secondary transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            
+            {/* Scroll fade indicator at bottom */}
+            <div className="sticky bottom-0 h-6 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+          </nav>
 
         {/* Mobile Menu Footer - Fixed at bottom, always visible */}
-        <div className="flex-shrink-0 border-t border-border bg-secondary/50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex-shrink-0 border-t border-border bg-card/95 backdrop-blur-sm">
           {user ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 text-foreground font-medium pb-2 border-b border-border/50">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                  <User size={16} className="text-primary" />
+            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] space-y-3">
+              {/* User Profile Header */}
+              <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <User size={18} className="text-primary" />
                 </div>
-                <span className="truncate text-sm">{profile?.full_name || user.email}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-foreground text-sm truncate">
+                    {profile?.full_name || 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                </div>
               </div>
-              <Link
-                to="/track-order"
-                className="flex items-center gap-3 py-2.5 px-2 text-sm text-foreground hover:text-primary hover:bg-background/50 rounded-lg transition-colors active:scale-95"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Package size={18} />
-                My Orders
-              </Link>
-              {isAdmin && (
+              
+              {/* Action Buttons - Grid Layout */}
+              <div className={`grid gap-2 ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 <Link
-                  to="/admin"
-                  className="flex items-center gap-3 py-2.5 px-2 text-sm text-primary font-semibold bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95"
+                  to="/track-order"
+                  className="flex flex-col items-center gap-1.5 py-3 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Shield size={18} />
-                  Admin Dashboard
+                  <Package size={20} />
+                  <span className="text-xs font-medium">My Orders</span>
                 </Link>
-              )}
+                
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="flex flex-col items-center gap-1.5 py-3 px-2 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Shield size={20} />
+                    <span className="text-xs font-semibold">Admin</span>
+                  </Link>
+                )}
+              </div>
+              
+              {/* Logout Button - Full Width */}
               <button
                 onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                className="flex items-center gap-3 w-full py-2.5 px-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors active:scale-95"
+                className="flex items-center justify-center gap-2 w-full py-3 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
               >
                 <LogOut size={18} />
                 Logout
               </button>
             </div>
           ) : (
-            <Link
-              to="/auth"
-              className="flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors active:scale-95"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <User size={18} />
-              Sign In / Register
-            </Link>
+            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <Link
+                to="/auth"
+                className="flex items-center justify-center gap-2 py-3.5 px-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors active:scale-95 shadow-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User size={18} />
+                Sign In / Register
+              </Link>
+            </div>
           )}
         </div>
       </div>
