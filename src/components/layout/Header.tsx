@@ -625,63 +625,6 @@ const Header = () => {
                 })}
               </ul>
             </nav>
-            
-            {/* Account Section - Inside scroll area for Android compatibility */}
-            <div className="border-t border-border bg-card/95 mt-2 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-              {user ? (
-                <div className="space-y-2">
-                  {/* Quick Action Buttons - 2 Column Grid */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <Link
-                          to="/account"
-                          className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <UserCircle size={14} />
-                          My Profile
-                        </Link>
-                        <Link
-                          to="/track-order"
-                          className="flex items-center justify-center gap-1.5 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <Package size={14} />
-                          My Orders
-                        </Link>
-                      </div>
-                  
-                  {/* Admin Button (if admin) */}
-                  {isAdmin && (
-                    <Link
-                      to="/admin"
-                      className="flex items-center justify-center gap-2 py-2.5 px-2 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30 text-xs font-semibold"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Shield size={14} />
-                      Admin Dashboard
-                    </Link>
-                  )}
-                  
-                  {/* Logout Button */}
-                  <button
-                    onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                    className="flex items-center justify-center gap-2 w-full py-2 text-xs font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
-                  >
-                    <LogOut size={14} />
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  to="/auth"
-                  className="flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors active:scale-95 shadow-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User size={18} />
-                  Sign In / Register
-                </Link>
-              )}
-            </div>
           </div>
       </div>
 
