@@ -8,10 +8,12 @@ import OffersCarousel from "@/components/OffersCarousel";
 import BrandShowcase from "@/components/BrandShowcase";
 import WhyHelmetHub from "@/components/WhyHelmetHub";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import MaintenanceBanner from "@/components/MaintenanceBanner";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <MaintenanceBanner />
       <Header />
       
       {/* Hero Slider */}

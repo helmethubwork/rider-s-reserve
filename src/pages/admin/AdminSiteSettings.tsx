@@ -15,8 +15,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Phone, Mail, MapPin, Globe, Clock, MessageCircle } from 'lucide-react';
+import { Save, Loader2, Phone, Mail, MapPin, Globe, Clock, MessageCircle, Construction, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const AdminSiteSettings = () => {
   const { data: allSettings, isLoading } = useSiteSettings();
@@ -152,6 +154,7 @@ const AdminSiteSettings = () => {
   const contactSettings = getSettingsByCategory('contact');
   const socialSettings = getSettingsByCategory('social');
   const businessSettings = getSettingsByCategory('business');
+  const bannerSettings = getSettingsByCategory('banner');
 
   return (
     <AdminLayout>
@@ -201,6 +204,13 @@ const AdminSiteSettings = () => {
                 <Clock size={16} className="mr-2" />
                 Business
               </TabsTrigger>
+              <TabsTrigger 
+                value="banner" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-6 py-3"
+              >
+                <Construction size={16} className="mr-2" />
+                Banner
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="contact" className="p-6 space-y-6">
@@ -227,6 +237,67 @@ const AdminSiteSettings = () => {
               </div>
               {businessSettings.length === 0 && (
                 <p className="text-gray-500 text-center py-8">No business settings found in database.</p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="banner" className="p-6 space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Banner Active Toggle */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Construction size={16} className="text-muted-foreground" />
+                    Banner Active
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Enable or disable the maintenance banner</p>
+                  <div className="flex items-center gap-3 pt-2">
+                    <Switch
+                      checked={formValues['maintenance_banner_active'] === 'true'}
+                      onCheckedChange={(checked) => handleChange('maintenance_banner_active', checked ? 'true' : 'false')}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {formValues['maintenance_banner_active'] === 'true' ? 'Visible' : 'Hidden'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Banner Type Select */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <AlertTriangle size={16} className="text-muted-foreground" />
+                    Banner Type
+                  </Label>
+                  <p className="text-xs text-muted-foreground">Style of the banner</p>
+                  <Select
+                    value={formValues['maintenance_banner_type'] || 'info'}
+                    onValueChange={(value) => handleChange('maintenance_banner_type', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="info">Info (Blue)</SelectItem>
+                      <SelectItem value="warning">Warning (Yellow)</SelectItem>
+                      <SelectItem value="maintenance">Maintenance (Orange)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Banner Text - Full Width */}
+                <div className="space-y-2 md:col-span-2">
+                  <Label className="flex items-center gap-2">
+                    <MessageCircle size={16} className="text-muted-foreground" />
+                    Banner Text
+                  </Label>
+                  <p className="text-xs text-muted-foreground">The message to display in the banner</p>
+                  <Input
+                    value={formValues['maintenance_banner_text'] || ''}
+                    onChange={(e) => handleChange('maintenance_banner_text', e.target.value)}
+                    placeholder="Enter banner message..."
+                  />
+                </div>
+              </div>
+              {bannerSettings.length === 0 && (
+                <p className="text-gray-500 text-center py-8">No banner settings found. Please add banner settings to the database.</p>
               )}
             </TabsContent>
           </Tabs>
