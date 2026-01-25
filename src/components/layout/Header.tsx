@@ -533,12 +533,12 @@ const Header = () => {
           </nav>
 
         {/* Mobile Menu Footer - Fixed at bottom, always visible */}
-        <div className="flex-shrink-0 border-t border-border bg-card/95 backdrop-blur-sm">
+        <div className="flex-shrink-0 border-t border-border bg-card/95 backdrop-blur-sm max-h-[40vh] overflow-y-auto overscroll-contain">
           {user ? (
             <div className="p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] space-y-2">
               {/* User Profile Header - Compact */}
               <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <User size={16} className="text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -553,20 +553,20 @@ const Header = () => {
               <div className="flex gap-2">
                 <Link
                   to="/track-order"
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 px-2 text-foreground hover:bg-secondary rounded-lg transition-colors active:scale-95 border border-border/30 text-xs font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Package size={16} />
+                  <Package size={14} />
                   My Orders
                 </Link>
                 
                 {isAdmin && (
                   <Link
                     to="/admin"
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30 text-xs font-semibold"
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-2 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors active:scale-95 border border-primary/30 text-xs font-semibold"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Shield size={16} />
+                    <Shield size={14} />
                     Admin
                   </Link>
                 )}
@@ -575,9 +575,9 @@ const Header = () => {
               {/* Logout Button - Compact */}
               <button
                 onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
+                className="flex items-center justify-center gap-2 w-full py-2 text-xs font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors active:scale-95"
               >
-                <LogOut size={16} />
+                <LogOut size={14} />
                 Logout
               </button>
             </div>
