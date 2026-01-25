@@ -32,17 +32,10 @@ const MaintenanceBanner = () => {
   const currentStyle = styles[bannerType] || styles.info;
 
   return (
-    <div className={`${currentStyle.bg} px-4 py-3 relative z-50`}>
+    <div className={`${currentStyle.bg} px-4 py-3 z-50`}>
       <div className="container mx-auto flex items-center justify-center gap-3">
         {currentStyle.icon}
         <span className="text-sm font-medium">{bannerText}</span>
-        <button
-          onClick={() => setIsDismissed(true)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity"
-          aria-label="Dismiss banner"
-        >
-          <X size={18} />
-        </button>
       </div>
     </div>
   );
