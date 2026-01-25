@@ -12,7 +12,7 @@ import MaintenanceBanner from "@/components/MaintenanceBanner";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background page-transition">
       <MaintenanceBanner />
       <Header />
       
