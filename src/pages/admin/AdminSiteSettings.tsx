@@ -182,31 +182,31 @@ const AdminSiteSettings = () => {
         {/* Settings Tabs */}
         <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
           <Tabs defaultValue="contact" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b bg-gray-50 p-0 h-auto">
+            <TabsList className="w-full flex justify-start rounded-none border-b bg-gray-50 p-0 h-auto overflow-x-auto scrollbar-hide">
               <TabsTrigger 
                 value="contact" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-6 py-3"
+                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
               >
                 <Phone size={16} className="mr-2" />
                 Contact
               </TabsTrigger>
               <TabsTrigger 
                 value="social" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-6 py-3"
+                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
               >
                 <Globe size={16} className="mr-2" />
                 Social Media
               </TabsTrigger>
               <TabsTrigger 
                 value="business" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-6 py-3"
+                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
               >
                 <Clock size={16} className="mr-2" />
                 Business
               </TabsTrigger>
               <TabsTrigger 
                 value="banner" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-6 py-3"
+                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
               >
                 <Construction size={16} className="mr-2" />
                 Banner
