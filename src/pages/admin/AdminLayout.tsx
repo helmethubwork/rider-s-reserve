@@ -270,7 +270,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-5 lg:p-6 overflow-x-hidden">
+        <main className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 overflow-x-hidden">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>
