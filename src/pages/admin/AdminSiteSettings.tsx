@@ -180,40 +180,43 @@ const AdminSiteSettings = () => {
         </div>
 
         {/* Settings Tabs */}
-        <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl border-2 border-gray-200">
           <Tabs defaultValue="contact" className="w-full">
-            <TabsList className="w-full flex justify-start rounded-none border-b bg-gray-50 p-0 h-auto overflow-x-auto scrollbar-hide">
-              <TabsTrigger 
-                value="contact" 
-                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
-              >
-                <Phone size={16} className="mr-2" />
-                Contact
-              </TabsTrigger>
-              <TabsTrigger 
-                value="social" 
-                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
-              >
-                <Globe size={16} className="mr-2" />
-                Social Media
-              </TabsTrigger>
-              <TabsTrigger 
-                value="business" 
-                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
-              >
-                <Clock size={16} className="mr-2" />
-                Business
-              </TabsTrigger>
-              <TabsTrigger 
-                value="banner" 
-                className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-4 sm:px-6 py-3 text-xs sm:text-sm"
-              >
-                <Construction size={16} className="mr-2" />
-                Banner
-              </TabsTrigger>
-            </TabsList>
+            {/* Scrollable tabs wrapper - overflow handled separately from parent */}
+            <div className="overflow-x-auto scrollbar-hide border-b bg-gray-50 rounded-t-xl">
+              <TabsList className="inline-flex w-max min-w-full justify-start rounded-none p-0 h-auto bg-transparent">
+                <TabsTrigger 
+                  value="contact" 
+                  className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 text-xs sm:text-sm min-w-[80px]"
+                >
+                  <Phone size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <span>Contact</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="social" 
+                  className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 text-xs sm:text-sm min-w-[80px]"
+                >
+                  <Globe size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <span>Social</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="business" 
+                  className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 text-xs sm:text-sm min-w-[80px]"
+                >
+                  <Clock size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <span>Business</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="banner" 
+                  className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 text-xs sm:text-sm min-w-[80px]"
+                >
+                  <Construction size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <span>Banner</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-            <TabsContent value="contact" className="p-6 space-y-6">
+            <TabsContent value="contact" className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
                 {contactSettings.map(renderSettingField)}
               </div>
@@ -222,7 +225,7 @@ const AdminSiteSettings = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="social" className="p-6 space-y-6">
+            <TabsContent value="social" className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
                 {socialSettings.map(renderSettingField)}
               </div>
@@ -231,7 +234,7 @@ const AdminSiteSettings = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="business" className="p-6 space-y-6">
+            <TabsContent value="business" className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
                 {businessSettings.map(renderSettingField)}
               </div>
@@ -240,7 +243,7 @@ const AdminSiteSettings = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="banner" className="p-6 space-y-6">
+            <TabsContent value="banner" className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
                 {/* Banner Active Toggle */}
                 <div className="space-y-2">
