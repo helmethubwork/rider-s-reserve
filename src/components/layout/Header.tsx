@@ -365,16 +365,13 @@ const Header = () => {
                 <div ref={mobileAccountDropdownRef} className="relative sm:hidden">
                   <button
                     onClick={() => setMobileAccountDropdownOpen(!mobileAccountDropdownOpen)}
-                    className="flex items-center gap-1.5 p-2 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
+                    className="flex items-center gap-1 p-2 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
                     aria-label="My profile"
                   >
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                    <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
                       {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
-                    <span className="text-xs font-medium max-w-[60px] truncate">
-                      {profile?.full_name?.split(' ')[0] || 'Account'}
-                    </span>
-                    <ChevronDown size={12} className={`transition-transform ${mobileAccountDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`transition-transform ${mobileAccountDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {mobileAccountDropdownOpen && (
                     <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[180px]">
@@ -502,12 +499,12 @@ const Header = () => {
               )}
               <Link 
                 to="/cart" 
-                className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all relative active:scale-95"
+                className="p-2 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all relative active:scale-95 flex items-center justify-center"
                 aria-label="Cart"
               >
                 <ShoppingCart size={22} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg">
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg animate-pulse">
                     {totalItems > 9 ? '9+' : totalItems}
                   </span>
                 )}
