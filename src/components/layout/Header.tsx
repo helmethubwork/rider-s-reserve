@@ -325,7 +325,7 @@ const Header = () => {
   return (
     <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-transform duration-300 will-change-transform ${hideOnScroll ? '-translate-y-full' : 'translate-y-0'}`}>
       {/* Top bar */}
-      <div className="py-4 sm:py-5 border-b border-border/50">
+      <div className="py-5 sm:py-6 border-b border-border/50">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between gap-2">
             {/* Left - Menu & Search */}
