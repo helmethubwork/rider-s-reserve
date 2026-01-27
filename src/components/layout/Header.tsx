@@ -365,10 +365,16 @@ const Header = () => {
                 <div ref={mobileAccountDropdownRef} className="relative sm:hidden">
                   <button
                     onClick={() => setMobileAccountDropdownOpen(!mobileAccountDropdownOpen)}
-                    className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
+                    className="flex items-center gap-1.5 p-2 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all active:scale-95"
                     aria-label="My profile"
                   >
-                    <UserCircle size={20} />
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                      {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+                    <span className="text-xs font-medium max-w-[60px] truncate">
+                      {profile?.full_name?.split(' ')[0] || 'Account'}
+                    </span>
+                    <ChevronDown size={12} className={`transition-transform ${mobileAccountDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {mobileAccountDropdownOpen && (
                     <div className="absolute right-0 top-full mt-1 bg-background border border-border rounded-lg shadow-xl z-[100] py-2 min-w-[180px]">
