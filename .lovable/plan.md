@@ -1,77 +1,76 @@
 
 
-## Plan: Fix Google Search Logo/Favicon Visibility
+## Plan: Update SEO Structured Data with Correct Helmet Hub Logo
 
 ### Problem
-Google search results are showing a generic globe icon instead of the Helmet Hub logo. This happens because:
-1. **Missing web manifest file** - Google looks for `manifest.json` or `site.webmanifest` to find high-resolution icons
-2. **Missing apple-touch-icon** - Used by iOS and as a fallback by search engines
-3. **Missing multiple favicon sizes** - Google prefers 192x192 and 512x512 pixel icons
-4. **Missing Organization structured data** - Helps Google associate the logo with the website
+The current `og:image` and structured data logo may be showing an incorrect image (possibly AXOR branding instead of Helmet Hub). The user wants to ensure:
+1. One consistent primary logo is used across all SEO tags
+2. Social links include Instagram, Facebook, and Google Maps
 
 ---
 
-### Solution Overview
+### Current State
 
-Create the necessary files and update `index.html` to help Google properly index and display the Helmet Hub logo.
-
-**Files to create:**
-1. `public/site.webmanifest` - Web app manifest with icon references
-2. `public/apple-touch-icon.png` - 180x180 icon for iOS/search engines
-
-**Files to modify:**
-1. `index.html` - Add manifest link, apple-touch-icon, multiple favicon sizes, and structured data
+| Element | Current Value | Issue |
+|---------|---------------|-------|
+| `og:image` | `/og-image.png` | May be showing AXOR logo instead of Helmet Hub |
+| `twitter:image` | `/og-image.png` | Same issue |
+| Structured Data logo | `https://www.helmethub.in/og-image.png` | Same issue |
+| `sameAs` | Instagram, Twitter | Missing Facebook and Google Maps |
 
 ---
 
-### Implementation Details
+### Solution
 
-#### 1. Create Web Manifest
-**File:** `public/site.webmanifest`
+#### Step 1: You Need to Provide the Correct Logo
 
+Before making code changes, you need to upload or confirm which image should be the primary Helmet Hub logo for social sharing.
+
+**Options:**
+1. **Upload a new OG image** - Provide a new image (recommended size: 1200×630 pixels) that shows the Helmet Hub branding clearly
+2. **Use existing logo file** - The project has `src/assets/helmet-hub-logo.png` which could be copied to `public/og-image.png`
+
+**Recommended specifications for OG image:**
+- Size: 1200 × 630 pixels (or at least 1200 × 627)
+- Format: PNG or JPG
+- Show the Helmet Hub logo prominently
+- Add tagline or brand colors for recognition
+
+---
+
+#### Step 2: Code Changes to `index.html`
+
+Once the correct logo is in place at `public/og-image.png`, update the structured data:
+
+**Update `sameAs` to include:**
 ```json
-{
-  "name": "Helmet Hub",
-  "short_name": "Helmet Hub",
-  "description": "Premium Motorcycle Helmets & Riding Gear in India",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#EAB308",
-  "icons": [
-    {
-      "src": "/favicon.png",
-      "sizes": "32x32",
-      "type": "image/png"
-    },
-    {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+"sameAs": [
+  "https://www.instagram.com/helmethub46",
+  "https://www.facebook.com/helmethub46",
+  "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6"
+]
 ```
 
-#### 2. Update index.html
-
-Add the following to the `<head>` section:
-
+**Ensure absolute URLs for images:**
 ```html
-<!-- Favicon links for all browsers and search engines -->
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<link rel="manifest" href="/site.webmanifest" />
-<meta name="theme-color" content="#EAB308" />
+<meta property="og:image" content="https://www.helmethub.in/og-image.png" />
+<meta name="twitter:image" content="https://www.helmethub.in/og-image.png" />
+```
 
-<!-- Organization Structured Data for Google -->
-<script type="application/ld+json">
+---
+
+### Files to Modify
+
+| File | Changes |
+|------|---------|
+| `public/og-image.png` | Replace with official Helmet Hub logo/branding image |
+| `index.html` | Update OG/Twitter image URLs to absolute paths, add Facebook and Google Maps to `sameAs` |
+
+---
+
+### Updated Structured Data
+
+```json
 {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -87,55 +86,20 @@ Add the following to the `<head>` section:
   },
   "sameAs": [
     "https://www.instagram.com/helmethub46",
-    "https://twitter.com/helmethub46"
+    "https://www.facebook.com/helmethub46",
+    "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6"
   ]
 }
-</script>
 ```
 
 ---
 
-### What You Need to Provide
+### What I Need From You
 
-For the best results, you should create and upload these additional icon files:
+1. **Confirm the Facebook page URL** - Is it `https://www.facebook.com/helmethub46` or a different URL?
+2. **Upload the correct OG image** - Either:
+   - Upload a new 1200×630 image with Helmet Hub branding, OR
+   - Confirm I should copy the existing `src/assets/helmet-hub-logo.png` to replace `public/og-image.png`
 
-| File | Size | Purpose |
-|------|------|---------|
-| `apple-touch-icon.png` | 180×180 px | iOS home screen & search engines |
-| `android-chrome-192x192.png` | 192×192 px | Android & Google Search |
-| `android-chrome-512x512.png` | 512×512 px | PWA splash screen |
-
-**Tip:** You can use the existing `favicon.png` or `og-image.png` as the source and resize them. There are free online tools like [favicon.io](https://favicon.io) or [realfavicongenerator.net](https://realfavicongenerator.net) that can generate all sizes from a single image.
-
----
-
-### Why This Helps
-
-1. **Web Manifest** - Google specifically looks for this file to find high-quality icons
-2. **apple-touch-icon** - Many search engines use this as a fallback for favicons
-3. **Structured Data** - The Organization schema with `logo` property tells Google exactly which image represents your brand
-4. **theme-color** - Provides consistent branding in browser UI
-
----
-
-### Timeline for Changes to Appear
-
-After these changes are deployed:
-- Google needs to **re-crawl** the website (can take days to weeks)
-- You can speed this up by:
-  1. Going to [Google Search Console](https://search.google.com/search-console)
-  2. Submitting the homepage URL for indexing
-  3. Requesting a re-crawl
-
----
-
-### Summary
-
-| File | Action | Purpose |
-|------|--------|---------|
-| `public/site.webmanifest` | Create | Web manifest with icon definitions |
-| `public/apple-touch-icon.png` | Create (from existing logo) | iOS/search engine icon |
-| `public/android-chrome-192x192.png` | Create (from existing logo) | Android/Google icon |
-| `public/android-chrome-512x512.png` | Create (from existing logo) | Large icon for PWA |
-| `index.html` | Modify | Add manifest, icons, theme-color, structured data |
+Once you provide this information, I can implement the changes immediately.
 
