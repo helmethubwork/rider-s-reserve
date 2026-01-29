@@ -84,18 +84,18 @@ const baseNavigationData = [
   { name: "Blog", href: "/blog", subcategories: [] },
 ];
 
-// Logo Component - Clean, premium design
+// Logo Component - PowerSports style with racing stripes
 const Logo = () => (
   <Link to="/" className="flex items-center gap-0.5 group">
     {/* Racing stripes accent - left */}
     <div className="flex items-center gap-0.5 mr-0.5">
-      <div className="w-0.5 sm:w-1 h-5 sm:h-7 md:h-8 bg-foreground transform -skew-x-12" />
-      <div className="w-0.5 sm:w-1 h-5 sm:h-7 md:h-8 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
     </div>
     
     <div className="flex items-baseline">
       <span 
-        className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-primary tracking-tight"
+        className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black text-primary tracking-tight"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -104,7 +104,7 @@ const Logo = () => (
         HELMET
       </span>
       <span 
-        className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-foreground tracking-tight ml-0.5"
+        className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight ml-0.5 sm:ml-1"
         style={{ 
           fontStyle: 'italic',
           letterSpacing: '-0.02em',
@@ -115,8 +115,8 @@ const Logo = () => (
     </div>
     {/* Racing stripes accent - right */}
     <div className="flex items-center gap-0.5 ml-0.5">
-      <div className="w-0.5 sm:w-1 h-5 sm:h-7 md:h-8 bg-primary transform -skew-x-12" />
-      <div className="w-0.5 sm:w-1 h-5 sm:h-7 md:h-8 bg-foreground transform -skew-x-12" />
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-primary transform -skew-x-12" />
+      <div className="w-1 h-6 sm:h-8 md:h-10 lg:h-12 bg-white transform -skew-x-12" />
     </div>
   </Link>
 );
@@ -323,9 +323,9 @@ const Header = () => {
   }, [mobileMenuOpen]);
 
   return (
-    <header className={`sticky top-0 z-50 bg-background/98 backdrop-blur-md border-b border-border/50 transition-transform duration-300 will-change-transform ${hideOnScroll ? '-translate-y-full' : 'translate-y-0'}`}>
+    <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-transform duration-300 will-change-transform ${hideOnScroll ? '-translate-y-full' : 'translate-y-0'}`}>
       {/* Top bar */}
-      <div className="py-4 sm:py-5">
+      <div className="py-5 sm:py-6 border-b border-border/50">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between gap-2">
             {/* Left - Menu & Search */}

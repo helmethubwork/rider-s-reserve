@@ -9,18 +9,18 @@ interface OffersCarouselProps {
 }
 
 const LoadingSkeleton = () => (
-  <section className="py-12 sm:py-16 md:py-20 bg-secondary/30">
-    <div className="container mx-auto px-3 sm:px-4">
-      <div className="text-center mb-8 sm:mb-12">
-        <Skeleton className="h-6 w-24 mx-auto mb-3" />
-        <Skeleton className="h-10 w-56 mx-auto" />
+  <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-foreground via-foreground to-muted relative overflow-hidden">
+    <div className="container mx-auto px-3 sm:px-4 relative z-10">
+      <div className="text-center mb-8 sm:mb-14">
+        <Skeleton className="h-8 w-32 mx-auto mb-4" />
+        <Skeleton className="h-12 w-64 mx-auto" />
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="space-y-3">
-            <Skeleton className="aspect-[16/18] w-full rounded-xl" />
+            <Skeleton className="aspect-square w-full rounded-lg" />
             <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-5 w-1/2" />
+            <Skeleton className="h-4 w-1/2" />
           </div>
         ))}
       </div>
@@ -28,7 +28,7 @@ const LoadingSkeleton = () => (
   </section>
 );
 
-const OffersCarousel = ({ title = "HOT DEALS" }: OffersCarouselProps) => {
+const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps) => {
   const { data: products = [], isLoading } = useFeaturedProducts(4);
 
   if (isLoading) {
@@ -40,46 +40,55 @@ const OffersCarousel = ({ title = "HOT DEALS" }: OffersCarouselProps) => {
   }
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-secondary/30">
-      <div className="container mx-auto px-3 sm:px-4">
+    <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-foreground via-foreground to-muted relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-40 sm:w-80 h-40 sm:h-80 bg-accent rounded-full blur-3xl" />
+      </div>
+      
+      <div className="container mx-auto px-3 sm:px-4 relative z-10">
         {/* Section header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center gap-2 text-destructive mb-3">
-            <Flame size={18} className="animate-pulse" />
-            <span className="text-xs font-bold tracking-widest uppercase">Limited Time</span>
-            <Flame size={18} className="animate-pulse" />
+        <div className="text-center mb-8 sm:mb-14">
+          <div className="inline-flex items-center gap-2 bg-red-500/20 text-red-400 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-4 sm:mb-6 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+            <Flame size={16} className="sm:w-[18px] sm:h-[18px] animate-pulse text-red-500" />
+            <span className="text-xs sm:text-sm font-bold tracking-wider uppercase">Hot Deals</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight">
+          <h2 
+            className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-background tracking-tight px-2" 
+            style={{ fontStyle: 'italic' }}
+          >
             {title}
           </h2>
-          <div className="w-16 h-1 bg-primary mx-auto mt-4 rounded-full" />
+          <div className="flex items-center justify-center gap-2 mt-4 sm:mt-6">
+            <div className="w-12 sm:w-20 h-1 bg-primary rounded-full" />
+          </div>
         </div>
 
-        {/* Products grid - 4 columns */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Products grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.is_on_sale && product.sale_price ? product.sale_price : product.price}
-              originalPrice={product.is_on_sale ? product.price : undefined}
-              image={product.image_url || '/placeholder.svg'}
-              badge={product.sale_badge as "Sale" | "Clearance Sale" | "Summer Special" | undefined}
-              isSoldOut={product.stock === 0}
-              stock={product.stock}
-            />
+            <div key={product.id} className="transform hover:-translate-y-2 transition-transform duration-300">
+              <ProductCard
+                id={product.id}
+                name={product.name}
+                price={product.is_on_sale && product.sale_price ? product.sale_price : product.price}
+                image={product.image_url || '/placeholder.svg'}
+                badge={product.sale_badge as "Sale" | "Clearance Sale" | "Summer Special" | undefined}
+                isSoldOut={product.stock === 0}
+              />
+            </div>
           ))}
         </div>
 
-        {/* View all link */}
-        <div className="flex justify-center mt-8 sm:mt-10">
+        {/* View all button */}
+        <div className="flex justify-center mt-8 sm:mt-14">
           <Link
             to="/sale"
-            className="group inline-flex items-center gap-2 text-primary font-bold text-sm hover:underline underline-offset-4"
+            className="group inline-flex items-center gap-2 sm:gap-3 border-2 border-background text-background font-bold px-6 sm:px-10 py-3 sm:py-4 text-xs sm:text-sm tracking-[0.15em] rounded-lg hover:bg-background hover:text-foreground transition-all duration-500 active:scale-95"
           >
-            View All Offers
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            VIEW ALL OFFERS
+            <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px] group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
