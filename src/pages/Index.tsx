@@ -1,12 +1,12 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSlider from "@/components/HeroSlider";
+import TrustBadges from "@/components/TrustBadges";
 import CategoryGrid from "@/components/CategoryGrid";
 import FeaturedPromo from "@/components/FeaturedPromo";
 import InstagramFeed from "@/components/InstagramFeed";
 import OffersCarousel from "@/components/OffersCarousel";
 import BrandShowcase from "@/components/BrandShowcase";
-import WhyHelmetHub from "@/components/WhyHelmetHub";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import MaintenanceBanner from "@/components/MaintenanceBanner";
 
@@ -19,23 +19,23 @@ const Index = () => {
       {/* Hero Slider */}
       <HeroSlider />
 
-      {/* Offers Carousel */}
-      <OffersCarousel />
+      {/* Trust Badges Strip */}
+      <TrustBadges />
 
-      {/* Category Grid - Enhanced big banners */}
+      {/* Category Grid */}
       <CategoryGrid />
 
-      {/* Featured Product Promos - 2 columns */}
-      <FeaturedPromo />
+      {/* Offers Carousel - Best Sellers */}
+      <OffersCarousel />
 
-      {/* Instagram Feed */}
-      <InstagramFeed />
+      {/* Featured Product Promos */}
+      <FeaturedPromo />
 
       {/* Brand Showcase */}
       <BrandShowcase />
 
-      {/* Why Helmet Hub */}
-      <WhyHelmetHub />
+      {/* Instagram Feed */}
+      <InstagramFeed />
 
       {/* WhatsApp Button */}
       <WhatsAppButton />
