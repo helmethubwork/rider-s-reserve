@@ -1,139 +1,61 @@
 
 
-## Plan: Add Dark/Light Theme Toggle to Header
+## Plan: Update SEO Structured Data with Correct Helmet Hub Logo
 
-### Overview
-Add a theme toggle button in the header that allows users to switch between **dark** (current default) and **light** themes. The toggle will show a sun icon for light mode and a moon icon for dark mode.
+### Problem
+The current `og:image` and structured data logo may be showing an incorrect image (possibly AXOR branding instead of Helmet Hub). The user wants to ensure:
+1. One consistent primary logo is used across all SEO tags
+2. Social links include Instagram, Facebook, and Google Maps
 
 ---
 
 ### Current State
 
-| Component | Status |
-|-----------|--------|
-| `next-themes` package | Already installed |
-| `ThemeProvider` | NOT configured in App.tsx |
-| CSS variables | Dark theme defined as default, `.dark` class exists |
-| Light theme CSS | Does NOT exist (only `.admin-theme` for admin pages) |
+| Element | Current Value | Issue |
+|---------|---------------|-------|
+| `og:image` | `/og-image.png` | May be showing AXOR logo instead of Helmet Hub |
+| `twitter:image` | `/og-image.png` | Same issue |
+| Structured Data logo | `https://www.helmethub.in/og-image.png` | Same issue |
+| `sameAs` | Instagram, Twitter | Missing Facebook and Google Maps |
 
 ---
 
-### Implementation Steps
+### Solution
 
-#### Step 1: Add Light Theme CSS Variables
-**File:** `src/index.css`
+#### Step 1: You Need to Provide the Correct Logo
 
-Add a `.light` class with inverted colors (white background, dark text):
+Before making code changes, you need to upload or confirm which image should be the primary Helmet Hub logo for social sharing.
 
-```css
-.light {
-  --background: 0 0% 98%;
-  --foreground: 0 0% 9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
-  --primary: 45 100% 51%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 94%;
-  --secondary-foreground: 0 0% 20%;
-  --muted: 0 0% 94%;
-  --muted-foreground: 0 0% 45%;
-  --accent: 45 100% 51%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 85%;
-  --input: 0 0% 85%;
-  --ring: 45 100% 51%;
-}
+**Options:**
+1. **Upload a new OG image** - Provide a new image (recommended size: 1200×630 pixels) that shows the Helmet Hub branding clearly
+2. **Use existing logo file** - The project has `src/assets/helmet-hub-logo.png` which could be copied to `public/og-image.png`
+
+**Recommended specifications for OG image:**
+- Size: 1200 × 630 pixels (or at least 1200 × 627)
+- Format: PNG or JPG
+- Show the Helmet Hub logo prominently
+- Add tagline or brand colors for recognition
+
+---
+
+#### Step 2: Code Changes to `index.html`
+
+Once the correct logo is in place at `public/og-image.png`, update the structured data:
+
+**Update `sameAs` to include:**
+```json
+"sameAs": [
+  "https://www.instagram.com/helmethub46",
+  "https://www.facebook.com/helmethub46",
+  "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6"
+]
 ```
 
----
-
-#### Step 2: Configure ThemeProvider in App.tsx
-**File:** `src/App.tsx`
-
-Wrap the app with `ThemeProvider` from `next-themes`:
-
-```tsx
-import { ThemeProvider } from "next-themes";
-
-const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-    <QueryClientProvider client={queryClient}>
-      {/* ... rest of app */}
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+**Ensure absolute URLs for images:**
+```html
+<meta property="og:image" content="https://www.helmethub.in/og-image.png" />
+<meta name="twitter:image" content="https://www.helmethub.in/og-image.png" />
 ```
-
----
-
-#### Step 3: Create Theme Toggle Component
-**File:** `src/components/ThemeToggle.tsx` (new file)
-
-A simple button with sun/moon icons that toggles between themes:
-
-```tsx
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-
-const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return null;
-
-  return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all"
-      aria-label="Toggle theme"
-    >
-      {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-    </button>
-  );
-};
-
-export default ThemeToggle;
-```
-
----
-
-#### Step 4: Add Theme Toggle to Header
-**File:** `src/components/layout/Header.tsx`
-
-Add the `ThemeToggle` component next to the search/cart icons in the header's right section:
-
-```tsx
-import ThemeToggle from "@/components/ThemeToggle";
-
-// In the header's right icons section (around line 354):
-<div className="flex items-center gap-1 sm:gap-2 md:gap-4">
-  <ThemeToggle />  {/* Add here */}
-  {/* ... existing search, account, cart buttons */}
-</div>
-```
-
----
-
-### Visual Preview
-
-**Dark Mode (Default):**
-- Black background (#0A0A0A)
-- White/light gray text
-- Yellow accent color
-- Shows **Sun icon** (click to switch to light)
-
-**Light Mode:**
-- White/light gray background (#FAFAFA)
-- Dark text
-- Yellow accent color
-- Shows **Moon icon** (click to switch to dark)
 
 ---
 
@@ -141,19 +63,43 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 | File | Changes |
 |------|---------|
-| `src/index.css` | Add `.light` theme CSS variables |
-| `src/App.tsx` | Wrap app with `ThemeProvider` |
-| `src/components/ThemeToggle.tsx` | Create new component (new file) |
-| `src/components/layout/Header.tsx` | Import and add ThemeToggle to header icons |
+| `public/og-image.png` | Replace with official Helmet Hub logo/branding image |
+| `index.html` | Update OG/Twitter image URLs to absolute paths, add Facebook and Google Maps to `sameAs` |
 
 ---
 
-### Technical Notes
+### Updated Structured Data
 
-- Uses `next-themes` which is already installed
-- Theme preference persists in localStorage
-- `attribute="class"` applies theme via CSS class on `<html>` element
-- `defaultTheme="dark"` keeps current dark theme as default
-- `enableSystem={false}` disables automatic system preference detection (user explicitly chooses)
-- The toggle shows on both desktop and mobile header
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Helmet Hub",
+  "url": "https://www.helmethub.in",
+  "logo": "https://www.helmethub.in/og-image.png",
+  "description": "Premium motorcycle helmets, riding gear, and accessories from top brands in India",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Hyderabad",
+    "addressRegion": "Telangana",
+    "addressCountry": "IN"
+  },
+  "sameAs": [
+    "https://www.instagram.com/helmethub46",
+    "https://www.facebook.com/helmethub46",
+    "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6"
+  ]
+}
+```
+
+---
+
+### What I Need From You
+
+1. **Confirm the Facebook page URL** - Is it `https://www.facebook.com/helmethub46` or a different URL?
+2. **Upload the correct OG image** - Either:
+   - Upload a new 1200×630 image with Helmet Hub branding, OR
+   - Confirm I should copy the existing `src/assets/helmet-hub-logo.png` to replace `public/og-image.png`
+
+Once you provide this information, I can implement the changes immediately.
 
