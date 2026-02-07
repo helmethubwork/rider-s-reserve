@@ -120,7 +120,7 @@ const ExchangeReturnsPage = () => {
   const title = dbContent?.title || "Exchange, Returns, Refund & Cancellation Policy";
   const policyContent = dbContent?.content || STATIC_POLICY_CONTENT;
 
-  return <div className="min-h-screen flex flex-col bg-white">
+  return <div className="min-h-screen flex flex-col bg-background admin-theme">
       <Header />
       
       {/* Back Button */}
