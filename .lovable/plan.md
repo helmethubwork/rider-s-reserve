@@ -1,104 +1,61 @@
 
-## Plan: Fix Invisible Text in Form Inputs Across the Website
+Goal: Make typed text and UI colors visible across the whole website (public dark theme + admin light theme), without breaking either theme.
 
-### Problem
+What’s happening
+- We recently hardcoded form components (Input/Textarea/Label) to use dark text (`text-gray-900`).
+- That fixed pages with white backgrounds, but it breaks dark pages like Checkout / Track Order where inputs sit on dark backgrounds (`bg-background` / `bg-card`). Result: typed text becomes dark on dark and looks “not visible”.
+- Some pages (Shipping Policy, Warranty Policy, Contact, Exchange & Returns) are using `bg-white` but still rely on theme-based classes like `text-foreground` for buttons, which can also become low-contrast because the site’s default theme variables are dark.
 
-When typing in form fields, the text is invisible because:
-- The site uses a **dark theme** by default where `--foreground` is 98% white
-- Some pages (Contact, Exchange/Returns, etc.) use `bg-white` on forms
-- The Input/Textarea components use `text-foreground` which renders as **white text on white background** - completely invisible
+Fix approach (site-wide, consistent)
+1) Make core form components theme-aware again (global fix)
+- Update these components so they use theme tokens:
+  - Input: use `text-foreground` and `placeholder:text-muted-foreground` (instead of `text-gray-900`).
+  - Textarea: same.
+  - Label: use `text-foreground` (instead of `text-gray-900`).
+Why: these components must automatically adapt to both dark public site and light admin theme.
 
----
+2) Make “white-background” public pages actually use a light theme (so all UI tokens match)
+- For pages that are intentionally light/white (policy pages and forms), wrap the page root with the existing `.admin-theme` class (already defined in `src/index.css`).
+- Also switch their root background class from `bg-white` to `bg-background` so the background comes from the light theme variables.
+Pages to update:
+- `src/pages/ContactPage.tsx`
+- `src/pages/ExchangeReturnsPage.tsx`
+- `src/pages/ShippingPolicyPage.tsx`
+- `src/pages/WarrantyPolicyPage.tsx`
 
-### Solution Overview
+This will automatically fix:
+- Back button text (`text-foreground`) visibility
+- Default button/inputs/selects visibility
+- Any other components inside these pages that rely on theme variables
 
-Fix the Input and Textarea base components to always render dark text when placed on light backgrounds, and update page-level styling for consistency.
+3) Clean up page-level overrides (only where needed)
+- After steps (1) and (2), many of the manual classes like `text-gray-900 placeholder:text-gray-500` on Inputs in Contact/Exchange pages become optional.
+- We will:
+  - Keep them only if they’re needed for a specific design choice
+  - Otherwise remove them to avoid future regressions and keep the UI consistent
 
----
+4) Quick verification checklist (end-to-end)
+- Public (dark) pages:
+  - Checkout: type in Name/Email/Phone/Address and verify text is bright and readable.
+  - Track Order: type in both fields and verify text is readable.
+- Light public pages:
+  - Contact page: verify Back button is visible; type in all fields.
+  - Exchange & Returns: verify Select text is visible and typed text is readable.
+  - Shipping/Warranty: verify Back button visible and content readable.
+- Admin pages:
+  - Admin forms: verify inputs remain readable (they will, because `admin-theme` already sets dark foreground text).
 
-### Technical Details
+Files that will be changed
+- Core UI components:
+  - `src/components/ui/input.tsx`
+  - `src/components/ui/textarea.tsx`
+  - `src/components/ui/label.tsx`
+- Light public pages:
+  - `src/pages/ContactPage.tsx`
+  - `src/pages/ExchangeReturnsPage.tsx`
+  - `src/pages/ShippingPolicyPage.tsx`
+  - `src/pages/WarrantyPolicyPage.tsx`
 
-#### 1. Update Input Component
-**File:** `src/components/ui/input.tsx`
-
-Add explicit `text-gray-900` class to ensure dark text regardless of theme:
-
-```tsx
-className={cn(
-  "flex h-12 w-full rounded-md border border-input bg-background px-4 py-3 text-base text-gray-900 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-  className,
-)}
-```
-
-**Changes:**
-- `text-foreground` → `text-gray-900` (always dark text)
-- `placeholder:text-muted-foreground` → `placeholder:text-gray-500` (always visible placeholder)
-
----
-
-#### 2. Update Textarea Component
-**File:** `src/components/ui/textarea.tsx`
-
-Same changes as Input:
-
-```tsx
-className={cn(
-  "flex min-h-[100px] w-full rounded-md border border-input bg-background px-4 py-3 text-base text-gray-900 ring-offset-background placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-  className,
-)}
-```
-
----
-
-#### 3. Update ContactPage Form Styling
-**File:** `src/pages/ContactPage.tsx`
-
-Update input classes for proper contrast and focus states:
-
-| Before | After |
-|--------|-------|
-| `className="bg-white border-gray-300"` | `className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"` |
-
-This ensures explicit text colors even if the base component is used elsewhere with theme colors.
-
----
-
-#### 4. Update ExchangeReturnsPage Form Styling
-**File:** `src/pages/ExchangeReturnsPage.tsx`
-
-Same updates to all Input fields to ensure consistent visibility.
-
----
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/ui/input.tsx` | Change text-foreground to text-gray-900, update placeholder color |
-| `src/components/ui/textarea.tsx` | Change text-foreground to text-gray-900, update placeholder color |
-| `src/pages/ContactPage.tsx` | Add explicit text colors to inputs |
-| `src/pages/ExchangeReturnsPage.tsx` | Add explicit text colors to inputs |
-
----
-
-### Why This Works
-
-1. **Explicit colors** (`text-gray-900`) override theme variables on light backgrounds
-2. **Gray-500 placeholder** is visible on both white and dark backgrounds
-3. **Backward compatible** - dark-themed pages using `bg-background` inputs will still work because they typically don't override with `bg-white`
-
----
-
-### Visual Impact
-
-| Element | Before | After |
-|---------|--------|-------|
-| Input text | Invisible (white on white) | Dark gray, clearly visible |
-| Placeholder text | Very faint or invisible | Medium gray, visible |
-| Focus state | Working | Working (no change) |
-
----
-
-### Summary
-
-This fix ensures that all form fields across the website have visible text when typing, by using explicit dark text colors instead of theme-dependent variables on light backgrounds.
+Technical notes (for maintainability)
+- We will rely on CSS variables (`--foreground`, `--muted-foreground`, `--background`, etc.) as the single source of truth.
+- `.admin-theme` will be reused as the “light theme wrapper” for public pages that are designed to be light. This avoids inventing a new theme system and ensures consistent colors across the site.
