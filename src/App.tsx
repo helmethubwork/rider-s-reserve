@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "next-themes";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -50,12 +51,13 @@ import AdminContentPages from "./pages/admin/AdminContentPages";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
+  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
           <BrowserRouter>
             <ScrollToTop />
             <Routes>
@@ -104,10 +106,11 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-        </TooltipProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
