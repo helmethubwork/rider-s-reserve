@@ -34,7 +34,7 @@ const ShippingPolicyPage = () => {
   const content = dbContent?.content || STATIC_CONTENT;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background admin-theme">
       <Header />
       
       {/* Back Button */}
