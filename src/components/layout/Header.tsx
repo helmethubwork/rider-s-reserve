@@ -5,6 +5,7 @@ import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigationLinks } from "@/hooks/useNavigationLinks";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // Static fallback for Support subcategories
 const staticSupportSubcategories = [
@@ -352,6 +353,7 @@ const Header = () => {
 
             {/* Right - Icons */}
             <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
+              <ThemeToggle />
               <button 
                 onClick={() => setSearchOpen(true)}
                 className="p-2.5 text-foreground hover:text-primary hover:bg-secondary rounded-lg transition-all md:hidden active:scale-95"
