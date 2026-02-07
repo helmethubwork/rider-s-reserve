@@ -166,7 +166,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="fullName" className="text-gray-700">
                       Full Name <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="fullName" value={formData.fullName} onChange={e => handleInputChange("fullName", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="fullName" value={formData.fullName} onChange={e => handleInputChange("fullName", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   {/* Email */}
@@ -176,7 +176,7 @@ const ExchangeReturnsPage = () => {
                     </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300 pl-10" />
+                      <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 pl-10" />
                     </div>
                   </div>
 
@@ -190,7 +190,7 @@ const ExchangeReturnsPage = () => {
                         <Phone className="h-4 w-4 text-gray-400 mr-2" />
                         <span className="text-gray-600 text-sm">+91</span>
                       </div>
-                      <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} required className="bg-white border-gray-300 flex-1" />
+                      <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 flex-1" />
                     </div>
                   </div>
 
@@ -199,7 +199,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="orderNumber" className="text-gray-700">
                       Order Number <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="orderNumber" value={formData.orderNumber} onChange={e => handleInputChange("orderNumber", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="orderNumber" value={formData.orderNumber} onChange={e => handleInputChange("orderNumber", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   {/* Product Type */}
@@ -227,7 +227,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="originalProduct" className="text-gray-700">
                       Original Product Ordered <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="originalProduct" value={formData.originalProduct} onChange={e => handleInputChange("originalProduct", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="originalProduct" value={formData.originalProduct} onChange={e => handleInputChange("originalProduct", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   {/* Product Color */}
@@ -235,7 +235,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="productColor" className="text-gray-700">
                       Product Color <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="productColor" value={formData.productColor} onChange={e => handleInputChange("productColor", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="productColor" value={formData.productColor} onChange={e => handleInputChange("productColor", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   {/* Size Ordered */}
@@ -243,7 +243,7 @@ const ExchangeReturnsPage = () => {
                     <Label htmlFor="sizeOrdered" className="text-gray-700">
                       Size Ordered <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="sizeOrdered" value={formData.sizeOrdered} onChange={e => handleInputChange("sizeOrdered", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="sizeOrdered" value={formData.sizeOrdered} onChange={e => handleInputChange("sizeOrdered", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@ const ExchangeReturnsPage = () => {
                   <Label htmlFor="sizeNeeded" className="text-gray-700">
                     Size Needed in Exchange <span className="text-red-500">*</span>
                   </Label>
-                  <Input id="sizeNeeded" value={formData.sizeNeeded} onChange={e => handleInputChange("sizeNeeded", e.target.value)} required className="bg-white border-gray-300" />
+                  <Input id="sizeNeeded" value={formData.sizeNeeded} onChange={e => handleInputChange("sizeNeeded", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                 </div>
 
                 {/* Alternate Products */}
@@ -266,9 +266,9 @@ const ExchangeReturnsPage = () => {
                     </p>
                   </div>
                   
-                  <Input placeholder="Option 1" value={formData.alternateProduct1} onChange={e => handleInputChange("alternateProduct1", e.target.value)} className="bg-white border-gray-300" />
-                  <Input placeholder="Option 2" value={formData.alternateProduct2} onChange={e => handleInputChange("alternateProduct2", e.target.value)} className="bg-white border-gray-300" />
-                  <Input placeholder="Option 3" value={formData.alternateProduct3} onChange={e => handleInputChange("alternateProduct3", e.target.value)} className="bg-white border-gray-300" />
+                  <Input placeholder="Option 1" value={formData.alternateProduct1} onChange={e => handleInputChange("alternateProduct1", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                  <Input placeholder="Option 2" value={formData.alternateProduct2} onChange={e => handleInputChange("alternateProduct2", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                  <Input placeholder="Option 3" value={formData.alternateProduct3} onChange={e => handleInputChange("alternateProduct3", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                 </div>
 
                 {/* Invoice Upload */}
