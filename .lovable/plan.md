@@ -1,61 +1,72 @@
 
-
-## Plan: Update SEO Structured Data with Correct Helmet Hub Logo
+## Plan: Fix Invisible Text in Form Inputs Across the Website
 
 ### Problem
-The current `og:image` and structured data logo may be showing an incorrect image (possibly AXOR branding instead of Helmet Hub). The user wants to ensure:
-1. One consistent primary logo is used across all SEO tags
-2. Social links include Instagram, Facebook, and Google Maps
+
+When typing in form fields, the text is invisible because:
+- The site uses a **dark theme** by default where `--foreground` is 98% white
+- Some pages (Contact, Exchange/Returns, etc.) use `bg-white` on forms
+- The Input/Textarea components use `text-foreground` which renders as **white text on white background** - completely invisible
 
 ---
 
-### Current State
+### Solution Overview
 
-| Element | Current Value | Issue |
-|---------|---------------|-------|
-| `og:image` | `/og-image.png` | May be showing AXOR logo instead of Helmet Hub |
-| `twitter:image` | `/og-image.png` | Same issue |
-| Structured Data logo | `https://www.helmethub.in/og-image.png` | Same issue |
-| `sameAs` | Instagram, Twitter | Missing Facebook and Google Maps |
+Fix the Input and Textarea base components to always render dark text when placed on light backgrounds, and update page-level styling for consistency.
 
 ---
 
-### Solution
+### Technical Details
 
-#### Step 1: You Need to Provide the Correct Logo
+#### 1. Update Input Component
+**File:** `src/components/ui/input.tsx`
 
-Before making code changes, you need to upload or confirm which image should be the primary Helmet Hub logo for social sharing.
+Add explicit `text-gray-900` class to ensure dark text regardless of theme:
 
-**Options:**
-1. **Upload a new OG image** - Provide a new image (recommended size: 1200×630 pixels) that shows the Helmet Hub branding clearly
-2. **Use existing logo file** - The project has `src/assets/helmet-hub-logo.png` which could be copied to `public/og-image.png`
-
-**Recommended specifications for OG image:**
-- Size: 1200 × 630 pixels (or at least 1200 × 627)
-- Format: PNG or JPG
-- Show the Helmet Hub logo prominently
-- Add tagline or brand colors for recognition
-
----
-
-#### Step 2: Code Changes to `index.html`
-
-Once the correct logo is in place at `public/og-image.png`, update the structured data:
-
-**Update `sameAs` to include:**
-```json
-"sameAs": [
-  "https://www.instagram.com/helmethub46",
-  "https://www.facebook.com/helmethub46",
-  "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6"
-]
+```tsx
+className={cn(
+  "flex h-12 w-full rounded-md border border-input bg-background px-4 py-3 text-base text-gray-900 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  className,
+)}
 ```
 
-**Ensure absolute URLs for images:**
-```html
-<meta property="og:image" content="https://www.helmethub.in/og-image.png" />
-<meta name="twitter:image" content="https://www.helmethub.in/og-image.png" />
+**Changes:**
+- `text-foreground` → `text-gray-900` (always dark text)
+- `placeholder:text-muted-foreground` → `placeholder:text-gray-500` (always visible placeholder)
+
+---
+
+#### 2. Update Textarea Component
+**File:** `src/components/ui/textarea.tsx`
+
+Same changes as Input:
+
+```tsx
+className={cn(
+  "flex min-h-[100px] w-full rounded-md border border-input bg-background px-4 py-3 text-base text-gray-900 ring-offset-background placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  className,
+)}
 ```
+
+---
+
+#### 3. Update ContactPage Form Styling
+**File:** `src/pages/ContactPage.tsx`
+
+Update input classes for proper contrast and focus states:
+
+| Before | After |
+|--------|-------|
+| `className="bg-white border-gray-300"` | `className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"` |
+
+This ensures explicit text colors even if the base component is used elsewhere with theme colors.
+
+---
+
+#### 4. Update ExchangeReturnsPage Form Styling
+**File:** `src/pages/ExchangeReturnsPage.tsx`
+
+Same updates to all Input fields to ensure consistent visibility.
 
 ---
 
@@ -63,43 +74,31 @@ Once the correct logo is in place at `public/og-image.png`, update the structure
 
 | File | Changes |
 |------|---------|
-| `public/og-image.png` | Replace with official Helmet Hub logo/branding image |
-| `index.html` | Update OG/Twitter image URLs to absolute paths, add Facebook and Google Maps to `sameAs` |
+| `src/components/ui/input.tsx` | Change text-foreground to text-gray-900, update placeholder color |
+| `src/components/ui/textarea.tsx` | Change text-foreground to text-gray-900, update placeholder color |
+| `src/pages/ContactPage.tsx` | Add explicit text colors to inputs |
+| `src/pages/ExchangeReturnsPage.tsx` | Add explicit text colors to inputs |
 
 ---
 
-### Updated Structured Data
+### Why This Works
 
-```json
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Helmet Hub",
-  "url": "https://www.helmethub.in",
-  "logo": "https://www.helmethub.in/og-image.png",
-  "description": "Premium motorcycle helmets, riding gear, and accessories from top brands in India",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Hyderabad",
-    "addressRegion": "Telangana",
-    "addressCountry": "IN"
-  },
-  "sameAs": [
-    "https://www.instagram.com/helmethub46",
-    "https://www.facebook.com/helmethub46",
-    "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6"
-  ]
-}
-```
+1. **Explicit colors** (`text-gray-900`) override theme variables on light backgrounds
+2. **Gray-500 placeholder** is visible on both white and dark backgrounds
+3. **Backward compatible** - dark-themed pages using `bg-background` inputs will still work because they typically don't override with `bg-white`
 
 ---
 
-### What I Need From You
+### Visual Impact
 
-1. **Confirm the Facebook page URL** - Is it `https://www.facebook.com/helmethub46` or a different URL?
-2. **Upload the correct OG image** - Either:
-   - Upload a new 1200×630 image with Helmet Hub branding, OR
-   - Confirm I should copy the existing `src/assets/helmet-hub-logo.png` to replace `public/og-image.png`
+| Element | Before | After |
+|---------|--------|-------|
+| Input text | Invisible (white on white) | Dark gray, clearly visible |
+| Placeholder text | Very faint or invisible | Medium gray, visible |
+| Focus state | Working | Working (no change) |
 
-Once you provide this information, I can implement the changes immediately.
+---
 
+### Summary
+
+This fix ensures that all form fields across the website have visible text when typing, by using explicit dark text colors instead of theme-dependent variables on light backgrounds.
