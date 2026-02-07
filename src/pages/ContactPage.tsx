@@ -164,35 +164,35 @@ const ContactPage = () => {
                     <Label htmlFor="name" className="text-gray-700">
                       Your Name <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="name" value={formData.name} onChange={e => handleInputChange("name", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="name" value={formData.name} onChange={e => handleInputChange("name", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-gray-700">
                       Email Address <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-gray-700">
                       Phone Number
                     </Label>
-                    <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} className="bg-white border-gray-300" />
+                    <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="subject" className="text-gray-700">
                       Subject <span className="text-red-500">*</span>
                     </Label>
-                    <Input id="subject" value={formData.subject} onChange={e => handleInputChange("subject", e.target.value)} required className="bg-white border-gray-300" />
+                    <Input id="subject" value={formData.subject} onChange={e => handleInputChange("subject", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="message" className="text-gray-700">
                       Message <span className="text-red-500">*</span>
                     </Label>
-                    <Textarea id="message" value={formData.message} onChange={e => handleInputChange("message", e.target.value)} required rows={5} className="bg-white border-gray-300 resize-none" />
+                    <Textarea id="message" value={formData.message} onChange={e => handleInputChange("message", e.target.value)} required rows={5} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 resize-none" />
                   </div>
 
                   <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3">
