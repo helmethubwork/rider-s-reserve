@@ -37,6 +37,7 @@ import { useBrands } from '@/hooks/useBrands';
 import { useCategories } from '@/hooks/useCategories';
 import { Plus, Pencil, Eye, EyeOff, Loader2, Star, Percent } from 'lucide-react';
 import { toast } from 'sonner';
+import { getColorHex } from '@/lib/colorUtils';
 
 // Extended product type with joined relations
 interface ProductWithRelations extends Omit<SupabaseProduct, 'category'> {
@@ -1089,6 +1090,20 @@ const AdminProducts = () => {
                   placeholder="Black, Red, Blue (comma separated)"
                 />
                 <p className="text-xs text-muted-foreground">Enter colors separated by commas</p>
+                {formData.colors.trim() && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
+                      <div key={color} className="flex items-center gap-1.5">
+                        <span
+                          title={color}
+                          className="w-5 h-5 rounded-full border border-gray-300 shadow-sm inline-block"
+                          style={{ background: getColorHex(color) }}
+                        />
+                        <span className="text-xs text-gray-600">{color}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -1207,6 +1222,21 @@ const AdminProducts = () => {
                                 <Percent size={14} className="text-red-500" />
                               )}
                             </div>
+                            {product.colors && product.colors.length > 0 && (
+                              <div className="flex items-center gap-1 mt-1">
+                                {product.colors.slice(0, 6).map((color) => (
+                                  <span
+                                    key={color}
+                                    title={color}
+                                    className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-sm"
+                                    style={{ background: getColorHex(color) }}
+                                  />
+                                ))}
+                                {product.colors.length > 6 && (
+                                  <span className="text-[10px] text-gray-500">+{product.colors.length - 6}</span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
