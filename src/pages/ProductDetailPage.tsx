@@ -345,7 +345,7 @@ const ProductDetailPage = () => {
                     Color <span className="font-normal text-muted-foreground capitalize">— {selectedColor || colors[0]}</span>
                   </p>
                   <div className="flex flex-wrap gap-3">
-                    {colors.map(color => <button key={color} onClick={() => setSelectedColor(color)} title={color} className={`w-10 h-10 rounded-full border-2 transition-all shadow-md ${(selectedColor || colors[0]) === color ? "border-primary ring-2 ring-primary ring-offset-2 scale-110" : "border-border hover:border-primary hover:scale-105"}`} style={{ background: getSwatchBackground(color) }} />)}
+                    {colors.map((color, colorIndex) => <button key={color} onClick={() => { setSelectedColor(color); setSelectedImageIndex(Math.min(colorIndex, thumbnails.length - 1)); }} title={color} className={`w-10 h-10 rounded-full border-2 transition-all shadow-md ${(selectedColor || colors[0]) === color ? "border-primary ring-2 ring-primary ring-offset-2 scale-110" : "border-border hover:border-primary hover:scale-105"}`} style={{ background: getSwatchBackground(color) }} />)}
                   </div>
                 </div>}
 
