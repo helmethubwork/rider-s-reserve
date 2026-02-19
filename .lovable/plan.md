@@ -1,169 +1,80 @@
 
-## Add Color Swatches to Admin Panel
+## Show Color Swatches Like the Reference Image
 
-### What needs to change
+### What the reference image shows
+- Large circular color swatches (~40px diameter) displayed below the price on each product card
+- Each circle has a visible border ring
+- Swatches represent each available color variant
+- On the Product Detail page, the current text pill buttons ("Black", "Red") should become the same large circular swatches with a ring highlight when selected
 
-The admin panel currently shows colors only as plain text (comma-separated in inputs). The user wants visual color swatches — like circular dots — displayed in the admin product list and forms, matching the reference image.
+### Files to change
 
----
-
-### Where swatches will appear
-
-1. **Products Table** (`AdminProducts.tsx`) — Show color dots in each product row, below the product name
-2. **Quick Edit Dialog** (`AdminProducts.tsx`) — Show live swatch preview below the Colors input as admin types
-3. **Add Product Form** (`AdminAddProduct.tsx`) — Same live swatch preview below the Colors input
-
----
-
-### Technical Plan
-
-#### Step 1 — Create Color Utility (`src/lib/colorUtils.ts`)
-
-A new shared file mapping color name strings to CSS hex values, used across both admin and public site:
-
-```ts
-export const COLOR_MAP: Record<string, string> = {
-  black: "#1a1a1a",
-  white: "#f0f0f0",
-  red: "#dc2626",
-  blue: "#2563eb",
-  green: "#16a34a",
-  yellow: "#eab308",
-  orange: "#ea580c",
-  purple: "#7c3aed",
-  pink: "#db2777",
-  grey: "#6b7280",
-  gray: "#6b7280",
-  silver: "#c0c0c0",
-  gold: "#d97706",
-  brown: "#92400e",
-  "matte black": "#1a1a1a",
-  "gloss white": "#f0f0f0",
-  "matt black": "#1a1a1a",
-};
-
-export const getColorHex = (name: string): string =>
-  COLOR_MAP[name.toLowerCase().trim()] ?? "#9ca3af";
-```
-
----
-
-#### Step 2 — Add Color Swatches to Products Table
-
-**File:** `src/pages/admin/AdminProducts.tsx`
-
-In the product row, below the product name, add a small swatch row if `product.colors` is present:
+**1. `src/components/ProductCard.tsx`**
+- Add optional `colors?: string[]` prop
+- Import `getColorHex` from `@/lib/colorUtils`
+- Render a row of large circular swatches (w-8 h-8 on desktop, w-6 h-6 on mobile) below the price, with a white border ring
+- Show up to 5 swatches, then "+N" text if more
 
 ```tsx
-{product.colors && product.colors.length > 0 && (
-  <div className="flex items-center gap-1 mt-1">
-    {product.colors.slice(0, 5).map((color) => (
+{colors && colors.length > 0 && (
+  <div className="flex items-center gap-2 pt-1">
+    {colors.slice(0, 5).map((color) => (
       <span
         key={color}
         title={color}
-        className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-sm"
+        className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-border shadow-md inline-block flex-shrink-0"
         style={{ background: getColorHex(color) }}
       />
     ))}
-    {product.colors.length > 5 && (
-      <span className="text-[10px] text-gray-500">+{product.colors.length - 5}</span>
+    {colors.length > 5 && (
+      <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
+        +{colors.length - 5}
+      </span>
     )}
   </div>
 )}
 ```
 
-This renders dots right under the product name in the table row.
+**2. `src/pages/CategoryPage.tsx`**
+- Pass `colors={product.colors || []}` to `<ProductCard />`
 
----
+**3. `src/pages/BrandDetailPage.tsx`**
+- Pass `colors={product.colors || []}` to `<ProductCard />`
 
-#### Step 3 — Live Swatch Preview in Quick Edit Dialog Colors Field
-
-**File:** `src/pages/admin/AdminProducts.tsx` (around line 1082)
-
-After the colors Input, add a live preview that parses the current `formData.colors` string into swatches:
+**4. `src/pages/ProductDetailPage.tsx`**
+- Replace the current text pill color selector (lines 342–351) with large circular swatches matching the reference image
+- Selected color gets a primary-colored ring (`ring-2 ring-primary ring-offset-2`)
+- Show color name label next to the selector header
 
 ```tsx
-{/* Colors */}
-<div className="space-y-2">
-  <Label htmlFor="colors">Colors</Label>
-  <Input
-    id="colors"
-    value={formData.colors}
-    onChange={(e) => handleInputChange('colors', e.target.value)}
-    placeholder="Black, Red, Blue (comma separated)"
-  />
-  <p className="text-xs text-muted-foreground">Enter colors separated by commas</p>
-  {/* Live swatch preview */}
-  {formData.colors.trim() && (
-    <div className="flex flex-wrap gap-2 pt-1">
-      {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
-        <div key={color} className="flex items-center gap-1.5">
-          <span
-            title={color}
-            className="w-5 h-5 rounded-full border border-gray-300 shadow-sm inline-block"
-            style={{ background: getColorHex(color) }}
-          />
-          <span className="text-xs text-gray-600">{color}</span>
-        </div>
+{colors.length > 0 && (
+  <div>
+    <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
+      Color <span className="font-normal text-muted-foreground capitalize">— {selectedColor || colors[0]}</span>
+    </p>
+    <div className="flex flex-wrap gap-3">
+      {colors.map(color => (
+        <button
+          key={color}
+          onClick={() => setSelectedColor(color)}
+          title={color}
+          className={`w-10 h-10 rounded-full border-2 transition-all shadow-md ${
+            (selectedColor || colors[0]) === color
+              ? "border-primary ring-2 ring-primary ring-offset-2 scale-110"
+              : "border-border hover:border-primary hover:scale-105"
+          }`}
+          style={{ background: getColorHex(color) }}
+        />
       ))}
     </div>
-  )}
-</div>
-```
-
----
-
-#### Step 4 — Live Swatch Preview in Add Product Form Colors Field
-
-**File:** `src/pages/admin/AdminAddProduct.tsx` (around line 556)
-
-Same swatch preview after the colors Input inside the `{'colors' in config.fields}` block:
-
-```tsx
-{'colors' in config.fields && (
-  <div className="space-y-2">
-    <Label htmlFor="colors">{config.fields.colors.label}</Label>
-    <Input
-      id="colors"
-      value={colors}
-      onChange={(e) => setColors(e.target.value)}
-      placeholder={config.fields.colors.placeholder}
-      disabled={isLoading}
-    />
-    <p className="text-xs text-muted-foreground">Separate colors with commas</p>
-    {/* Live swatch preview */}
-    {colors.trim() && (
-      <div className="flex flex-wrap gap-2 pt-1">
-        {colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
-          <div key={color} className="flex items-center gap-1.5">
-            <span
-              title={color}
-              className="w-5 h-5 rounded-full border border-gray-300 shadow-sm inline-block"
-              style={{ background: getColorHex(color) }}
-            />
-            <span className="text-xs text-gray-600">{color}</span>
-          </div>
-        ))}
-      </div>
-    )}
   </div>
 )}
 ```
 
----
+**5. `src/pages/SalePage.tsx`** (uses local Product data, not Supabase)
+- The SalePage renders its own inline product cards, not `<ProductCard />` — check if colors field exists in local data and add swatches in the card layout if applicable
 
-### Files to Create / Modify
-
-| File | Change |
-|---|---|
-| `src/lib/colorUtils.ts` | New file — color name → hex mapping utility |
-| `src/pages/admin/AdminProducts.tsx` | Add swatches in table rows + live preview in colors input |
-| `src/pages/admin/AdminAddProduct.tsx` | Add live swatch preview in colors input |
-
----
-
-### Visual Result
-
-- In the **products table**: each row with colors shows tiny colored dots under the product name (e.g., 3-5 dots for Black, Red, Blue)
-- In the **form inputs**: as the admin types `Black, Red, Blue`, colored dots appear instantly below as a live preview with color name labels
-- The swatch style matches the reference image: round dots with a border, with the color name label beside each dot
+### Visual result
+- Product cards on Category, Brand, and Sale pages: large colored circles under the price
+- Product Detail page: large circular swatches replace text buttons, with a ring highlight when selected
+- Consistent with the reference image showing ~40px circular dots with visible borders
