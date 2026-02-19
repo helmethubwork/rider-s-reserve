@@ -965,10 +965,27 @@ const AdminProducts = () => {
                           return (
                             <div key={`storage-${index}`} className="flex flex-col gap-1">
                               {/* Sequence label */}
-                              <div className="flex items-center justify-between px-0.5">
-                                <span className="text-[11px] font-bold text-foreground bg-primary/10 border border-primary/20 rounded px-1.5 py-0.5">
-                                  #{index + 1}
-                                </span>
+                              <div className="flex items-center justify-between px-0.5 gap-1">
+                                {/* Clickable position selector */}
+                                <select
+                                  value={index}
+                                  onChange={(e) => {
+                                    const target = parseInt(e.target.value);
+                                    if (target === index) return;
+                                    setExistingStorageImages(prev => {
+                                      const next = [...prev];
+                                      const [item] = next.splice(index, 1);
+                                      next.splice(target, 0, item);
+                                      return next;
+                                    });
+                                  }}
+                                  className="text-[11px] font-bold bg-primary/10 border border-primary/20 text-foreground rounded px-1 py-0.5 cursor-pointer hover:bg-primary/20 transition-colors text-center w-10"
+                                  title="Click to change position"
+                                >
+                                  {existingStorageImages.map((_, i) => (
+                                    <option key={i} value={i}>#{i + 1}</option>
+                                  ))}
+                                </select>
                                 <div className="flex gap-0.5">
                                   <button
                                     type="button"
