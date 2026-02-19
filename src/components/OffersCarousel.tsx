@@ -76,6 +76,7 @@ const OffersCarousel = ({ title = "UNBELIEVABLE OFFERS!" }: OffersCarouselProps)
                 image={product.image_url || '/placeholder.svg'}
                 badge={product.sale_badge as "Sale" | "Clearance Sale" | "Summer Special" | undefined}
                 isSoldOut={product.stock === 0}
+                colors={product.colors || []}
               />
             </div>
           ))}
