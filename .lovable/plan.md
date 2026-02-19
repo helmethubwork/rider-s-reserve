@@ -1,80 +1,57 @@
 
-## Show Color Swatches Like the Reference Image
+## Dual-Tone Split Color Swatches
 
-### What the reference image shows
-- Large circular color swatches (~40px diameter) displayed below the price on each product card
-- Each circle has a visible border ring
-- Swatches represent each available color variant
-- On the Product Detail page, the current text pill buttons ("Black", "Red") should become the same large circular swatches with a ring highlight when selected
+### What the user wants
+Each color swatch circle should show two colors split diagonally (top-left half one color, bottom-right half another), matching the reference image where helmets like "Black/Red" or "Blue/Black" show as a split circle.
 
-### Files to change
+### How split colors work
+Colors in the database can be stored as:
+- Single: `"Black"` → solid circle
+- Dual-tone: `"Black/Red"` or `"Black Red"` → split circle, half black / half red
 
-**1. `src/components/ProductCard.tsx`**
-- Add optional `colors?: string[]` prop
-- Import `getColorHex` from `@/lib/colorUtils`
-- Render a row of large circular swatches (w-8 h-8 on desktop, w-6 h-6 on mobile) below the price, with a white border ring
-- Show up to 5 swatches, then "+N" text if more
-
-```tsx
-{colors && colors.length > 0 && (
-  <div className="flex items-center gap-2 pt-1">
-    {colors.slice(0, 5).map((color) => (
-      <span
-        key={color}
-        title={color}
-        className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-border shadow-md inline-block flex-shrink-0"
-        style={{ background: getColorHex(color) }}
-      />
-    ))}
-    {colors.length > 5 && (
-      <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
-        +{colors.length - 5}
-      </span>
-    )}
-  </div>
-)}
+The split effect is achieved with CSS `linear-gradient`:
+```css
+background: linear-gradient(135deg, #1a1a1a 50%, #dc2626 50%)
 ```
 
-**2. `src/pages/CategoryPage.tsx`**
-- Pass `colors={product.colors || []}` to `<ProductCard />`
+### New utility function in `src/lib/colorUtils.ts`
+Add a `getSwatchBackground` function that:
+1. Splits the color name by `/` or detects multi-word patterns
+2. If two colors found → returns `linear-gradient(135deg, color1 50%, color2 50%)`
+3. If one color → returns just the hex value (solid circle)
 
-**3. `src/pages/BrandDetailPage.tsx`**
-- Pass `colors={product.colors || []}` to `<ProductCard />`
-
-**4. `src/pages/ProductDetailPage.tsx`**
-- Replace the current text pill color selector (lines 342–351) with large circular swatches matching the reference image
-- Selected color gets a primary-colored ring (`ring-2 ring-primary ring-offset-2`)
-- Show color name label next to the selector header
-
-```tsx
-{colors.length > 0 && (
-  <div>
-    <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
-      Color <span className="font-normal text-muted-foreground capitalize">— {selectedColor || colors[0]}</span>
-    </p>
-    <div className="flex flex-wrap gap-3">
-      {colors.map(color => (
-        <button
-          key={color}
-          onClick={() => setSelectedColor(color)}
-          title={color}
-          className={`w-10 h-10 rounded-full border-2 transition-all shadow-md ${
-            (selectedColor || colors[0]) === color
-              ? "border-primary ring-2 ring-primary ring-offset-2 scale-110"
-              : "border-border hover:border-primary hover:scale-105"
-          }`}
-          style={{ background: getColorHex(color) }}
-        />
-      ))}
-    </div>
-  </div>
-)}
+```ts
+export const getSwatchBackground = (name: string): string => {
+  const parts = name.split('/').map(p => p.trim()).filter(Boolean);
+  if (parts.length === 2) {
+    const c1 = getColorHex(parts[0]);
+    const c2 = getColorHex(parts[1]);
+    return `linear-gradient(135deg, ${c1} 50%, ${c2} 50%)`;
+  }
+  return getColorHex(name);
+};
 ```
 
-**5. `src/pages/SalePage.tsx`** (uses local Product data, not Supabase)
-- The SalePage renders its own inline product cards, not `<ProductCard />` — check if colors field exists in local data and add swatches in the card layout if applicable
+### Files to modify
+
+**1. `src/lib/colorUtils.ts`**
+- Add `getSwatchBackground(name)` function alongside existing `getColorHex`
+
+**2. `src/components/ProductCard.tsx`**
+- Import `getSwatchBackground` instead of `getColorHex`
+- Change `style={{ background: getColorHex(color) }}` → `style={{ background: getSwatchBackground(color) }}`
+
+**3. `src/pages/ProductDetailPage.tsx`** (Color Selector section ~line 342)
+- Same swap: use `getSwatchBackground(color)` for the selector buttons
+
+**4. `src/pages/SalePage.tsx`**
+- Same swap in the inline card color swatch rendering
 
 ### Visual result
-- Product cards on Category, Brand, and Sale pages: large colored circles under the price
-- Product Detail page: large circular swatches replace text buttons, with a ring highlight when selected
-- Consistent with the reference image showing ~40px circular dots with visible borders
+- A color stored as `"Black"` → solid black circle
+- A color stored as `"Black/Red"` → circle with black on top-left, red on bottom-right (diagonal split)
+- A color stored as `"Blue/Yellow"` → circle split blue and yellow
+- Matches exactly the reference image style
+
+### No data changes needed
+The color naming format `"Black/Red"` is a natural way to name dual-tone colors. Admins just need to enter colors as `"Black/Red"` in the admin panel — no database schema changes required.
