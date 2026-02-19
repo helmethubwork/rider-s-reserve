@@ -1,6 +1,6 @@
 import { Eye, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getColorHex } from "@/lib/colorUtils";
+import { getSwatchBackground } from "@/lib/colorUtils";
 
 interface ProductCardProps {
   id: string;
@@ -110,7 +110,7 @@ const ProductCard = ({
                   key={color}
                   title={color}
                   className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md"
-                  style={{ background: getColorHex(color) }}
+                  style={{ background: getSwatchBackground(color) }}
                 />
               ))}
               {colors.length > 5 && (

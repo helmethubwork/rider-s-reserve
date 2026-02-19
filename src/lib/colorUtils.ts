@@ -34,3 +34,13 @@ export const COLOR_MAP: Record<string, string> = {
 
 export const getColorHex = (name: string): string =>
   COLOR_MAP[name.toLowerCase().trim()] ?? name.trim();
+
+export const getSwatchBackground = (name: string): string => {
+  const parts = name.split("/").map((p) => p.trim()).filter(Boolean);
+  if (parts.length === 2) {
+    const c1 = getColorHex(parts[0]);
+    const c2 = getColorHex(parts[1]);
+    return `linear-gradient(135deg, ${c1} 50%, ${c2} 50%)`;
+  }
+  return getColorHex(name);
+};
