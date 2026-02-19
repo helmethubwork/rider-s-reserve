@@ -33,4 +33,4 @@ export const COLOR_MAP: Record<string, string> = {
 };
 
 export const getColorHex = (name: string): string =>
-  COLOR_MAP[name.toLowerCase().trim()] ?? "#9ca3af";
+  COLOR_MAP[name.toLowerCase().trim()] ?? name.trim();
