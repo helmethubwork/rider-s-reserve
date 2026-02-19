@@ -716,7 +716,7 @@ const AdminProducts = () => {
 
         {/* Quick Add Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white text-gray-900 [&_label]:text-gray-700 [&_.text-muted-foreground]:text-gray-500">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">
                 {editingProduct ? 'Edit Product' : 'Quick Add Product'}
@@ -1091,15 +1091,15 @@ const AdminProducts = () => {
                 />
                 <p className="text-xs text-muted-foreground">Enter colors separated by commas</p>
                 {formData.colors.trim() && (
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-3 pt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
-                      <div key={color} className="flex flex-col items-center gap-1">
+                      <div key={color} className="flex flex-col items-center gap-1.5">
                         <span
                           title={color}
-                          className="w-8 h-8 rounded-full border-2 border-border shadow-md inline-block"
+                          className="w-9 h-9 rounded-full border-2 border-gray-300 shadow-md inline-block"
                           style={{ background: getSwatchBackground(color) }}
                         />
-                        <span className="text-[10px] text-muted-foreground text-center max-w-[56px] leading-tight">{color}</span>
+                        <span className="text-[10px] font-medium text-gray-700 text-center max-w-[60px] leading-tight break-words">{color}</span>
                       </div>
                     ))}
                   </div>
