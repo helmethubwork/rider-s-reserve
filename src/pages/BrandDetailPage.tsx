@@ -176,6 +176,7 @@ const BrandDetailPage = () => {
                       price={product.price}
                       image={product.image_url || '/placeholder.svg'}
                       isSoldOut={product.stock === 0}
+                      colors={product.colors || []}
                     />
                   ))}
                 </div>

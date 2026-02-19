@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import { getColorHex } from "@/lib/colorUtils";
 const ProductDetailPage = () => {
   const {
     id
@@ -341,12 +342,10 @@ const ProductDetailPage = () => {
               {/* Color Selector */}
               {colors.length > 0 && <div>
                   <p className="text-sm font-medium tracking-wide uppercase mb-3 text-foreground">
-                    Color <span className="font-normal text-muted-foreground">— {selectedColor || colors[0]}</span>
+                    Color <span className="font-normal text-muted-foreground capitalize">— {selectedColor || colors[0]}</span>
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {colors.map(color => <button key={color} onClick={() => setSelectedColor(color)} className={`px-4 py-2 border-2 rounded-lg font-medium transition-all capitalize ${(selectedColor || colors[0]) === color ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary text-foreground"}`}>
-                        {color}
-                      </button>)}
+                  <div className="flex flex-wrap gap-3">
+                    {colors.map(color => <button key={color} onClick={() => setSelectedColor(color)} title={color} className={`w-10 h-10 rounded-full border-2 transition-all shadow-md ${(selectedColor || colors[0]) === color ? "border-primary ring-2 ring-primary ring-offset-2 scale-110" : "border-border hover:border-primary hover:scale-105"}`} style={{ background: getColorHex(color) }} />)}
                   </div>
                 </div>}
 
