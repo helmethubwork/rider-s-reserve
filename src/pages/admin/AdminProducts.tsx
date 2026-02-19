@@ -37,7 +37,7 @@ import { useBrands } from '@/hooks/useBrands';
 import { useCategories } from '@/hooks/useCategories';
 import { Plus, Pencil, Eye, EyeOff, Loader2, Star, Percent } from 'lucide-react';
 import { toast } from 'sonner';
-import { getColorHex } from '@/lib/colorUtils';
+import { getSwatchBackground } from '@/lib/colorUtils';
 
 // Extended product type with joined relations
 interface ProductWithRelations extends Omit<SupabaseProduct, 'category'> {
@@ -1093,13 +1093,13 @@ const AdminProducts = () => {
                 {formData.colors.trim() && (
                   <div className="flex flex-wrap gap-2 pt-1">
                     {formData.colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
-                      <div key={color} className="flex items-center gap-1.5">
+                      <div key={color} className="flex flex-col items-center gap-1">
                         <span
                           title={color}
-                          className="w-5 h-5 rounded-full border border-gray-300 shadow-sm inline-block"
-                          style={{ background: getColorHex(color) }}
+                          className="w-8 h-8 rounded-full border-2 border-border shadow-md inline-block"
+                          style={{ background: getSwatchBackground(color) }}
                         />
-                        <span className="text-xs text-gray-600">{color}</span>
+                        <span className="text-[10px] text-muted-foreground text-center max-w-[56px] leading-tight">{color}</span>
                       </div>
                     ))}
                   </div>
@@ -1229,7 +1229,7 @@ const AdminProducts = () => {
                                     key={color}
                                     title={color}
                                     className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-sm"
-                                    style={{ background: getColorHex(color) }}
+                                    style={{ background: getSwatchBackground(color) }}
                                   />
                                 ))}
                                 {product.colors.length > 6 && (
