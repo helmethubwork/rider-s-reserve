@@ -587,6 +587,40 @@ const AdminProducts = () => {
     });
   };
 
+  // Move a new (pending upload) image in the sequence
+  const moveNewImage = (index: number, direction: 'left' | 'right') => {
+    const swapIndex = direction === 'left' ? index - 1 : index + 1;
+    setImageFiles(prev => {
+      const next = [...prev];
+      if (swapIndex < 0 || swapIndex >= next.length) return prev;
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+      return next;
+    });
+    setImagePreviews(prev => {
+      const next = [...prev];
+      if (swapIndex < 0 || swapIndex >= next.length) return prev;
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+      return next;
+    });
+  };
+
+  // Jump a new image to a specific position
+  const jumpNewImage = (from: number, to: number) => {
+    if (from === to) return;
+    setImageFiles(prev => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+    setImagePreviews(prev => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  };
+
   // Open add dialog
   const handleAdd = () => {
     setEditingProduct(null);
@@ -1066,22 +1100,58 @@ const AdminProducts = () => {
                     <p className="text-xs text-muted-foreground font-medium">New Images to Upload</p>
                     <div className="grid grid-cols-3 gap-2">
                       {imagePreviews.map((preview, index) => (
-                        <div key={`new-${index}`} className="relative aspect-square bg-secondary rounded-lg overflow-hidden group border-2 border-dashed border-green-400">
-                          <img
-                            src={preview}
-                            alt={`New ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <span className="absolute top-1 left-1 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-bold">
-                            New
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X size={12} />
-                          </button>
+                        <div key={`new-${index}`} className="flex flex-col gap-1">
+                          {/* Sequence controls */}
+                          <div className="flex items-center justify-between px-0.5 gap-1">
+                            <select
+                              value={index}
+                              onChange={(e) => jumpNewImage(index, parseInt(e.target.value))}
+                              className="text-[11px] font-bold bg-primary/10 border border-primary/20 text-foreground rounded px-1 py-0.5 cursor-pointer hover:bg-primary/20 transition-colors text-center w-10"
+                              title="Click to change position"
+                            >
+                              {imagePreviews.map((_, i) => (
+                                <option key={i} value={i}>#{i + 1}</option>
+                              ))}
+                            </select>
+                            <div className="flex gap-0.5">
+                              <button
+                                type="button"
+                                onClick={() => moveNewImage(index, 'left')}
+                                disabled={index === 0}
+                                className="p-0.5 rounded hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                title="Move earlier"
+                              >
+                                <ChevronLeft size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveNewImage(index, 'right')}
+                                disabled={index === imagePreviews.length - 1}
+                                className="p-0.5 rounded hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                title="Move later"
+                              >
+                                <ChevronRight size={14} />
+                              </button>
+                            </div>
+                          </div>
+                          {/* Image tile */}
+                          <div className="relative aspect-square bg-secondary rounded-lg overflow-hidden group border-2 border-dashed border-green-400">
+                            <img
+                              src={preview}
+                              alt={`New ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <span className="absolute top-1 left-1 text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded font-bold">
+                              New
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1 right-1 p-1 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
