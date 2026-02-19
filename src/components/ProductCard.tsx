@@ -104,12 +104,12 @@ const ProductCard = ({
 
           {/* Color Swatches */}
           {colors.length > 0 && (
-            <div className="flex items-center gap-1.5 pt-1">
+            <div className="flex items-center gap-2 pt-1">
               {colors.slice(0, 5).map((color) => (
                 <span
                   key={color}
                   title={color}
-                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-border shadow-sm flex-shrink-0 inline-block"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md"
                   style={{ background: getColorHex(color) }}
                 />
               ))}
