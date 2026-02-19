@@ -32,15 +32,49 @@ export const COLOR_MAP: Record<string, string> = {
   "matte gray": "#6b7280",
 };
 
+const COLOR_KEYWORDS = [
+  "black", "white", "red", "blue", "green", "yellow",
+  "orange", "purple", "pink", "grey", "gray", "silver",
+  "gold", "brown", "navy", "teal", "cyan", "maroon",
+];
+
 export const getColorHex = (name: string): string =>
-  COLOR_MAP[name.toLowerCase().trim()] ?? name.trim();
+  COLOR_MAP[name.toLowerCase().trim()] ?? "#6b7280";
+
+function extractColorKeywords(name: string): string[] {
+  const lower = name.toLowerCase();
+  // Strip numeric suffixes and special chars
+  const cleaned = lower.replace(/[-_]?\d+/g, "").trim();
+  return COLOR_KEYWORDS.filter((k) => cleaned.includes(k));
+}
 
 export const getSwatchBackground = (name: string): string => {
-  const parts = name.split("/").map((p) => p.trim()).filter(Boolean);
-  if (parts.length === 2) {
-    const c1 = getColorHex(parts[0]);
-    const c2 = getColorHex(parts[1]);
+  const lower = name.toLowerCase().trim();
+
+  // 1. Exact match in COLOR_MAP (handles solids like "Matt Black")
+  if (COLOR_MAP[lower]) return COLOR_MAP[lower];
+
+  // 2. Split by "/" → dual-tone gradient
+  if (name.includes("/")) {
+    const parts = name.split("/").map((p) => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      const c1 = COLOR_MAP[parts[0].toLowerCase()] ?? "#6b7280";
+      const c2 = COLOR_MAP[parts[1].toLowerCase()] ?? "#6b7280";
+      return `linear-gradient(135deg, ${c1} 50%, ${c2} 50%)`;
+    }
+  }
+
+  // 3. Extract color keywords from the string
+  const found = extractColorKeywords(lower);
+  if (found.length >= 2) {
+    const c1 = COLOR_MAP[found[0]] ?? "#6b7280";
+    const c2 = COLOR_MAP[found[1]] ?? "#6b7280";
     return `linear-gradient(135deg, ${c1} 50%, ${c2} 50%)`;
   }
-  return getColorHex(name);
+  if (found.length === 1) {
+    return COLOR_MAP[found[0]] ?? "#6b7280";
+  }
+
+  // 4. Final fallback — never blank
+  return "#6b7280";
 };
