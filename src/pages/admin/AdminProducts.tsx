@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, X, ImageIcon, Filter, Image as ImageLucide, Search } from 'lucide-react';
+import { Upload, X, ImageIcon, Filter, Image as ImageLucide, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -576,6 +576,17 @@ const AdminProducts = () => {
     toast.success('Set as main image');
   };
 
+  // Move an existing storage image left or right in the sequence
+  const moveImage = (index: number, direction: 'left' | 'right') => {
+    setExistingStorageImages(prev => {
+      const next = [...prev];
+      const swapIndex = direction === 'left' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= next.length) return prev;
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+      return next;
+    });
+  };
+
   // Open add dialog
   const handleAdd = () => {
     setEditingProduct(null);
@@ -947,40 +958,68 @@ const AdminProducts = () => {
                 {/* Existing Storage Images */}
                 {!isLoadingImages && existingStorageImages.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground font-medium">Existing Images (click to set as main)</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {existingStorageImages.map((url, index) => {
-                        const isMain = url === formData.image_url;
-                        return (
-                          <div 
-                            key={`storage-${index}`} 
-                            className={`relative aspect-square rounded-lg overflow-hidden group cursor-pointer border-2 transition-all ${
-                              isMain ? 'border-yellow-500 ring-2 ring-yellow-200' : 'border-gray-200 hover:border-primary'
-                            }`}
-                            onClick={() => setAsMainImage(url)}
-                          >
-                            <img
-                              src={url}
-                              alt={`Product ${index + 1}`}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = "/placeholder.svg";
-                              }}
-                            />
-                            {isMain && (
-                              <span className="absolute top-1 left-1 text-[10px] bg-yellow-500 text-white px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
-                                <Star size={10} className="fill-white" /> Main
-                              </span>
-                            )}
-                            {!isMain && (
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="text-white text-xs font-medium">Set as Main</span>
+                    <p className="text-xs text-muted-foreground font-medium">Existing Images — use arrows to reorder sequence, click to set as main</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {existingStorageImages.map((url, index) => {
+                          const isMain = url === formData.image_url;
+                          return (
+                            <div key={`storage-${index}`} className="flex flex-col gap-1">
+                              {/* Sequence label */}
+                              <div className="flex items-center justify-between px-0.5">
+                                <span className="text-[11px] font-bold text-foreground bg-primary/10 border border-primary/20 rounded px-1.5 py-0.5">
+                                  #{index + 1}
+                                </span>
+                                <div className="flex gap-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => moveImage(index, 'left')}
+                                    disabled={index === 0}
+                                    className="p-0.5 rounded hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                    title="Move earlier"
+                                  >
+                                    <ChevronLeft size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => moveImage(index, 'right')}
+                                    disabled={index === existingStorageImages.length - 1}
+                                    className="p-0.5 rounded hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                    title="Move later"
+                                  >
+                                    <ChevronRight size={14} />
+                                  </button>
+                                </div>
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                              {/* Image tile */}
+                              <div 
+                                className={`relative aspect-square rounded-lg overflow-hidden group cursor-pointer border-2 transition-all ${
+                                  isMain ? 'border-yellow-500 ring-2 ring-yellow-200' : 'border-gray-200 hover:border-primary'
+                                }`}
+                                onClick={() => setAsMainImage(url)}
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Product ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/placeholder.svg";
+                                  }}
+                                />
+                                {isMain && (
+                                  <span className="absolute top-1 left-1 text-[10px] bg-yellow-500 text-white px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+                                    <Star size={10} className="fill-white" /> Main
+                                  </span>
+                                )}
+                                {!isMain && (
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span className="text-white text-xs font-medium">Set as Main</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                   </div>
                 )}
 
