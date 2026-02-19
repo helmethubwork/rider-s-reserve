@@ -26,7 +26,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { SupabaseCategory } from '@/hooks/useCategories';
-import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -209,6 +209,20 @@ const AdminAddProduct = () => {
   const clearAllImages = () => {
     setImageFiles([]);
     setImagePreviews([]);
+  };
+
+  const moveImage = (index: number, direction: 'left' | 'right') => {
+    const swapIndex = direction === 'left' ? index - 1 : index + 1;
+    setImageFiles(prev => {
+      const next = [...prev];
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+      return next;
+    });
+    setImagePreviews(prev => {
+      const next = [...prev];
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+      return next;
+    });
   };
 
   // Handle form submission
@@ -603,24 +617,53 @@ const AdminAddProduct = () => {
               {imagePreviews.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-3">
                   {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative w-24 h-24">
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover rounded-lg border border-border"
-                      />
-                      {index === 0 && (
-                        <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded">
-                          Main
+                    <div key={index} className="flex flex-col gap-1 items-center">
+                      {/* Sequence controls */}
+                      <div className="flex items-center justify-between w-full px-0.5">
+                        <span className="text-[11px] font-bold bg-primary/10 border border-primary/20 text-foreground rounded px-1.5 py-0.5">
+                          #{index + 1}
                         </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
-                      >
-                        <X size={14} />
-                      </button>
+                        <div className="flex gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => moveImage(index, 'left')}
+                            disabled={index === 0}
+                            className="p-0.5 rounded hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Move earlier"
+                          >
+                            <ChevronLeft size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveImage(index, 'right')}
+                            disabled={index === imagePreviews.length - 1}
+                            className="p-0.5 rounded hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Move later"
+                          >
+                            <ChevronRight size={14} />
+                          </button>
+                        </div>
+                      </div>
+                      {/* Image tile */}
+                      <div className="relative w-24 h-24">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg border border-border"
+                        />
+                        {index === 0 && (
+                          <span className="absolute top-1 left-1 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded">
+                            Main
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
