@@ -21,6 +21,7 @@ export interface Product {
   stock: number;
   isPreorder: boolean;
   isSoldOut: boolean;
+  colors?: string[];
 }
 
 export const products: Product[] = [
