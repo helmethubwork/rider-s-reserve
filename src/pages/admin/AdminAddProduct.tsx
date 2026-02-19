@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { getColorHex } from '@/lib/colorUtils';
 import {
   Select,
   SelectContent,
@@ -564,6 +565,20 @@ const AdminAddProduct = () => {
                   disabled={isLoading}
                 />
                 <p className="text-xs text-muted-foreground">Separate colors with commas</p>
+                {colors.trim() && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {colors.split(',').map(c => c.trim()).filter(Boolean).map((color) => (
+                      <div key={color} className="flex items-center gap-1.5">
+                        <span
+                          title={color}
+                          className="w-5 h-5 rounded-full border border-gray-300 shadow-sm inline-block"
+                          style={{ background: getColorHex(color) }}
+                        />
+                        <span className="text-xs text-gray-600">{color}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
