@@ -25,10 +25,18 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const [displayImage, setDisplayImage] = useState(image);
 
+  // Extract file extension from the main image URL (e.g. .jpg, .png, .webp)
+  const getImageExt = () => {
+    try {
+      const pathname = new URL(image, window.location.origin).pathname;
+      return pathname.split('.').pop() || 'jpg';
+    } catch { return 'jpg'; }
+  };
+
   const getColorImageUrl = (colorIndex: number) => {
     const { data } = supabase.storage
       .from("product-images")
-      .getPublicUrl(`products/${id}-${colorIndex}.jpg`);
+      .getPublicUrl(`products/${id}-${colorIndex}.${getImageExt()}`);
     return data.publicUrl;
   };
 
