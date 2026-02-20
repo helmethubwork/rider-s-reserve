@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Eye, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getSwatchBackground } from "@/lib/colorUtils";
+import { supabase } from "@/lib/supabase";
 
 interface ProductCardProps {
   id: string;
@@ -21,6 +23,15 @@ const ProductCard = ({
   isSoldOut = false,
   colors = [],
 }: ProductCardProps) => {
+  const [displayImage, setDisplayImage] = useState(image);
+
+  const getColorImageUrl = (colorIndex: number) => {
+    const { data } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(`products/${id}-${colorIndex}.jpg`);
+    return data.publicUrl;
+  };
+
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -70,12 +81,16 @@ const ProductCard = ({
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden bg-secondary/30">
         <img
-          src={image}
+          src={displayImage}
           alt={name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder.svg";
+            if (e.currentTarget.src !== image) {
+              e.currentTarget.src = image;
+            } else {
+              e.currentTarget.src = "/placeholder.svg";
+            }
           }}
         />
 
@@ -105,12 +120,19 @@ const ProductCard = ({
           {/* Color Swatches */}
           {colors.length > 0 && (
             <div className="flex items-center gap-2 pt-1">
-              {colors.slice(0, 5).map((color) => (
+              {colors.slice(0, 5).map((color, colorIndex) => (
                 <span
                   key={color}
                   title={color}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md cursor-pointer transition-transform hover:scale-110"
                   style={{ background: getSwatchBackground(color) }}
+                  onMouseEnter={() => setDisplayImage(getColorImageUrl(colorIndex))}
+                  onMouseLeave={() => setDisplayImage(image)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDisplayImage(getColorImageUrl(colorIndex));
+                  }}
                 />
               ))}
               {colors.length > 5 && (
