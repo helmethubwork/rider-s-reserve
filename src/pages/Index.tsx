@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import SEOHead from "@/components/SEOHead";
 import HeroSlider from "@/components/HeroSlider";
 import CategoryGrid from "@/components/CategoryGrid";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -23,6 +24,7 @@ const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
 const Index = () => {
   return (
     <div className="min-h-screen bg-background page-transition">
+      <SEOHead path="/" />
       <MaintenanceBanner />
       <Header />
       

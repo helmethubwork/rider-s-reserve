@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,11 @@ const CategoryPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={category.name}
+        description={`Shop ${category.name} at Helmet Hub Hyderabad. Browse premium motorcycle ${category.name.toLowerCase()} from top brands.`}
+        path={`/category/${slug}`}
+      />
       <Header />
       
       {/* Back Button */}
