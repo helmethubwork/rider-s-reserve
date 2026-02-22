@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 
 // Static fallback content
 const STATIC_CONTENT = `
-<p>Each product/brand has a specific warranty policy which can be found under the "Warranty" section on that specific product page at helmethub.com.</p>
+<p>Each product/brand has a specific warranty policy which can be found under the "Warranty" section on that specific product page at <a href="https://www.helmethub.in" target="_blank" rel="noopener noreferrer">www.helmethub.in</a>.</p>
 
 <h2>Warranty Terms & Conditions: General</h2>
 
 <ul>
-  <li>Each brand has a specific warranty duration, found under the "Warranty" section on the product page at helmethub.com.</li>
-  <li>Warranty applies only to products bought at full MRP from Helmet Hub exclusive stores, authorized dealers, or helmethub.com.</li>
+  <li>Each brand has a specific warranty duration, found under the "Warranty" section on the product page at <a href="https://www.helmethub.in" target="_blank" rel="noopener noreferrer">www.helmethub.in</a>.</li>
+  <li>Warranty applies only to products bought at full MRP from Helmet Hub exclusive stores, authorized dealers, or <a href="https://www.helmethub.in" target="_blank" rel="noopener noreferrer">www.helmethub.in</a>.</li>
   <li>Products purchased under discounts or offers are not covered under warranty.</li>
   <li>Accessories are not covered under warranty.</li>
   <li>The warranty covers manufacturing defects only. Any issue or damage due to wear and tear, misuse, alterations, damage from use, etc are not covered under warranty.</li>

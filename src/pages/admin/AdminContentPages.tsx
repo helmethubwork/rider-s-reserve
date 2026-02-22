@@ -28,6 +28,14 @@ const DEFAULT_PAGES = [
 </ul>
 
 <h2>Tracking Your Order</h2>
+<h2>Delivery Charges</h2>
+<ul>
+  <li>Free delivery on eligible orders (if applicable)</li>
+  <li>Standard shipping charges may apply depending on location</li>
+  <li>Final delivery charges are shown at checkout before payment confirmation</li>
+</ul>
+
+<h2>Tracking Your Order</h2>
 <p>Once your order is shipped, you will receive a tracking number via email and SMS. You can use this tracking number to monitor the status of your delivery on our Track Orders page.</p>`,
     meta_description: "Helmet Hub shipping policy - delivery timelines, tracking information, and shipping terms.",
   },
@@ -49,7 +57,7 @@ const DEFAULT_PAGES = [
 <p>*The store credit for the shipping cost will be issued after the exchanged item is shipped. It is the customer's responsibility to send the shipping invoice to us within 7 days of the exchange to get the store credit. Store credit will not be issued if we do not get the shipping invoice within 7 days of the exchange.</p>
 
 <h2>Returns & Refund Policy:</h2>
-<p>Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.</p>
+<p>Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be issued as store credit according to our policy. Refund timelines depend on approval and processing conditions. The store credit will be valid for 30 days only.</p>
 
 <h2>Cancellation Policy:</h2>
 <p>We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.</p>`,
@@ -58,12 +66,12 @@ const DEFAULT_PAGES = [
   {
     slug: "warranty-policy",
     title: "Warranty Policy",
-    content: `<p>Each product/brand has a specific warranty policy which can be found under the "Warranty" section on that specific product page at helmethub.com.</p>
+    content: `<p>Each product/brand has a specific warranty policy which can be found under the "Warranty" section on that specific product page at <a href="https://www.helmethub.in">www.helmethub.in</a>.</p>
 
 <h2>Warranty Terms & Conditions: General</h2>
 <ul>
-  <li>Each brand has a specific warranty duration, found under the "Warranty" section on the product page at helmethub.com.</li>
-  <li>Warranty applies only to products bought at full MRP from Helmet Hub exclusive stores, authorized dealers, or helmethub.com.</li>
+  <li>Each brand has a specific warranty duration, found under the "Warranty" section on the product page at <a href="https://www.helmethub.in">www.helmethub.in</a>.</li>
+  <li>Warranty applies only to products bought at full MRP from Helmet Hub exclusive stores, authorized dealers, or <a href="https://www.helmethub.in">www.helmethub.in</a>.</li>
   <li>Products purchased under discounts or offers are not covered under warranty.</li>
   <li>Accessories are not covered under warranty.</li>
   <li>The warranty covers manufacturing defects only. Any issue or damage due to wear and tear, misuse, alterations, damage from use, etc are not covered under warranty.</li>

@@ -24,7 +24,7 @@ const Footer = () => {
   // Contact settings with fallbacks
   const primaryPhone = getSettingValue(contactSettings, 'primary_phone', '+91 7842646888');
   const secondaryPhone = getSettingValue(contactSettings, 'secondary_phone', '+91 9063880550');
-  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.com');
+  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.in');
   const storeAddress = getSettingValue(contactSettings, 'store_address', 'HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Gachibowli, Hyd-500033');
   const storeMapUrl = getSettingValue(contactSettings, 'store_map_url', 'https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6');
 
@@ -175,6 +175,9 @@ const Footer = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
             <p className="text-muted-foreground text-[10px] sm:text-xs text-center sm:text-left">
               © 2024 Helmet Hub. All rights reserved.
+            </p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs text-center sm:text-right flex items-center gap-1">
+              🔒 Secure Payments powered by Cashfree
             </p>
           </div>
         </div>
