@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { blogPosts as staticBlogPosts } from "@/data/blogPosts";
@@ -111,6 +112,13 @@ const BlogPostPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <SEOHead
+        title={post.title}
+        description={post.excerpt?.slice(0, 155) || `Read "${post.title}" on the Helmet Hub blog.`}
+        ogImage={post.image || undefined}
+        path={`/blog/${slug}`}
+        type="article"
+      />
       <Header />
       
       <main className="flex-1 pt-0 pb-12">

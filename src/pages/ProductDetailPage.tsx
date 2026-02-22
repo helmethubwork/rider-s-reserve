@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { categories } from "@/data/products";
@@ -218,6 +219,13 @@ const ProductDetailPage = () => {
   const thumbnails = getAllImages();
     
   return <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title={product.name}
+        description={product.description?.slice(0, 155) || `Buy ${product.name} at Helmet Hub Hyderabad. Premium motorcycle gear with warranty.`}
+        ogImage={product.image_url || undefined}
+        path={`/product/${id}`}
+        type="product"
+      />
       <Header />
 
       <main className="flex-1 pb-12">
