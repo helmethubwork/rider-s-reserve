@@ -338,7 +338,7 @@ const AdminAddProduct = () => {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Add Product</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>
             <p className="text-muted-foreground text-sm">
               {step === 1 ? 'Select a category to get started' : `Adding ${config?.label}`}
             </p>
