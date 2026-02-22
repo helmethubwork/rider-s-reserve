@@ -6,8 +6,9 @@
  * Payment is set to pending - integration will be added later.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { trackBeginCheckout } from '@/lib/analytics';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,13 @@ const CheckoutPage = () => {
     phone: profile?.phone || '',
     address: '',
   });
+
+  // Track begin_checkout on mount
+  useEffect(() => {
+    if (items.length > 0) {
+      trackBeginCheckout(items, totalPrice);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 

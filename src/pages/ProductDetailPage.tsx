@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
+import { trackProductView, trackAddToCart } from "@/lib/analytics";
 import Footer from "@/components/layout/Footer";
 import { categories } from "@/data/products";
 import { useProduct } from "@/hooks/useProducts";
@@ -109,6 +110,13 @@ const ProductDetailPage = () => {
     fetchProductImages();
   }, [id]);
 
+  // Track product view
+  useEffect(() => {
+    if (product) {
+      trackProductView({ id: product.id, name: product.name, price: product.price, category: product.category });
+    }
+  }, [product]);
+
   // Loading state
   if (isLoading) {
     return (
@@ -183,6 +191,7 @@ const ProductDetailPage = () => {
         brand: product.category || ""
       });
     }
+    trackAddToCart({ id: product.id, name: product.name, price: product.price, quantity });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
