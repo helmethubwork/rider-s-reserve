@@ -164,7 +164,7 @@ const AdminNavigationLinks = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Navigation Links</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Navigation Links</h1>
             <p className="text-muted-foreground">
               Manage navigation links for Header, Footer, and Support page
             </p>

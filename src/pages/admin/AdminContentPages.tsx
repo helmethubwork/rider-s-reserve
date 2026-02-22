@@ -225,7 +225,7 @@ CREATE POLICY "Admins can manage content pages"
       <div className="space-y-6">
         <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Content Pages</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900">Content Pages</h2>
           <p className="text-muted-foreground">
             Manage policy and support page content
           </p>
