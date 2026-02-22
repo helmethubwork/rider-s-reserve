@@ -120,7 +120,7 @@ const ExchangeReturnsPage = () => {
   const title = dbContent?.title || "Exchange, Returns, Refund & Cancellation Policy";
   const policyContent = dbContent?.content || STATIC_POLICY_CONTENT;
 
-  return <div className="min-h-screen flex flex-col bg-background admin-theme">
+  return <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       {/* Back Button */}
@@ -139,7 +139,7 @@ const ExchangeReturnsPage = () => {
       <main className="flex-1 pt-4 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-6 uppercase">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-foreground tracking-wide mb-6 uppercase">
               {title}
             </h1>
             
@@ -149,13 +149,13 @@ const ExchangeReturnsPage = () => {
               </div>
             ) : (
               <div 
-                className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 mb-8 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-black [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ul]:text-gray-700"
+                className="prose prose-lg max-w-none text-foreground leading-relaxed space-y-6 mb-8 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ul]:text-muted-foreground [&_p]:text-muted-foreground"
                 dangerouslySetInnerHTML={{ __html: policyContent }}
               />
             )}
 
-            <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200">
-              <h2 className="text-xl md:text-2xl font-serif text-center text-navy-900 mb-6">
+            <div className="bg-card rounded-lg p-6 md:p-8 border border-border">
+              <h2 className="text-xl md:text-2xl font-serif text-center text-foreground mb-6">
                 Product Exchange Request Form
               </h2>
               
@@ -163,53 +163,53 @@ const ExchangeReturnsPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full Name */}
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-gray-700">
-                      Full Name <span className="text-red-500">*</span>
+                     <Label htmlFor="fullName" className="text-foreground">
+                      Full Name <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="fullName" value={formData.fullName} onChange={e => handleInputChange("fullName", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="fullName" value={formData.fullName} onChange={e => handleInputChange("fullName", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   {/* Email */}
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700">
-                      Email <span className="text-red-500">*</span>
+                    <Label htmlFor="email" className="text-foreground">
+                      Email <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 pl-10" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-secondary border-border text-foreground pl-10" />
                     </div>
                   </div>
 
                   {/* Phone */}
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-700">
-                      Phone Number <span className="text-red-500">*</span>
+                    <Label htmlFor="phone" className="text-foreground">
+                      Phone Number <span className="text-destructive">*</span>
                     </Label>
                     <div className="flex gap-2">
-                      <div className="flex items-center px-3 bg-white border border-gray-300 rounded-md">
-                        <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-gray-600 text-sm">+91</span>
+                      <div className="flex items-center px-3 bg-secondary border border-border rounded-md">
+                        <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+                        <span className="text-muted-foreground text-sm">+91</span>
                       </div>
-                      <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 flex-1" />
+                      <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} required className="bg-secondary border-border text-foreground flex-1" />
                     </div>
                   </div>
 
                   {/* Order Number */}
                   <div className="space-y-2">
-                    <Label htmlFor="orderNumber" className="text-gray-700">
-                      Order Number <span className="text-red-500">*</span>
+                    <Label htmlFor="orderNumber" className="text-foreground">
+                      Order Number <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="orderNumber" value={formData.orderNumber} onChange={e => handleInputChange("orderNumber", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="orderNumber" value={formData.orderNumber} onChange={e => handleInputChange("orderNumber", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   {/* Product Type */}
                   <div className="space-y-2">
-                    <Label className="text-gray-700">
-                      Product Type <span className="text-red-500">*</span>
+                    <Label className="text-foreground">
+                      Product Type <span className="text-destructive">*</span>
                     </Label>
                     <Select onValueChange={value => handleInputChange("productType", value)}>
-                      <SelectTrigger className="bg-white border-gray-300">
-                        <Package className="h-4 w-4 text-gray-400 mr-2" />
+                      <SelectTrigger className="bg-secondary border-border">
+                        <Package className="h-4 w-4 text-muted-foreground mr-2" />
                         <SelectValue placeholder="Please select" />
                       </SelectTrigger>
                       <SelectContent>
@@ -224,59 +224,59 @@ const ExchangeReturnsPage = () => {
 
                   {/* Original Product */}
                   <div className="space-y-2">
-                    <Label htmlFor="originalProduct" className="text-gray-700">
-                      Original Product Ordered <span className="text-red-500">*</span>
+                    <Label htmlFor="originalProduct" className="text-foreground">
+                      Original Product Ordered <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="originalProduct" value={formData.originalProduct} onChange={e => handleInputChange("originalProduct", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="originalProduct" value={formData.originalProduct} onChange={e => handleInputChange("originalProduct", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   {/* Product Color */}
                   <div className="space-y-2">
-                    <Label htmlFor="productColor" className="text-gray-700">
-                      Product Color <span className="text-red-500">*</span>
+                    <Label htmlFor="productColor" className="text-foreground">
+                      Product Color <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="productColor" value={formData.productColor} onChange={e => handleInputChange("productColor", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="productColor" value={formData.productColor} onChange={e => handleInputChange("productColor", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   {/* Size Ordered */}
                   <div className="space-y-2">
-                    <Label htmlFor="sizeOrdered" className="text-gray-700">
-                      Size Ordered <span className="text-red-500">*</span>
+                    <Label htmlFor="sizeOrdered" className="text-foreground">
+                      Size Ordered <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="sizeOrdered" value={formData.sizeOrdered} onChange={e => handleInputChange("sizeOrdered", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="sizeOrdered" value={formData.sizeOrdered} onChange={e => handleInputChange("sizeOrdered", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
                 </div>
 
                 {/* Size Needed */}
                 <div className="space-y-2">
-                  <Label htmlFor="sizeNeeded" className="text-gray-700">
-                    Size Needed in Exchange <span className="text-red-500">*</span>
+                  <Label htmlFor="sizeNeeded" className="text-foreground">
+                    Size Needed in Exchange <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="sizeNeeded" value={formData.sizeNeeded} onChange={e => handleInputChange("sizeNeeded", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                  <Input id="sizeNeeded" value={formData.sizeNeeded} onChange={e => handleInputChange("sizeNeeded", e.target.value)} required className="bg-secondary border-border text-foreground" />
                 </div>
 
                 {/* Alternate Products */}
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-gray-700">
-                      Alternate Product <span className="text-red-500">*</span>
+                    <Label className="text-foreground">
+                      Alternate Product <span className="text-destructive">*</span>
                     </Label>
-                    <p className="text-sm text-gray-500 mt-1 mb-3">
+                    <p className="text-sm text-muted-foreground mt-1 mb-3">
                       If the original product is not available in the required size, customers are requested to select another graphic or color from any other available product.
                     </p>
                   </div>
                   
-                  <Input placeholder="Option 1" value={formData.alternateProduct1} onChange={e => handleInputChange("alternateProduct1", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
-                  <Input placeholder="Option 2" value={formData.alternateProduct2} onChange={e => handleInputChange("alternateProduct2", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
-                  <Input placeholder="Option 3" value={formData.alternateProduct3} onChange={e => handleInputChange("alternateProduct3", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                  <Input placeholder="Option 1" value={formData.alternateProduct1} onChange={e => handleInputChange("alternateProduct1", e.target.value)} className="bg-secondary border-border text-foreground" />
+                  <Input placeholder="Option 2" value={formData.alternateProduct2} onChange={e => handleInputChange("alternateProduct2", e.target.value)} className="bg-secondary border-border text-foreground" />
+                  <Input placeholder="Option 3" value={formData.alternateProduct3} onChange={e => handleInputChange("alternateProduct3", e.target.value)} className="bg-secondary border-border text-foreground" />
                 </div>
 
                 {/* Invoice Upload */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700">Invoice</Label>
-                  <p className="text-sm text-gray-500">The max file size is 5 MB.</p>
+                  <Label className="text-foreground">Invoice</Label>
+                  <p className="text-sm text-muted-foreground">The max file size is 5 MB.</p>
                   <div className="mt-2">
-                    <Button type="button" variant="outline" className="w-full md:w-auto bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200">
+                    <Button type="button" variant="outline" className="w-full md:w-auto">
                       <Upload className="h-4 w-4 mr-2" />
                       Upload File
                     </Button>
@@ -285,7 +285,7 @@ const ExchangeReturnsPage = () => {
 
                 {/* Submit */}
                 <div className="flex justify-center pt-6">
-                  <Button type="submit" className="px-12 py-3 bg-pink-400 hover:bg-pink-500 text-white font-medium">
+                  <Button type="submit" className="px-12 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
                     Submit
                   </Button>
                 </div>

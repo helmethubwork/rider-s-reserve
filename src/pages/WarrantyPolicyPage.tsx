@@ -40,7 +40,7 @@ const WarrantyPolicyPage = () => {
   const content = dbContent?.content || STATIC_CONTENT;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background admin-theme">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       {/* Back Button */}
@@ -59,7 +59,7 @@ const WarrantyPolicyPage = () => {
       <main className="flex-1 pt-4 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-4 uppercase">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-foreground tracking-wide mb-4 uppercase">
               {title}
             </h1>
             
@@ -69,7 +69,7 @@ const WarrantyPolicyPage = () => {
               </div>
             ) : (
               <div 
-                className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-destructive [&_h2]:mb-4 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:space-y-2 [&_ul]:text-gray-700 [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:space-y-2 [&_ol]:text-gray-700"
+                className="prose prose-lg max-w-none text-foreground leading-relaxed space-y-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-primary [&_h2]:mb-4 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:space-y-2 [&_ul]:text-muted-foreground [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:space-y-2 [&_ol]:text-muted-foreground [&_p]:text-muted-foreground"
                 dangerouslySetInnerHTML={{ __html: content }}
               />
             )}
