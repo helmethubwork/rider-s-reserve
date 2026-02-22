@@ -29,8 +29,8 @@ const STATIC_POLICY_CONTENT = `
 </div>
 
 <div>
-  <h2 class="text-lg font-bold text-black mb-3">Returns & Refund Policy:</h2>
-  <p>Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be made only in the form of store credit which will be valid for 30 days only. Company will not make a cash refund under any circumstances.</p>
+<h2 class="text-lg font-bold text-black mb-3">Returns & Refund Policy:</h2>
+  <p>Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be issued as store credit according to our policy. Refund timelines depend on approval and processing conditions. The store credit will be valid for 30 days only.</p>
 </div>
 
 <div>

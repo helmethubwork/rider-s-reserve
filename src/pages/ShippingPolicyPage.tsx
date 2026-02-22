@@ -12,8 +12,8 @@ const STATIC_CONTENT = `
 <p>Helmet Hub isn't liable if any damage is caused to the product during transit. Customers are advised not to accept the order if the package is damaged or has been tampered with.</p>
 
 <div class="mt-12 pt-8 border-t border-gray-200">
-  <h2 class="text-xl font-semibold text-destructive mb-4">Delivery Timeline</h2>
-  <ul class="list-disc list-inside space-y-2 text-gray-700">
+  <h2>Delivery Timeline</h2>
+  <ul>
     <li>Metro cities: 3-5 business days</li>
     <li>Other cities: 5-7 business days</li>
     <li>Remote areas: 7-10 business days</li>
@@ -21,7 +21,16 @@ const STATIC_CONTENT = `
 </div>
 
 <div class="mt-8">
-  <h2 class="text-xl font-semibold text-destructive mb-4">Tracking Your Order</h2>
+  <h2>Delivery Charges</h2>
+  <ul>
+    <li>Free delivery on eligible orders (if applicable)</li>
+    <li>Standard shipping charges may apply depending on location</li>
+    <li>Final delivery charges are shown at checkout before payment confirmation</li>
+  </ul>
+</div>
+
+<div class="mt-8">
+  <h2>Tracking Your Order</h2>
   <p>Once your order is shipped, you will receive a tracking number via email and SMS. You can use this tracking number to monitor the status of your delivery on our Track Orders page.</p>
 </div>
 `;

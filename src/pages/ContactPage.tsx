@@ -19,8 +19,8 @@ const ContactPage = () => {
   // Contact settings with fallbacks
   const primaryPhone = getSettingValue(contactSettings, 'primary_phone', '+91 7842646888');
   const secondaryPhone = getSettingValue(contactSettings, 'secondary_phone', '+91 9063880550');
-  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.com');
-  const ordersEmail = getSettingValue(contactSettings, 'orders_email', 'orders@helmethub.com');
+  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.in');
+  const ordersEmail = getSettingValue(contactSettings, 'orders_email', 'orders@helmethub.in');
   const storeAddress = getSettingValue(contactSettings, 'store_address', '1st Branch: HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Telecom Nagar, Gachibowli, Hyd-500033. T.G.\n2nd Branch: HELMET HUB, 1st Floor, Above Baskin Robbins, Next to Chirec School, Sriram Nagar, Kondapur, Hyd-500084. T.G.');
 
   // Business settings with fallbacks
@@ -205,6 +205,25 @@ const ContactPage = () => {
         </div>
       </main>
       
+      {/* Business Information */}
+      <div className="border-t border-border">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-card rounded-lg p-6 md:p-8 border border-border">
+              <h2 className="text-xl font-serif text-foreground mb-4">Business Information</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
+                <p><span className="text-foreground font-medium">Business Name:</span> Helmet Hub</p>
+                <p><span className="text-foreground font-medium">Website:</span> <a href="https://www.helmethub.in" className="text-primary hover:underline">https://www.helmethub.in</a></p>
+                <p><span className="text-foreground font-medium">Email:</span> support@helmethub.in</p>
+                <p><span className="text-foreground font-medium">Phone:</span> {primaryPhone}</p>
+                <p><span className="text-foreground font-medium">Business Address:</span> Hyderabad, Telangana, India</p>
+                <p><span className="text-foreground font-medium">Working Hours:</span> Mon–Sat: 10 AM – 8 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
