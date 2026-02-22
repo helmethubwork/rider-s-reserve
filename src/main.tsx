@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import AppErrorBoundary from "./components/AppErrorBoundary.tsx";
 import "./index.css";
@@ -14,7 +15,9 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 createRoot(document.getElementById("root")!).render(
-  <AppErrorBoundary>
-    <App />
-  </AppErrorBoundary>
+  <HelmetProvider>
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
+  </HelmetProvider>
 );
