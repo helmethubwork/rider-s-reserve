@@ -258,7 +258,7 @@ const AdminNavigationLinks = () => {
 
         {/* Add/Edit Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="admin-theme sm:max-w-md bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle>
                 {editingLink ? 'Edit Navigation Link' : 'Add Navigation Link'}

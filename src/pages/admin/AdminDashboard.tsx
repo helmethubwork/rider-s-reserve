@@ -421,7 +421,7 @@ const AdminDashboard = () => {
 
       {/* Order Details Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-md bg-white">
+        <DialogContent className="admin-theme max-w-md bg-white text-gray-900">
           <DialogHeader>
             <DialogTitle className="text-gray-900 font-bold">
               Order {selectedOrder?.order_number}
@@ -466,7 +466,7 @@ const AdminDashboard = () => {
 
       {/* Message Details Dialog */}
       <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
-        <DialogContent className="max-w-md bg-white">
+        <DialogContent className="admin-theme max-w-md bg-white text-gray-900">
           <DialogHeader>
             <DialogTitle className="text-gray-900 font-bold">
               {selectedMessage?.subject}

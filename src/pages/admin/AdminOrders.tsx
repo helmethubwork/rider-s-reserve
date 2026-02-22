@@ -313,7 +313,7 @@ const AdminOrders = () => {
 
         {/* Order Details Dialog */}
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent className="max-w-lg bg-white">
+          <DialogContent className="admin-theme max-w-lg bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">Order Details - {selectedOrder?.order_number}</DialogTitle>
             </DialogHeader>
@@ -389,7 +389,7 @@ const AdminOrders = () => {
 
         {/* Edit Order Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="max-w-md bg-white">
+          <DialogContent className="admin-theme max-w-md bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">Update Order - {selectedOrder?.order_number}</DialogTitle>
             </DialogHeader>

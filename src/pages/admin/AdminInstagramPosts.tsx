@@ -317,7 +317,7 @@ const AdminInstagramPosts = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md bg-white">
+        <DialogContent className="admin-theme max-w-md bg-white text-gray-900">
           <DialogHeader>
             <DialogTitle className="text-gray-900 font-bold">
               {editingPost ? 'Edit Instagram Reel' : 'Add Instagram Reel'}

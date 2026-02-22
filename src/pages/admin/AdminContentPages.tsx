@@ -326,7 +326,7 @@ CREATE POLICY "Admins can manage content pages"
 
       {/* Edit Dialog */}
       <Dialog open={!!editingPage} onOpenChange={(open) => !open && setEditingPage(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="admin-theme max-w-4xl max-h-[90vh] overflow-y-auto bg-white text-gray-900">
           <DialogHeader>
             <DialogTitle>Edit Content Page</DialogTitle>
             <DialogDescription>

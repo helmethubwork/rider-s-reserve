@@ -181,7 +181,7 @@ const AdminMessages = () => {
 
         {/* Message Detail Dialog */}
         <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
-          <DialogContent className="max-w-lg bg-white">
+          <DialogContent className="admin-theme max-w-lg bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">{selectedMessage?.subject}</DialogTitle>
               <DialogDescription className="text-gray-600">
