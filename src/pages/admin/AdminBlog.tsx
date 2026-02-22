@@ -293,7 +293,7 @@ const AdminBlog = () => {
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={(open) => !open && closeDialog()}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="admin-theme max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit Blog Post' : 'Add Blog Post'}</DialogTitle>
             </DialogHeader>

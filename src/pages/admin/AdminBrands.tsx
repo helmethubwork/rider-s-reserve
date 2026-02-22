@@ -349,7 +349,7 @@ const AdminBrands = () => {
 
         {/* Add/Edit Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white">
+          <DialogContent className="admin-theme max-w-lg max-h-[90vh] overflow-y-auto bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">
                 {editingBrand ? 'Edit Brand' : 'Add New Brand'}

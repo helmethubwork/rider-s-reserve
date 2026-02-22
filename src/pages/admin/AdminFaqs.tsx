@@ -220,7 +220,7 @@ const AdminFaqs = () => {
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={(open) => !open && closeDialog()}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="admin-theme max-w-lg bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit FAQ' : 'Add FAQ'}</DialogTitle>
             </DialogHeader>

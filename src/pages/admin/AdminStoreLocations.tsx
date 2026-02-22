@@ -374,7 +374,7 @@ const AdminStoreLocations = () => {
 
         {/* Add/Edit Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+          <DialogContent className="admin-theme max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-gray-900">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">
                 {editingStore ? 'Edit Store Location' : 'Add New Store'}
@@ -551,7 +551,7 @@ const AdminStoreLocations = () => {
 
         {/* Delete Confirmation */}
         <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-          <AlertDialogContent className="bg-white">
+          <AlertDialogContent className="admin-theme bg-white text-gray-900">
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Store Location</AlertDialogTitle>
               <AlertDialogDescription>

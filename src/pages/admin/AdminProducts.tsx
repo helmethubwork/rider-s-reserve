@@ -761,7 +761,7 @@ const AdminProducts = () => {
 
         {/* Quick Add Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white text-gray-900 [&_label]:text-gray-700 [&_.text-muted-foreground]:text-gray-500">
+          <DialogContent className="admin-theme max-w-lg max-h-[90vh] overflow-y-auto bg-white text-gray-900 [&_label]:text-gray-700 [&_.text-muted-foreground]:text-gray-500">
             <DialogHeader>
               <DialogTitle className="text-gray-900 text-xl font-bold">
                 {editingProduct ? 'Edit Product' : 'Quick Add Product'}
