@@ -1,49 +1,19 @@
 
-## Sync Color Selection with Product Images
 
-### What the user wants
-When a color swatch is clicked (e.g., the 2nd color "BLACK NEON YELLOW"), the main image should automatically switch to the 2nd uploaded image. Images are uploaded in the same sequence as the colors list.
+## Update Shipping Policy to Include Delivery Charges Section
 
-### How it works today
-- Colors array: `["BLACK BLUE", "BLACK NEON YELLOW"]` (index 0, 1)
-- Images fetched from storage: `[img-0.webp, img-1.webp]` (index 0, 1)
-- Clicking a color only calls `setSelectedColor(color)` — it does NOT update `selectedImageIndex`
+### Problem
+The Shipping Policy page loads content from the database, which was created before the "Delivery Charges" section was added. The static fallback has the section, but it's never used because the database content takes priority.
 
-### The fix
-Change the color button's `onClick` to also call `setSelectedImageIndex(colorIndex)` using the color's array index, clamped to the number of available images.
+### Solution
+Modify `src/pages/ShippingPolicyPage.tsx` to append the "Delivery Charges" section to the database content if it doesn't already include it. This ensures the section appears regardless of the content source.
 
-**One line change in `src/pages/ProductDetailPage.tsx` (line 348):**
+### Technical Details
 
-Current:
-```tsx
-{colors.map(color => (
-  <button
-    onClick={() => setSelectedColor(color)}
-    ...
-  />
-))}
-```
+**File: `src/pages/ShippingPolicyPage.tsx`**
 
-Fixed:
-```tsx
-{colors.map((color, colorIndex) => (
-  <button
-    onClick={() => {
-      setSelectedColor(color);
-      // Switch to the image at the same position as this color
-      const targetIndex = Math.min(colorIndex, thumbnails.length - 1);
-      setSelectedImageIndex(targetIndex);
-    }}
-    ...
-  />
-))}
-```
+- Define the Delivery Charges HTML snippet as a constant
+- On line 43, after resolving the content (db or static), check if the content already contains a "Delivery Charges" heading
+- If not, append the Delivery Charges HTML to the end of the content
+- This is a non-breaking change: if the admin later adds the section via the database, it won't be duplicated
 
-### Behavior after fix
-- Colors: `["BLACK BLUE", "BLACK NEON YELLOW"]`
-- Click color 1 (BLACK BLUE) → shows image index 0
-- Click color 2 (BLACK NEON YELLOW) → shows image index 1
-- If a color has no dedicated image (fewer images than colors), it safely shows the last available image
-
-### File to change
-- **`src/pages/ProductDetailPage.tsx`** — line 348, add `colorIndex` to the `.map()` and update `onClick` to also call `setSelectedImageIndex`
