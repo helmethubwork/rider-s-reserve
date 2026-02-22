@@ -77,7 +77,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background admin-theme">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
       {/* Back Button */}
@@ -96,7 +96,7 @@ const ContactPage = () => {
       <main className="flex-1 pt-4 pb-4">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-black tracking-wide mb-4 uppercase">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-normal text-center text-foreground tracking-wide mb-4 uppercase">
               Contact Us
             </h1>
             
@@ -104,8 +104,8 @@ const ContactPage = () => {
               {/* Contact Information */}
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-2xl font-serif text-navy-900 mb-6">Get In Touch</h2>
-                  <p className="text-gray-600 leading-relaxed">
+                  <h2 className="text-2xl font-serif text-foreground mb-6">Get In Touch</h2>
+                  <p className="text-muted-foreground leading-relaxed">
                     Have questions about our products or need assistance with your order? We're here to help! Reach out to us through any of the channels below.
                   </p>
                 </div>
@@ -116,9 +116,9 @@ const ContactPage = () => {
                       <Phone className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
-                      <p className="text-gray-600">{primaryPhone}</p>
-                      {secondaryPhone && <p className="text-gray-600">{secondaryPhone}</p>}
+                      <h3 className="font-semibold text-foreground mb-1">Phone</h3>
+                      <p className="text-muted-foreground">{primaryPhone}</p>
+                      {secondaryPhone && <p className="text-muted-foreground">{secondaryPhone}</p>}
                     </div>
                   </div>
 
@@ -127,9 +127,9 @@ const ContactPage = () => {
                       <Mail className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                      <p className="text-gray-600">{supportEmail}</p>
-                      {ordersEmail && <p className="text-gray-600">{ordersEmail}</p>}
+                      <h3 className="font-semibold text-foreground mb-1">Email</h3>
+                      <p className="text-muted-foreground">{supportEmail}</p>
+                      {ordersEmail && <p className="text-muted-foreground">{ordersEmail}</p>}
                     </div>
                   </div>
 
@@ -138,8 +138,8 @@ const ContactPage = () => {
                       <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
-                      <p className="text-gray-600 whitespace-pre-line">{storeAddress}</p>
+                      <h3 className="font-semibold text-foreground mb-1">Address</h3>
+                      <p className="text-muted-foreground whitespace-pre-line">{storeAddress}</p>
                     </div>
                   </div>
 
@@ -148,51 +148,51 @@ const ContactPage = () => {
                       <Clock className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Business Hours</h3>
-                      <p className="text-gray-600">Monday - Sunday: {businessHours}</p>
+                      <h3 className="font-semibold text-foreground mb-1">Business Hours</h3>
+                      <p className="text-muted-foreground">Monday - Sunday: {businessHours}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Contact Form */}
-              <div className="bg-gray-50 rounded-lg p-8 border border-gray-200">
-                <h2 className="text-2xl font-serif text-navy-900 mb-6">Send Us a Message</h2>
+              <div className="bg-card rounded-lg p-8 border border-border">
+                <h2 className="text-2xl font-serif text-foreground mb-6">Send Us a Message</h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-gray-700">
-                      Your Name <span className="text-red-500">*</span>
+                    <Label htmlFor="name" className="text-foreground">
+                      Your Name <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="name" value={formData.name} onChange={e => handleInputChange("name", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="name" value={formData.name} onChange={e => handleInputChange("name", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700">
-                      Email Address <span className="text-red-500">*</span>
+                    <Label htmlFor="email" className="text-foreground">
+                      Email Address <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="email" type="email" value={formData.email} onChange={e => handleInputChange("email", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-700">
+                    <Label htmlFor="phone" className="text-foreground">
                       Phone Number
                     </Label>
-                    <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="phone" value={formData.phone} onChange={e => handleInputChange("phone", e.target.value)} className="bg-secondary border-border text-foreground" />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-gray-700">
-                      Subject <span className="text-red-500">*</span>
+                    <Label htmlFor="subject" className="text-foreground">
+                      Subject <span className="text-destructive">*</span>
                     </Label>
-                    <Input id="subject" value={formData.subject} onChange={e => handleInputChange("subject", e.target.value)} required className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500" />
+                    <Input id="subject" value={formData.subject} onChange={e => handleInputChange("subject", e.target.value)} required className="bg-secondary border-border text-foreground" />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-gray-700">
-                      Message <span className="text-red-500">*</span>
+                    <Label htmlFor="message" className="text-foreground">
+                      Message <span className="text-destructive">*</span>
                     </Label>
-                    <Textarea id="message" value={formData.message} onChange={e => handleInputChange("message", e.target.value)} required rows={5} className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 resize-none" />
+                    <Textarea id="message" value={formData.message} onChange={e => handleInputChange("message", e.target.value)} required rows={5} className="bg-secondary border-border text-foreground resize-none" />
                   </div>
 
                   <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3">
