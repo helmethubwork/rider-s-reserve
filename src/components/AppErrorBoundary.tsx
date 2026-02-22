@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import helmetHubLogo from '@/assets/helmet-hub-logo.png';
 
 interface Props {
   children: ReactNode;
@@ -7,13 +8,12 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: ErrorInfo | null;
 }
 
 class AppErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
@@ -21,50 +21,59 @@ class AppErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('AppErrorBoundary caught an error:', error, errorInfo);
-    this.setState({ errorInfo });
+    console.error('[AppErrorBoundary]', error, errorInfo);
   }
+
+  handleReload = () => {
+    window.location.reload();
+  };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-          <h1 style={{ color: '#dc2626', marginBottom: '1rem' }}>App Crashed</h1>
-          <p style={{ marginBottom: '1rem', color: '#374151' }}>
-            Something went wrong. Error details below:
+        <div
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            background: '#0a0a0a',
+            color: '#fafafa',
+            textAlign: 'center',
+          }}
+        >
+          <img
+            src={helmetHubLogo}
+            alt="Helmet Hub"
+            style={{ width: 120, height: 'auto', marginBottom: '2rem' }}
+          />
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+            Something went wrong
+          </h1>
+          <p style={{ color: '#a1a1aa', marginBottom: '2rem', maxWidth: 400, lineHeight: 1.6 }}>
+            We hit an unexpected error. Please try reloading the page.
           </p>
-          <pre
+          <button
+            onClick={this.handleReload}
             style={{
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
+              background: '#c8ff32',
+              color: '#0a0a0a',
+              border: 'none',
               borderRadius: '0.5rem',
-              padding: '1rem',
-              overflow: 'auto',
-              fontSize: '0.875rem',
-              color: '#991b1b',
+              padding: '0.75rem 2rem',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'opacity 0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            {this.state.error?.message}
-            {'\n\n'}
-            {this.state.error?.stack}
-          </pre>
-          {this.state.errorInfo && (
-            <pre
-              style={{
-                background: '#fffbeb',
-                border: '1px solid #fde68a',
-                borderRadius: '0.5rem',
-                padding: '1rem',
-                overflow: 'auto',
-                fontSize: '0.75rem',
-                color: '#92400e',
-                marginTop: '1rem',
-              }}
-            >
-              Component Stack:{'\n'}
-              {this.state.errorInfo.componentStack}
-            </pre>
-          )}
+            Reload Page
+          </button>
         </div>
       );
     }
