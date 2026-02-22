@@ -35,12 +35,26 @@ const STATIC_CONTENT = `
 </div>
 `;
 
+const DELIVERY_CHARGES_SECTION = `
+<div class="mt-8">
+  <h2>Delivery Charges</h2>
+  <ul>
+    <li>Free delivery on eligible orders (if applicable)</li>
+    <li>Standard shipping charges may apply depending on location</li>
+    <li>Final delivery charges are shown at checkout before payment confirmation</li>
+  </ul>
+</div>
+`;
+
 const ShippingPolicyPage = () => {
   const navigate = useNavigate();
   const { data: dbContent, isLoading } = useContentPage("shipping-policy");
 
   const title = dbContent?.title || "Shipping Policy";
-  const content = dbContent?.content || STATIC_CONTENT;
+  let content = dbContent?.content || STATIC_CONTENT;
+  if (!content.includes("Delivery Charges")) {
+    content += DELIVERY_CHARGES_SECTION;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
