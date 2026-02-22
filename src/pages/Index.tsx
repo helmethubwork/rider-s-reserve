@@ -1,14 +1,24 @@
+import { lazy, Suspense } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSlider from "@/components/HeroSlider";
 import CategoryGrid from "@/components/CategoryGrid";
-import FeaturedPromo from "@/components/FeaturedPromo";
-import InstagramFeed from "@/components/InstagramFeed";
-import OffersCarousel from "@/components/OffersCarousel";
-import BrandShowcase from "@/components/BrandShowcase";
-import WhyHelmetHub from "@/components/WhyHelmetHub";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import MaintenanceBanner from "@/components/MaintenanceBanner";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load below-the-fold sections
+const FeaturedPromo = lazy(() => import("@/components/FeaturedPromo"));
+const InstagramFeed = lazy(() => import("@/components/InstagramFeed"));
+const OffersCarousel = lazy(() => import("@/components/OffersCarousel"));
+const BrandShowcase = lazy(() => import("@/components/BrandShowcase"));
+const WhyHelmetHub = lazy(() => import("@/components/WhyHelmetHub"));
+
+const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
+  <div className={`${height} w-full`}>
+    <Skeleton className="w-full h-full" />
+  </div>
+);
 
 const Index = () => {
   return (
@@ -16,26 +26,36 @@ const Index = () => {
       <MaintenanceBanner />
       <Header />
       
-      {/* Hero Slider */}
+      {/* Hero Slider - loads immediately */}
       <HeroSlider />
 
       {/* Offers Carousel */}
-      <OffersCarousel />
+      <Suspense fallback={<SectionSkeleton height="h-48" />}>
+        <OffersCarousel />
+      </Suspense>
 
-      {/* Category Grid - Enhanced big banners */}
+      {/* Category Grid - loads immediately (important for navigation) */}
       <CategoryGrid />
 
-      {/* Featured Product Promos - 2 columns */}
-      <FeaturedPromo />
+      {/* Featured Product Promos */}
+      <Suspense fallback={<SectionSkeleton height="h-[50vh]" />}>
+        <FeaturedPromo />
+      </Suspense>
 
       {/* Instagram Feed */}
-      <InstagramFeed />
+      <Suspense fallback={<SectionSkeleton height="h-96" />}>
+        <InstagramFeed />
+      </Suspense>
 
       {/* Brand Showcase */}
-      <BrandShowcase />
+      <Suspense fallback={<SectionSkeleton height="h-80" />}>
+        <BrandShowcase />
+      </Suspense>
 
       {/* Why Helmet Hub */}
-      <WhyHelmetHub />
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <WhyHelmetHub />
+      </Suspense>
 
       {/* WhatsApp Button */}
       <WhatsAppButton />

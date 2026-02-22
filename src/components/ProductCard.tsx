@@ -93,6 +93,8 @@ const ProductCard = ({
           alt={name}
           className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
           loading="lazy"
+          decoding="async"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           onError={(e) => {
             if (e.currentTarget.src !== image) {
               e.currentTarget.src = image;
