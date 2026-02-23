@@ -37,14 +37,22 @@ const STATIC_CONTENT = `
 `;
 
 const DELIVERY_CHARGES_SECTION = `
-<div class="mt-8">
-  <h2>Delivery Charges</h2>
-  <ul>
-    <li>Free delivery on eligible orders (if applicable)</li>
-    <li>Standard shipping charges may apply depending on location</li>
-    <li>Final delivery charges are shown at checkout before payment confirmation</li>
-  </ul>
-</div>
+<h2>Shipping Charges</h2>
+<ul>
+<li>Free delivery on prepaid orders above ₹2000 across India.</li>
+<li>A flat shipping charge of ₹200 applies to orders below ₹1000.</li>
+<li>Orders between ₹1000 and ₹1999 may include standard shipping charges displayed during checkout.</li>
+<li>Final shipping charges are always shown at checkout before payment confirmation.</li>
+<li>Helmet Hub does not apply hidden delivery or handling charges after order confirmation.</li>
+</ul>
+
+<h2>Order Processing</h2>
+<ul>
+<li>Orders are processed only after successful payment confirmation.</li>
+<li>Helmet Hub prepares orders within 24–48 working hours.</li>
+<li>Once an order is prepared and packed for shipment, cancellation or modification may not be possible.</li>
+<li>Tracking details will be shared once the order is handed over to the courier partner.</li>
+</ul>
 `;
 
 const ShippingPolicyPage = () => {
@@ -52,10 +60,10 @@ const ShippingPolicyPage = () => {
   const { data: dbContent, isLoading } = useContentPage("shipping-policy");
 
   const title = dbContent?.title || "Shipping Policy";
-  let content = dbContent?.content || STATIC_CONTENT;
-  if (!content.includes("Delivery Charges")) {
-    content += DELIVERY_CHARGES_SECTION;
-  }
+  const content = dbContent?.content || STATIC_CONTENT;
+  const finalContent = content.includes("Shipping Charges")
+    ? content
+    : content + DELIVERY_CHARGES_SECTION;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -88,7 +96,7 @@ const ShippingPolicyPage = () => {
             ) : (
               <div 
                 className="prose prose-lg max-w-none text-foreground leading-relaxed space-y-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-primary [&_h2]:mb-4 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:space-y-2 [&_ul]:text-muted-foreground [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:space-y-2 [&_ol]:text-muted-foreground [&_p]:text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: content }}
+                dangerouslySetInnerHTML={{ __html: finalContent }}
               />
             )}
           </div>
