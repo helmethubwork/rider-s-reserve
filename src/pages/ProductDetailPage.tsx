@@ -237,6 +237,19 @@ const ProductDetailPage = () => {
       />
       <Header />
 
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-foreground hover:text-primary"
+        >
+          <ArrowLeft size={16} />
+          <span className="text-sm">Back</span>
+        </Button>
+      </div>
+
       <main className="flex-1 pb-12">
         {/* Breadcrumb Bar */}
         <div className="bg-secondary py-3 mb-8">
