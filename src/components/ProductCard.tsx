@@ -129,12 +129,15 @@ const ProductCard = ({
 
           {/* Color Swatches */}
           {colors.length > 0 && (
-            <div className="flex items-center gap-2 pt-1">
-              {colors.slice(0, 5).map((color, colorIndex) => (
+            <div
+              className="flex items-center gap-2 pt-1 overflow-x-auto scrollbar-hide"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            >
+              {colors.map((color, colorIndex) => (
                 <span
                   key={color}
                   title={color}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md cursor-pointer transition-transform hover:scale-110"
+                  className="w-7 h-7 sm:w-9 sm:h-9 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md cursor-pointer transition-transform hover:scale-110"
                   style={{ background: getSwatchBackground(color) }}
                   onMouseEnter={() => setDisplayImage(getColorImageUrl(colorIndex))}
                   onMouseLeave={() => setDisplayImage(image)}
@@ -145,11 +148,6 @@ const ProductCard = ({
                   }}
                 />
               ))}
-              {colors.length > 5 && (
-                <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
-                  +{colors.length - 5}
-                </span>
-              )}
             </div>
           )}
 
