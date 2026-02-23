@@ -46,13 +46,15 @@ const DELIVERY_CHARGES_SECTION = `
 <li>Helmet Hub does not apply hidden delivery or handling charges after order confirmation.</li>
 </ul>
 
-<h2>Order Processing</h2>
-<ul>
-<li>Orders are processed only after successful payment confirmation.</li>
-<li>Helmet Hub prepares orders within 24–48 working hours.</li>
-<li>Once an order is prepared and packed for shipment, cancellation or modification may not be possible.</li>
-<li>Tracking details will be shared once the order is handed over to the courier partner.</li>
-</ul>
+<h2>Order Confirmation & Prepared Orders Policy</h2>
+<p>
+Helmet Hub operates on a <strong>prepaid-only prepared order model</strong>.
+Orders are confirmed and processed only after successful payment.
+Once preparation or packing begins, the order cannot be cancelled or modified.
+Customers are advised to review all details carefully before completing payment.
+</p>
+
+<p style="margin-top:2rem;"><strong>Helmet Hub operates on a prepaid-only model to ensure secure transactions and efficient order fulfillment.</strong></p>
 `;
 
 const ShippingPolicyPage = () => {
