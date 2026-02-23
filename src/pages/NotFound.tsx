@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { goBack } from "@/lib/navigation";
 import { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -21,7 +22,7 @@ const NotFound = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(-1)}
+           onClick={() => goBack(navigate)}
           className="flex items-center gap-1.5 text-foreground hover:text-primary"
         >
           <ArrowLeft size={16} />
@@ -39,7 +40,7 @@ const NotFound = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               variant="outline"
-              onClick={() => navigate(-1)}
+              onClick={() => goBack(navigate)}
               className="flex items-center gap-2"
             >
               <ArrowLeft size={16} />

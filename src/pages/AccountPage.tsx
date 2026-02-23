@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { goBack } from "@/lib/navigation";
 import { 
   User, Package, Heart, Truck, MapPin, MessageSquare, 
   HelpCircle, Shield, LogOut, ChevronLeft, Edit2, Check, X
@@ -176,7 +177,7 @@ const AccountPage = () => {
       {/* Back Button */}
       <div className="container mx-auto px-4 pt-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => goBack(navigate)}
           className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-medium text-sm"
         >
           <ChevronLeft size={18} />

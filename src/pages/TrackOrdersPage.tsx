@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { goBack } from "@/lib/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ const TrackOrdersPage = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={() => goBack(navigate)}
           className="flex items-center gap-1.5 text-foreground hover:text-primary"
         >
           <ArrowLeft size={16} />

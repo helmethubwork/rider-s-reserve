@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { goBack } from "@/lib/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { products, Product } from "@/data/products";
@@ -337,7 +338,7 @@ const SalePage = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={() => goBack(navigate)}
           className="flex items-center gap-1.5 text-foreground hover:text-primary"
         >
           <ArrowLeft size={16} />
