@@ -35,6 +35,7 @@ const BrandDetailPage = lazy(() => import("./pages/BrandDetailPage"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentFailed = lazy(() => import("./pages/PaymentFailed"));
+const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminAddProduct = lazy(() => import("./pages/admin/AdminAddProduct"));
@@ -103,6 +104,7 @@ const App = () => (
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/payment-failed" element={<PaymentFailed />} />
+                <Route path="/payment-status" element={<PaymentStatus />} />
                 {/* Admin Routes - Protected */}
                 <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/admin/products" element={<ProtectedRoute requireAdmin><AdminProducts /></ProtectedRoute>} />
