@@ -28,7 +28,7 @@ const accountOptions = [
     icon: Package, 
     title: "My Orders", 
     description: "View & track your orders", 
-    link: "/track-order",
+    link: "/my-orders",
     color: "text-blue-500"
   },
   { 
