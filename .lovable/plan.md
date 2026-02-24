@@ -1,68 +1,39 @@
 
 
-## Diagnosis: "Failed to create order" on Checkout
+## Fix: "Could not find 'customer_email' column" Error
 
-The error occurs when Supabase rejects the INSERT into the `orders` table. The order creation in `useOrders.ts` does two things:
-1. SELECT from `orders` to generate the next order number
-2. INSERT into `orders` and `order_items`
+The `orders` table in your Supabase database is missing several columns that the checkout code tries to insert into. The table needs to be updated to match what the code expects.
 
-If RLS policies don't allow these operations for authenticated/anonymous users, the insert fails silently and shows "Failed to create order".
+### What's Wrong
 
----
+The code in `useOrders.ts` tries to insert these fields into the `orders` table, but they don't exist in the database:
+- `customer_email`
+- `customer_name`
+- `customer_phone`
+- `shipping_address`
 
-## Fix: Update Supabase RLS Policies
+### Fix: Add Missing Columns via Migration
 
-This requires changes in your **Supabase Dashboard** (not code changes):
+Create a Supabase migration to add the missing columns to the `orders` table:
 
-### Step 1: Add INSERT policy on `orders` table
-Go to Supabase Dashboard > Authentication > Policies > `orders` table and add:
-
-```text
-Policy name: "Allow users to create orders"
-Operation: INSERT
-Target roles: authenticated, anon
-WITH CHECK: true
+```sql
+ALTER TABLE public.orders
+  ADD COLUMN IF NOT EXISTS customer_email text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS customer_name text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS customer_phone text,
+  ADD COLUMN IF NOT EXISTS shipping_address text NOT NULL DEFAULT '';
 ```
 
-This allows both logged-in and guest users to place orders.
+This single migration will add all four columns the checkout flow needs.
 
-### Step 2: Add SELECT policy on `orders` table
-Needed for the order number generation query:
+### Also Needed: RLS Policies
 
-```text
-Policy name: "Allow reading orders for number generation"  
-Operation: SELECT
-Target roles: authenticated, anon
-USING: true
-```
+As discussed in the previous plan, the following RLS policies are still required if not already added:
 
-Or more restrictively, allow users to only read their own orders:
+1. INSERT policy on `orders` for `authenticated` and `anon`
+2. SELECT policy on `orders` for `authenticated` and `anon`
+3. INSERT policy on `order_items` for `authenticated` and `anon`
 
-```text
-USING: (auth.uid() = user_id) OR (user_id IS NULL)
-```
+### No Code Changes Needed
 
-### Step 3: Add INSERT policy on `order_items` table
-
-```text
-Policy name: "Allow users to create order items"
-Operation: INSERT
-Target roles: authenticated, anon
-WITH CHECK: true
-```
-
-### Step 4 (Code improvement): Better error handling
-
-Update `CheckoutPage.tsx` to show the actual Supabase error message in the toast instead of a generic "Failed to create order", making future debugging easier.
-
----
-
-## Technical Details
-
-The current flow in `useOrders.ts`:
-1. `generateOrderNumber()` - SELECT latest order (needs SELECT policy)
-2. INSERT into `orders` (needs INSERT policy)  
-3. INSERT into `order_items` (needs INSERT policy)
-
-All three operations must be permitted by RLS for checkout to work.
-
+The existing `useOrders.ts` and `CheckoutPage.tsx` code is correct -- only the database schema needs to be updated.
