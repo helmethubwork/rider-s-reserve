@@ -118,7 +118,7 @@ export const useCreateOrder = () => {
 
       if (orderError) {
         console.error('Order creation error:', orderError);
-        throw new Error('Failed to create order');
+        throw new Error(orderError.message || 'Failed to create order');
       }
 
       // Create order items
@@ -138,8 +138,7 @@ export const useCreateOrder = () => {
 
       if (itemsError) {
         console.error('Order items creation error:', itemsError);
-        // Order was created but items failed - should handle this case
-        throw new Error('Failed to create order items');
+        throw new Error(itemsError.message || 'Failed to create order items');
       }
 
       return order as Order;
