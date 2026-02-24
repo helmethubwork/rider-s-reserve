@@ -20,6 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCreateOrder } from '@/hooks/useOrders';
 import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
+import { startCashfreePayment } from '@/lib/cashfree';
 
 // Form validation schema
 const checkoutSchema = z.object({
@@ -97,7 +98,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Create order
+    // Create order in database first, then start Cashfree payment
     try {
       const order = await createOrder.mutateAsync({
         customer_email: formData.email,
@@ -116,11 +117,29 @@ const CheckoutPage = () => {
         })),
       });
 
-      // Clear cart and redirect to success page
+      // Call Cashfree API to create payment session
+      const res = await fetch('/api/create-cashfree-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.order_number,
+          orderAmount: orderTotal,
+          customerId: user?.id || formData.email,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to initiate payment');
+      }
+
+      // Clear cart and start Cashfree checkout
       clearCart();
-      navigate(`/order-confirmation/${order.order_number}`);
+      await startCashfreePayment(data);
     } catch (error) {
-      // Error is handled by the mutation
       console.error('Checkout error:', error);
     }
   };
@@ -263,7 +282,7 @@ const CheckoutPage = () => {
                   disabled={createOrder.isPending}
                 >
                   <CreditCard className="mr-2" size={20} />
-                  {createOrder.isPending ? 'Placing Order...' : `Place Order - ${formatPrice(orderTotal)}`}
+                  {createOrder.isPending ? 'Processing...' : `Pay Now - ${formatPrice(orderTotal)}`}
                 </Button>
               </form>
             </div>
