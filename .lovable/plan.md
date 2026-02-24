@@ -1,19 +1,68 @@
 
 
-## Update Shipping Policy to Include Delivery Charges Section
+## Diagnosis: "Failed to create order" on Checkout
 
-### Problem
-The Shipping Policy page loads content from the database, which was created before the "Delivery Charges" section was added. The static fallback has the section, but it's never used because the database content takes priority.
+The error occurs when Supabase rejects the INSERT into the `orders` table. The order creation in `useOrders.ts` does two things:
+1. SELECT from `orders` to generate the next order number
+2. INSERT into `orders` and `order_items`
 
-### Solution
-Modify `src/pages/ShippingPolicyPage.tsx` to append the "Delivery Charges" section to the database content if it doesn't already include it. This ensures the section appears regardless of the content source.
+If RLS policies don't allow these operations for authenticated/anonymous users, the insert fails silently and shows "Failed to create order".
 
-### Technical Details
+---
 
-**File: `src/pages/ShippingPolicyPage.tsx`**
+## Fix: Update Supabase RLS Policies
 
-- Define the Delivery Charges HTML snippet as a constant
-- On line 43, after resolving the content (db or static), check if the content already contains a "Delivery Charges" heading
-- If not, append the Delivery Charges HTML to the end of the content
-- This is a non-breaking change: if the admin later adds the section via the database, it won't be duplicated
+This requires changes in your **Supabase Dashboard** (not code changes):
+
+### Step 1: Add INSERT policy on `orders` table
+Go to Supabase Dashboard > Authentication > Policies > `orders` table and add:
+
+```text
+Policy name: "Allow users to create orders"
+Operation: INSERT
+Target roles: authenticated, anon
+WITH CHECK: true
+```
+
+This allows both logged-in and guest users to place orders.
+
+### Step 2: Add SELECT policy on `orders` table
+Needed for the order number generation query:
+
+```text
+Policy name: "Allow reading orders for number generation"  
+Operation: SELECT
+Target roles: authenticated, anon
+USING: true
+```
+
+Or more restrictively, allow users to only read their own orders:
+
+```text
+USING: (auth.uid() = user_id) OR (user_id IS NULL)
+```
+
+### Step 3: Add INSERT policy on `order_items` table
+
+```text
+Policy name: "Allow users to create order items"
+Operation: INSERT
+Target roles: authenticated, anon
+WITH CHECK: true
+```
+
+### Step 4 (Code improvement): Better error handling
+
+Update `CheckoutPage.tsx` to show the actual Supabase error message in the toast instead of a generic "Failed to create order", making future debugging easier.
+
+---
+
+## Technical Details
+
+The current flow in `useOrders.ts`:
+1. `generateOrderNumber()` - SELECT latest order (needs SELECT policy)
+2. INSERT into `orders` (needs INSERT policy)  
+3. INSERT into `order_items` (needs INSERT policy)
+
+All three operations must be permitted by RLS for checkout to work.
 
