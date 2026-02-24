@@ -384,7 +384,7 @@ const Header = () => {
                         My Profile
                       </Link>
                       <Link 
-                        to="/track-order" 
+                        to="/my-orders" 
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
                         onClick={() => setMobileAccountDropdownOpen(false)}
                       >
@@ -457,7 +457,7 @@ const Header = () => {
                         My Account
                       </Link>
                       <Link 
-                        to="/track-order" 
+                        to="/my-orders" 
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
                         onClick={() => setAccountDropdownOpen(false)}
                       >
