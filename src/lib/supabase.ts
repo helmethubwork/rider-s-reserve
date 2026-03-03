@@ -1,10 +1,11 @@
-// Supabase client — Mumbai region (updated 2026-03-03)
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://dxuvqlyaekgqwwvamkll.supabase.co';
-const supabaseAnonKey = 'sb_publishable_yQr8AVUQiIC5LkBX6MBurw_rdD06Vpb';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY!;
 
-console.log('Supabase URL:', supabaseUrl);
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
