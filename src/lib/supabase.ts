@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl =
-  import.meta.env.VITE_SUPABASE_URL ?? 'https://mszqhytvdruxromraumt.supabase.co';
+  import.meta.env.VITE_SUPABASE_URL ?? 'https://dxuvqlyaekgqwwvamkll.supabase.co';
 const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'sb_publishable_4SSMkT1d97p3VKXICt2GEA_-iTr_yAu';
+  import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'sb_publishable_yQr8AVUQiIC5LkBX6MBurw_rdD06Vpb';
 
 if (!import.meta.env.VITE_SUPABASE_URL) {
   console.warn('Missing Supabase URL, using fallback');
