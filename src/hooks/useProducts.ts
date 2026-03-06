@@ -87,7 +87,7 @@ export const useProductsByCategory = (categorySlug: string) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
     enabled: !!categorySlug,
   });
