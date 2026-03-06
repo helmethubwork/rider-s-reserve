@@ -123,9 +123,11 @@ const CartDrawer = ({
               </span>
             </div>
 
-            <p className="text-muted-foreground text-xs text-center mb-4">
-              Shipping, taxes, and discount codes calculated at checkout.
-            </p>
+            <ul className="text-muted-foreground text-xs text-center mb-4 space-y-0.5">
+              <li>Free shipping on orders above ₹2,000</li>
+              <li>₹99 shipping for orders ₹1,000–₹1,999</li>
+              <li>₹200 shipping for orders below ₹1,000</li>
+            </ul>
 
             <Button
               className="w-full py-6"
