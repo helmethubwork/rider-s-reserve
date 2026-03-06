@@ -34,8 +34,11 @@ export const useFeaturedPromos = () => {
         .eq('is_active', true)
         .order('display_order', { ascending: true });
 
-      if (error) throw error;
-      return data as FeaturedPromo[];
+      if (error) {
+        console.error('Error fetching featured promos:', error);
+        throw error;
+      }
+      return (data ?? []) as FeaturedPromo[];
     },
   });
 };
