@@ -32,8 +32,11 @@ export const useFaqs = () => {
         .eq('is_active', true)
         .order('display_order', { ascending: true });
       
-      if (error) throw error;
-      return data as Faq[];
+      if (error) {
+        console.error('Error fetching FAQs:', error);
+        throw error;
+      }
+      return (data ?? []) as Faq[];
     },
   });
 };
@@ -48,8 +51,11 @@ export const useAdminFaqs = () => {
         .select('*')
         .order('display_order', { ascending: true });
       
-      if (error) throw error;
-      return data as Faq[];
+      if (error) {
+        console.error('Error fetching admin FAQs:', error);
+        throw error;
+      }
+      return (data ?? []) as Faq[];
     },
   });
 };

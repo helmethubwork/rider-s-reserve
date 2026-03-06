@@ -87,7 +87,7 @@ export const useProductsByCategory = (categorySlug: string) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
     enabled: !!categorySlug,
   });
@@ -110,7 +110,7 @@ export const useProductsByBrand = (brandId: string) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
     enabled: !!brandId,
   });
@@ -179,7 +179,7 @@ export const useBestsellers = (limit = 4) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
   });
 };
@@ -201,7 +201,7 @@ export const useSearchProducts = (searchTerm: string) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
     enabled: searchTerm.length > 2,
   });
