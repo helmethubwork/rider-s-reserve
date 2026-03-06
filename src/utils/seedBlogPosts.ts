@@ -196,7 +196,6 @@ export async function seedBlogPosts() {
   }
   
   if (existing && existing.length > 0) {
-    console.log('Blog posts already exist, skipping seed');
     return { success: true, message: 'Posts already exist' };
   }
   
