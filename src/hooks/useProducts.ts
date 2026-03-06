@@ -179,7 +179,7 @@ export const useBestsellers = (limit = 4) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
   });
 };
