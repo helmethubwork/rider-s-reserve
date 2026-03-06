@@ -118,21 +118,23 @@ const CartPage = () => {
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Shipping</span>
-                    <span>{totalPrice >= 5000 ? "FREE" : formatPrice(99)}</span>
+                    <span>{getShippingCost(totalPrice) === 0 ? "FREE" : formatPrice(getShippingCost(totalPrice))}</span>
                   </div>
                   <div className="border-t border-border pt-3 flex justify-between font-bold text-foreground">
                     <span>Total</span>
                     <span className="text-primary">
-                      {formatPrice(totalPrice + (totalPrice >= 5000 ? 0 : 99))}
+                      {formatPrice(totalPrice + getShippingCost(totalPrice))}
                     </span>
                   </div>
                 </div>
                 <Button className="w-full" size="lg" asChild>
                   <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                  Shipping, taxes, and discount codes calculated at checkout.
-                </p>
+                <ul className="text-xs text-muted-foreground text-center mt-4 space-y-0.5">
+                  {SHIPPING_INFO_LINES.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           )}
