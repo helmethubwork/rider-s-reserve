@@ -182,7 +182,7 @@ Many riders think city speeds are "safe" speeds. However, studies show that most
 ];
 
 export async function seedBlogPosts() {
-  console.log('Starting blog posts seeding...');
+  // Seed blog posts
   
   // Check if posts already exist
   const { data: existing, error: checkError } = await supabase
@@ -196,7 +196,6 @@ export async function seedBlogPosts() {
   }
   
   if (existing && existing.length > 0) {
-    console.log('Blog posts already exist, skipping seed');
     return { success: true, message: 'Posts already exist' };
   }
   
@@ -211,7 +210,6 @@ export async function seedBlogPosts() {
     return { success: false, error: error.message };
   }
   
-  console.log('Successfully seeded blog posts:', data);
   return { success: true, data };
 }
 

@@ -38,6 +38,7 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -45,7 +46,7 @@ export const useProducts = () => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
   });
 };
@@ -143,20 +144,15 @@ export const useFeaturedProducts = (limit = 8) => {
   return useQuery({
     queryKey: ['products', 'featured', limit],
     queryFn: async () => {
-      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
-      console.log('Anon Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .eq('is_active', true)
         .order('display_order', { ascending: true })
         .limit(limit);
 
-      console.log('Products data:', data);
-      console.log('Products error:', error);
-
       if (error) {
-        console.error('Product fetch error:', error);
+        console.error('Error fetching featured products:', error);
         return [] as SupabaseProduct[];
       }
 
