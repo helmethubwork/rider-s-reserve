@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           customer_phone: customerPhone,
         },
         order_meta: {
-          return_url: `https://www.helmethub.in/payment-success?order_id=${orderId}`,
+          return_url: `https://www.helmethub.in/payment-status?order_id=${orderId}`,
         },
       }),
     });
