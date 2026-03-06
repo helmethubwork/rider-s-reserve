@@ -110,7 +110,7 @@ export const useProductsByBrand = (brandId: string) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
     enabled: !!brandId,
   });
