@@ -21,6 +21,7 @@ import { useCreateOrder } from '@/hooks/useOrders';
 import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 import { startCashfreePayment } from '@/lib/cashfree';
+import { getShippingCost, SHIPPING_INFO_LINES } from '@/lib/shipping';
 
 // Form validation schema
 const checkoutSchema = z.object({
@@ -63,7 +64,7 @@ const CheckoutPage = () => {
   };
 
   // Calculate shipping
-  const shippingCost = totalPrice >= 5000 ? 0 : 99;
+  const shippingCost = getShippingCost(totalPrice);
   const orderTotal = totalPrice + shippingCost;
 
   // Handle input change
