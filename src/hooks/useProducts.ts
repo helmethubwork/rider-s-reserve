@@ -38,6 +38,7 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -45,7 +46,7 @@ export const useProducts = () => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
   });
 };
