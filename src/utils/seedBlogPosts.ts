@@ -210,7 +210,6 @@ export async function seedBlogPosts() {
     return { success: false, error: error.message };
   }
   
-  console.log('Successfully seeded blog posts:', data);
   return { success: true, data };
 }
 
