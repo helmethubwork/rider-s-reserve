@@ -75,8 +75,11 @@ export const useAdminCategories = () => {
         .select('*')
         .order('display_order', { ascending: true });
 
-      if (error) throw error;
-      return data as SupabaseCategory[];
+      if (error) {
+        console.error('Error fetching admin categories:', error);
+        throw error;
+      }
+      return (data ?? []) as SupabaseCategory[];
     },
   });
 };

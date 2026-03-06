@@ -77,8 +77,11 @@ export const useAdminBlogPosts = () => {
         .select('*')
         .order('display_order', { ascending: true });
       
-      if (error) throw error;
-      return data as BlogPost[];
+      if (error) {
+        console.error('Error fetching admin blog posts:', error);
+        throw error;
+      }
+      return (data ?? []) as BlogPost[];
     },
   });
 };

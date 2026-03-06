@@ -201,7 +201,7 @@ export const useSearchProducts = (searchTerm: string) => {
         throw error;
       }
 
-      return data as SupabaseProduct[];
+      return (data ?? []) as SupabaseProduct[];
     },
     enabled: searchTerm.length > 2,
   });

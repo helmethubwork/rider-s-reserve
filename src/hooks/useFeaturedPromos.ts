@@ -52,8 +52,11 @@ export const useAdminFeaturedPromos = () => {
         .select('*')
         .order('display_order', { ascending: true });
 
-      if (error) throw error;
-      return data as FeaturedPromo[];
+      if (error) {
+        console.error('Error fetching admin featured promos:', error);
+        throw error;
+      }
+      return (data ?? []) as FeaturedPromo[];
     },
   });
 };
