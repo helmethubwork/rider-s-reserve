@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { getShippingCost, SHIPPING_INFO_LINES } from "@/lib/shipping";
 
 const CartPage = () => {
   const navigate = useNavigate();

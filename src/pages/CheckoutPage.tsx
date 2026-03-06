@@ -21,6 +21,7 @@ import { useCreateOrder } from '@/hooks/useOrders';
 import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 import { startCashfreePayment } from '@/lib/cashfree';
+import { getShippingCost, SHIPPING_INFO_LINES } from '@/lib/shipping';
 
 // Form validation schema
 const checkoutSchema = z.object({
