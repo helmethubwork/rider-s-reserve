@@ -169,7 +169,7 @@ export const useUserOrders = (userId?: string) => {
         throw error;
       }
 
-      return data as Order[];
+      return (data ?? []) as Order[];
     },
     enabled: !!userId,
   });
