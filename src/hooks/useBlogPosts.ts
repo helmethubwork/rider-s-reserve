@@ -55,7 +55,7 @@ export const useBlogPost = (slug: string | undefined) => {
         .select('*')
         .eq('slug', slug)
         .eq('is_published', true)
-        .single();
+        .maybeSingle();
       
       if (error) {
         if (error.code === 'PGRST116') return null; // Not found
