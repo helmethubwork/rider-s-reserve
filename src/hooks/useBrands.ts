@@ -55,8 +55,11 @@ export const useFeaturedBrands = () => {
         .eq('is_featured', true)
         .order('display_order', { ascending: true });
 
-      if (error) throw error;
-      return data as SupabaseBrand[];
+      if (error) {
+        console.error('Error fetching featured brands:', error);
+        throw error;
+      }
+      return (data ?? []) as SupabaseBrand[];
     },
   });
 };
