@@ -18,10 +18,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCreateOrder } from '@/hooks/useOrders';
-import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft, MapPin, Plus } from 'lucide-react';
 import { z } from 'zod';
 import { startCashfreePayment } from '@/lib/cashfree';
 import { getShippingCost, SHIPPING_INFO_LINES } from '@/lib/shipping';
+import { supabase } from '@/lib/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 // Form validation schema
 const checkoutSchema = z.object({
@@ -36,6 +39,33 @@ const CheckoutPage = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile } = useAuth();
   const createOrder = useCreateOrder();
+
+  // Fetch saved addresses for logged-in users
+  const { data: savedAddresses = [] } = useQuery({
+    queryKey: ['checkout-addresses', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) { console.error('Error fetching addresses:', error); return []; }
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const [selectedAddressId, setSelectedAddressId] = useState<string | 'new'>('new');
+  const [useNewAddress, setUseNewAddress] = useState(true);
+
+  // When addresses load, auto-select first one
+  useEffect(() => {
+    if (savedAddresses.length > 0 && selectedAddressId === 'new') {
+      setSelectedAddressId(savedAddresses[0].id);
+      setUseNewAddress(false);
+    }
+  }, [savedAddresses]);
 
   // Pre-fill form with user data if logged in
   const [formData, setFormData] = useState({
@@ -81,8 +111,37 @@ const CheckoutPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Determine shipping details based on selected address
+    let customerName = formData.name;
+    let customerPhone = formData.phone;
+    let shippingAddress = formData.address;
+
+    if (!useNewAddress && selectedAddressId !== 'new') {
+      const addr = savedAddresses.find((a: any) => a.id === selectedAddressId);
+      if (addr) {
+        customerName = addr.full_name;
+        customerPhone = addr.phone;
+        shippingAddress = [
+          addr.address_line1,
+          addr.address_line2,
+          addr.city,
+          addr.state,
+          addr.pincode,
+          addr.country,
+        ].filter(Boolean).join(', ');
+      }
+    }
+
+    // Build validation data
+    const dataToValidate = {
+      name: customerName,
+      email: formData.email,
+      phone: customerPhone,
+      address: shippingAddress,
+    };
+
     // Validate form
-    const result = checkoutSchema.safeParse(formData);
+    const result = checkoutSchema.safeParse(dataToValidate);
     if (!result.success) {
       const newErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
@@ -95,7 +154,7 @@ const CheckoutPage = () => {
     }
 
     // Sanitize and validate phone number
-    const sanitizedPhone = formData.phone.replace(/\D/g, '').slice(-10);
+    const sanitizedPhone = customerPhone.replace(/\D/g, '').slice(-10);
     if (sanitizedPhone.length < 10) {
       setErrors((prev) => ({ ...prev, phone: 'Please enter a valid 10 digit mobile number' }));
       return;
@@ -112,9 +171,9 @@ const CheckoutPage = () => {
     try {
       const order = await createOrder.mutateAsync({
         customer_email: formData.email,
-        customer_name: formData.name,
+        customer_name: customerName,
         customer_phone: sanitizedPhone,
-        shipping_address: formData.address,
+        shipping_address: shippingAddress,
         total_amount: orderTotal,
         user_id: user?.id,
         items: items.map((item) => ({
@@ -211,24 +270,7 @@ const CheckoutPage = () => {
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="name">
-                    Full Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={errors.name ? 'border-destructive' : ''}
-                    placeholder="Enter your full name"
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name}</p>
-                  )}
-                </div>
-
-                {/* Email */}
+                {/* Email - always shown */}
                 <div className="space-y-2">
                   <Label htmlFor="email">
                     Email <span className="text-destructive">*</span>
@@ -246,40 +288,113 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* Phone */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone">
-                    Phone Number <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className={errors.phone ? 'border-destructive' : ''}
-                    placeholder="Enter your phone number"
-                  />
-                  {errors.phone && (
-                    <p className="text-sm text-destructive">{errors.phone}</p>
-                  )}
-                </div>
+                {/* Saved Addresses Section */}
+                {user && savedAddresses.length > 0 && (
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium flex items-center gap-2">
+                      <MapPin size={16} className="text-primary" />
+                      Deliver to
+                    </Label>
+                    <RadioGroup
+                      value={selectedAddressId}
+                      onValueChange={(val) => {
+                        setSelectedAddressId(val);
+                        setUseNewAddress(val === 'new');
+                      }}
+                      className="space-y-2"
+                    >
+                      {savedAddresses.map((addr: any) => (
+                        <label
+                          key={addr.id}
+                          className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                            selectedAddressId === addr.id
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border hover:border-muted-foreground/30'
+                          }`}
+                        >
+                          <RadioGroupItem value={addr.id} className="mt-1" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">{addr.full_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {[addr.address_line1, addr.address_line2, addr.city, addr.state, addr.pincode].filter(Boolean).join(', ')}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{addr.phone}</p>
+                          </div>
+                        </label>
+                      ))}
+                      <label
+                        className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                          selectedAddressId === 'new'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-muted-foreground/30'
+                        }`}
+                      >
+                        <RadioGroupItem value="new" />
+                        <div className="flex items-center gap-1.5">
+                          <Plus size={14} />
+                          <span className="text-sm font-medium text-foreground">Use a new address</span>
+                        </div>
+                      </label>
+                    </RadioGroup>
+                  </div>
+                )}
 
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="address">
-                    Shipping Address <span className="text-destructive">*</span>
-                  </Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className={errors.address ? 'border-destructive' : ''}
-                    placeholder="Enter your complete shipping address"
-                    rows={3}
-                  />
-                  {errors.address && (
-                    <p className="text-sm text-destructive">{errors.address}</p>
-                  )}
-                </div>
+                {/* Manual address fields - shown for guests or when "new address" selected */}
+                {useNewAddress && (
+                  <>
+                    {/* Name */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name">
+                        Full Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        className={errors.name ? 'border-destructive' : ''}
+                        placeholder="Enter your full name"
+                      />
+                      {errors.name && (
+                        <p className="text-sm text-destructive">{errors.name}</p>
+                      )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">
+                        Phone Number <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="phone"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className={errors.phone ? 'border-destructive' : ''}
+                        placeholder="Enter your phone number"
+                      />
+                      {errors.phone && (
+                        <p className="text-sm text-destructive">{errors.phone}</p>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    <div className="space-y-2">
+                      <Label htmlFor="address">
+                        Shipping Address <span className="text-destructive">*</span>
+                      </Label>
+                      <Textarea
+                        id="address"
+                        value={formData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        className={errors.address ? 'border-destructive' : ''}
+                        placeholder="Enter your complete shipping address"
+                        rows={3}
+                      />
+                      {errors.address && (
+                        <p className="text-sm text-destructive">{errors.address}</p>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 {/* Payment Notice */}
                 <div className="bg-secondary/50 rounded-lg p-4 flex gap-3">
