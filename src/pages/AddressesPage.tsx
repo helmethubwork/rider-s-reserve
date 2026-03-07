@@ -297,8 +297,8 @@ const AddressesPage = () => {
               <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.full_name} onChange={(e) => updateField('full_name', e.target.value)} placeholder="John Doe" />
             </div>
             <div className="space-y-2">
-              <Label>Phone *</Label>
-              <Input value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="9876543210" />
+              <Label className="text-gray-700 font-medium">Phone *</Label>
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="9876543210" />
             </div>
             <div className="space-y-2">
               <Label>Address Line 1 *</Label>
