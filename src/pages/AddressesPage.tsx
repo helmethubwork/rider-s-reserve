@@ -47,7 +47,7 @@ interface Address {
   state: string;
   pincode: string;
   country: string;
-  is_default: boolean;
+  
   created_at: string;
   updated_at: string;
 }
@@ -61,7 +61,7 @@ const emptyForm = {
   state: '',
   pincode: '',
   country: 'India',
-  is_default: false,
+  
 };
 
 const AddressesPage = () => {
@@ -104,7 +104,6 @@ const AddressesPage = () => {
         state: data.state.trim(),
         pincode: data.pincode.trim(),
         country: data.country.trim(),
-        is_default: data.is_default,
         updated_at: new Date().toISOString(),
       };
 
@@ -122,18 +121,6 @@ const AddressesPage = () => {
         if (error) throw error;
       }
 
-      // If setting as default, unset others
-      if (data.is_default) {
-        const currentId = editingAddress?.id;
-        const otherAddresses = addresses.filter(a => a.id !== currentId && a.is_default);
-        for (const addr of otherAddresses) {
-          await supabase
-            .from('addresses')
-            .update({ is_default: false })
-            .eq('id', addr.id)
-            .eq('user_id', user.id);
-        }
-      }
     },
     onSuccess: () => {
       toast.success(editingAddress ? 'Address updated!' : 'Address added!');
@@ -182,7 +169,7 @@ const AddressesPage = () => {
       state: addr.state,
       pincode: addr.pincode,
       country: addr.country,
-      is_default: addr.is_default,
+      
     });
     setIsFormOpen(true);
   };
@@ -249,16 +236,11 @@ const AddressesPage = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {addresses.map((addr) => (
-              <Card key={addr.id} className={addr.is_default ? 'border-primary' : ''}>
+              <Card key={addr.id}>
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-foreground">{addr.full_name}</h3>
-                      {addr.is_default && (
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                          <Star size={10} /> Default
-                        </span>
-                      )}
                     </div>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenEdit(addr)}>
@@ -327,16 +309,6 @@ const AddressesPage = () => {
                 <Label className="text-gray-700 font-medium">Country</Label>
                 <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.country} onChange={(e) => updateField('country', e.target.value)} placeholder="India" />
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_default"
-                checked={formData.is_default}
-                onChange={(e) => updateField('is_default', e.target.checked)}
-                className="rounded border-gray-300 accent-primary"
-              />
-              <Label htmlFor="is_default" className="cursor-pointer text-sm text-gray-700">Set as default address</Label>
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100" onClick={handleCloseForm}>
