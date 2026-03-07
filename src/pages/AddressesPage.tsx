@@ -241,11 +241,6 @@ const AddressesPage = () => {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-foreground">{addr.full_name}</h3>
-                      {addr.is_default && (
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                          <Star size={10} /> Default
-                        </span>
-                      )}
                     </div>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenEdit(addr)}>
