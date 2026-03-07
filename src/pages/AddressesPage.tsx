@@ -293,8 +293,8 @@ const AddressesPage = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Full Name *</Label>
-              <Input value={formData.full_name} onChange={(e) => updateField('full_name', e.target.value)} placeholder="John Doe" />
+              <Label className="text-gray-700 font-medium">Full Name *</Label>
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.full_name} onChange={(e) => updateField('full_name', e.target.value)} placeholder="John Doe" />
             </div>
             <div className="space-y-2">
               <Label>Phone *</Label>
