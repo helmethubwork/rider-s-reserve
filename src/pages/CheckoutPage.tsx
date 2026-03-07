@@ -53,6 +53,7 @@ const CheckoutPage = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [checkoutError, setCheckoutError] = useState<string>('');
 
   // Format price for display
   const formatPrice = (value: number) => {
