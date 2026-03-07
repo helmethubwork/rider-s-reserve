@@ -41,8 +41,8 @@ interface Address {
   user_id: string;
   full_name: string;
   phone: string;
-  address_line_1: string;
-  address_line_2: string | null;
+  address_line1: string;
+  address_line2: string | null;
   city: string;
   state: string;
   pincode: string;
