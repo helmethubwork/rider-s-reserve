@@ -122,12 +122,16 @@ const AdminOrders = () => {
 
   // Format date in IST
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-IN', {
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(dateString);
+    const normalizedDateString = hasTimezone ? dateString : `${dateString}Z`;
+
+    return new Date(normalizedDateString).toLocaleString('en-IN', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      hour12: true,
       timeZone: 'Asia/Kolkata',
     });
   };
