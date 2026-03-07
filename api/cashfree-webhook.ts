@@ -108,5 +108,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   console.log(`Order ${orderId} updated to payment_status=${paymentStatus}`);
+
+  // --- Forward successful payments to Google Sheets ---
+  if (paymentStatus === 'paid') {
+    const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+    if (sheetWebhookUrl) {
+      const customerDetails = body?.data?.customer_details ?? orderData?.customer_details ?? {};
+      const sheetPayload = {
+        order_id: orderId,
+        customer_name: customerDetails?.customer_name ?? '',
+        email: customerDetails?.customer_email ?? '',
+        phone: customerDetails?.customer_phone ?? '',
+        amount: paymentAmount,
+        payment_status: paymentStatus,
+      };
+
+      try {
+        const sheetRes = await fetch(sheetWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sheetPayload),
+        });
+        console.log(`Google Sheets webhook response: ${sheetRes.status}`);
+      } catch (sheetErr) {
+        console.error('Google Sheets webhook failed (non-blocking):', sheetErr);
+      }
+    } else {
+      console.warn('GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync');
+    }
+  }
+
   return res.status(200).json({ ok: true });
 }
