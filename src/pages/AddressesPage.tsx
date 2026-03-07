@@ -271,8 +271,8 @@ const AddressesPage = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">{addr.phone}</p>
                   <p className="text-sm text-foreground mt-1">
-                    {addr.address_line_1}
-                    {addr.address_line_2 && `, ${addr.address_line_2}`}
+                    {addr.address_line1}
+                    {addr.address_line2 && `, ${addr.address_line2}`}
                   </p>
                   <p className="text-sm text-foreground">
                     {addr.city}, {addr.state} - {addr.pincode}
