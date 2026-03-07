@@ -142,15 +142,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log(`[${istNow()}] Sending order to Google Sheets`);
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
-      const customerDetails = body?.data?.customer_details ?? body?.data?.order?.customer_details ?? orderData?.customer_details ?? {};
-      const customerName = customerDetails?.customer_name || body?.data?.payment?.payment_group_details?.customer_name || 'Guest';
-      console.log(`[${istNow()}] Customer name received:`, customerName);
-      console.log(`[${istNow()}] Customer details:`, JSON.stringify(customerDetails));
+      const sheetCustomerDetails = body?.data?.customer_details ?? body?.data?.order?.customer_details ?? orderData?.customer_details ?? {};
+      const sheetCustomerName = sheetCustomerDetails?.customer_name || body?.data?.payment?.payment_group_details?.customer_name || 'Guest';
+      console.log(`[${istNow()}] Customer name received:`, sheetCustomerName);
+      console.log(`[${istNow()}] Customer details:`, JSON.stringify(sheetCustomerDetails));
       const sheetPayload = {
         order_id: orderId,
-        customer_name: customerName,
-        email: customerDetails?.customer_email ?? '',
-        phone: customerDetails?.customer_phone ?? '',
+        customer_name: sheetCustomerName,
+        email: sheetCustomerDetails?.customer_email ?? '',
+        phone: sheetCustomerDetails?.customer_phone ?? '',
         amount: paymentAmount,
         payment_status: paymentStatus,
         timestamp: istNow(),
@@ -169,7 +169,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       console.warn(`[${istNow()}] GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync`);
     }
+
+    // --- Send order confirmation email ---
+    console.log(`[${istNow()}] Fetching order details for confirmation email`);
+    try {
+      // Fetch order record
+      const { data: orderRecord, error: orderErr } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('order_number', orderId)
+        .maybeSingle();
+
+      if (orderErr || !orderRecord) {
+        console.error(`[${istNow()}] Could not fetch order for email:`, orderErr);
+      } else {
+        // Fetch order items
+        const { data: orderItems } = await supabase
+          .from('order_items')
+          .select('product_name, quantity, price, color, size')
+          .eq('order_id', orderRecord.id);
+
+        const shippingAddress = orderRecord.shipping_address || [
+          orderRecord.delivery_address,
+          orderRecord.delivery_city,
+          orderRecord.delivery_state,
+          orderRecord.delivery_pincode,
+        ].filter(Boolean).join(', ');
+
+        const emailPayload = {
+          orderId,
+          customerName: orderRecord.customer_name || customerName,
+          customerEmail: orderRecord.customer_email || customerEmail,
+          products: orderItems || [],
+          amount: orderRecord.total_amount ?? paymentAmount,
+          shippingAddress,
+          invoiceUrl: null, // TODO: Generate invoice PDF and pass URL here
+        };
+
+        // Determine base URL for internal API call
+        const baseUrl = process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.SITE_URL || 'https://helmethub.in';
+
+        const emailRes = await fetch(`${baseUrl}/api/send-order-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(emailPayload),
+        });
+
+        const emailData = await emailRes.json();
+        if (emailRes.ok) {
+          console.log(`[${istNow()}] Order confirmation email sent successfully:`, emailData.emailId);
+        } else {
+          console.error(`[${istNow()}] Email API error:`, emailRes.status, emailData);
+        }
+      }
+    } catch (emailErr) {
+      console.error(`[${istNow()}] Email sending failed (non-blocking):`, emailErr);
+    }
   }
 
   return res.status(200).json({ received: true });
+}
 }
