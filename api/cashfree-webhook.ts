@@ -88,6 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let paymentStatus: string | null = null;
 
   if (eventType === 'PAYMENT_SUCCESS_WEBHOOK') {
+    console.log('Payment success received');
     paymentStatus = 'paid';
   } else if (eventType === 'PAYMENT_FAILED_WEBHOOK') {
     paymentStatus = 'failed';
