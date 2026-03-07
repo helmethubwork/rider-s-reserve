@@ -211,17 +211,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ? `https://${process.env.VERCEL_URL}`
           : process.env.SITE_URL || 'https://helmethub.in';
 
+        console.log(`[${istNow()}] Calling send-order-email API at ${baseUrl}`);
+        console.log(`[${istNow()}] Email payload:`, JSON.stringify(emailPayload));
+
         const emailRes = await fetch(`${baseUrl}/api/send-order-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(emailPayload),
         });
 
-        const emailData = await emailRes.json();
+        const emailText = await emailRes.text();
+        let emailData: any;
+        try {
+          emailData = JSON.parse(emailText);
+        } catch {
+          console.error(`[${istNow()}] Email API returned non-JSON response:`, emailText);
+          emailData = { raw: emailText };
+        }
+
         if (emailRes.ok) {
-          console.log(`[${istNow()}] Order confirmation email sent successfully:`, emailData.emailId);
+          console.log(`[${istNow()}] Order confirmation email sent successfully:`, JSON.stringify(emailData));
         } else {
-          console.error(`[${istNow()}] Email API error:`, emailRes.status, emailData);
+          console.error(`[${istNow()}] Email API error (${emailRes.status}):`, JSON.stringify(emailData));
         }
       }
     } catch (emailErr) {
