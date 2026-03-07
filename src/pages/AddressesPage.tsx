@@ -287,45 +287,45 @@ const AddressesPage = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-white text-gray-900">
           <DialogHeader>
-            <DialogTitle>{editingAddress ? 'Edit Address' : 'Add New Address'}</DialogTitle>
+            <DialogTitle className="text-gray-900">{editingAddress ? 'Edit Address' : 'Add New Address'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Full Name *</Label>
-              <Input value={formData.full_name} onChange={(e) => updateField('full_name', e.target.value)} placeholder="John Doe" />
+              <Label className="text-gray-700 font-medium">Full Name *</Label>
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.full_name} onChange={(e) => updateField('full_name', e.target.value)} placeholder="John Doe" />
             </div>
             <div className="space-y-2">
-              <Label>Phone *</Label>
-              <Input value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="9876543210" />
+              <Label className="text-gray-700 font-medium">Phone *</Label>
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="9876543210" />
             </div>
             <div className="space-y-2">
-              <Label>Address Line 1 *</Label>
-              <Input value={formData.address_line_1} onChange={(e) => updateField('address_line_1', e.target.value)} placeholder="House/Flat No, Street" />
+              <Label className="text-gray-700 font-medium">Address Line 1 *</Label>
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line_1} onChange={(e) => updateField('address_line_1', e.target.value)} placeholder="House/Flat No, Street" />
             </div>
             <div className="space-y-2">
-              <Label>Address Line 2</Label>
-              <Input value={formData.address_line_2} onChange={(e) => updateField('address_line_2', e.target.value)} placeholder="Landmark, Area" />
+              <Label className="text-gray-700 font-medium">Address Line 2</Label>
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line_2} onChange={(e) => updateField('address_line_2', e.target.value)} placeholder="Landmark, Area" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>City *</Label>
-                <Input value={formData.city} onChange={(e) => updateField('city', e.target.value)} placeholder="City" />
+                <Label className="text-gray-700 font-medium">City *</Label>
+                <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.city} onChange={(e) => updateField('city', e.target.value)} placeholder="City" />
               </div>
               <div className="space-y-2">
-                <Label>State *</Label>
-                <Input value={formData.state} onChange={(e) => updateField('state', e.target.value)} placeholder="State" />
+                <Label className="text-gray-700 font-medium">State *</Label>
+                <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.state} onChange={(e) => updateField('state', e.target.value)} placeholder="State" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Pincode *</Label>
-                <Input value={formData.pincode} onChange={(e) => updateField('pincode', e.target.value)} placeholder="560001" />
+                <Label className="text-gray-700 font-medium">Pincode *</Label>
+                <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.pincode} onChange={(e) => updateField('pincode', e.target.value)} placeholder="560001" />
               </div>
               <div className="space-y-2">
-                <Label>Country</Label>
-                <Input value={formData.country} onChange={(e) => updateField('country', e.target.value)} placeholder="India" />
+                <Label className="text-gray-700 font-medium">Country</Label>
+                <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.country} onChange={(e) => updateField('country', e.target.value)} placeholder="India" />
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -334,15 +334,15 @@ const AddressesPage = () => {
                 id="is_default"
                 checked={formData.is_default}
                 onChange={(e) => updateField('is_default', e.target.checked)}
-                className="rounded border-border"
+                className="rounded border-gray-300 accent-primary"
               />
-              <Label htmlFor="is_default" className="cursor-pointer text-sm">Set as default address</Label>
+              <Label htmlFor="is_default" className="cursor-pointer text-sm text-gray-700">Set as default address</Label>
             </div>
             <div className="flex gap-3 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={handleCloseForm}>
+              <Button type="button" variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100" onClick={handleCloseForm}>
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1" disabled={saveMutation.isPending}>
+              <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" disabled={saveMutation.isPending}>
                 {saveMutation.isPending ? 'Saving...' : editingAddress ? 'Update' : 'Save'}
               </Button>
             </div>
@@ -352,10 +352,10 @@ const AddressesPage = () => {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white text-gray-900">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Address?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-gray-900">Delete Address?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
               This action cannot be undone. The address will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
