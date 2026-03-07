@@ -334,9 +334,9 @@ const AddressesPage = () => {
                 id="is_default"
                 checked={formData.is_default}
                 onChange={(e) => updateField('is_default', e.target.checked)}
-                className="rounded border-border"
+                className="rounded border-gray-300 accent-primary"
               />
-              <Label htmlFor="is_default" className="cursor-pointer text-sm">Set as default address</Label>
+              <Label htmlFor="is_default" className="cursor-pointer text-sm text-gray-700">Set as default address</Label>
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" className="flex-1" onClick={handleCloseForm}>
