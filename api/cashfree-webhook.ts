@@ -103,7 +103,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     paymentStatus = 'failed';
   } else {
     // Acknowledge unknown events without processing
-    console.log(`Ignoring unhandled event type: ${eventType}`);
+    console.log(`[${istNow()}] Ignoring unhandled event type: ${eventType}`);
     return res.status(200).json({ received: true });
   }
 
