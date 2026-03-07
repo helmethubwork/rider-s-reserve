@@ -61,7 +61,7 @@ const OrderRow = ({ order }: { order: Order }) => (
 
     {/* View Order */}
     <Button variant="outline" size="sm" asChild className="shrink-0">
-      <Link to={`/order-confirmation/${order.order_number}`}>
+      <Link to={`/account/orders/${order.id}`}>
         <Eye size={14} className="mr-1.5" />
         View Order
       </Link>

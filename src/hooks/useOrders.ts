@@ -229,3 +229,25 @@ export const useOrderItems = (orderId: string) => {
     enabled: !!orderId,
   });
 };
+
+// Get order by ID
+export const useOrderById = (orderId: string) => {
+  return useQuery({
+    queryKey: ['orders', 'id', orderId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching order by ID:', error);
+        throw error;
+      }
+
+      return data as Order | null;
+    },
+    enabled: !!orderId,
+  });
+};
