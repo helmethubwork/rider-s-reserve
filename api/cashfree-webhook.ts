@@ -39,32 +39,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Server misconfigured' });
   }
 
+  console.log('Webhook received');
+
   // --- Signature verification ---
   const isTest = process.env.NODE_ENV !== 'production';
 
-  if (!isTest) {
-    const signature = req.headers['x-webhook-signature'] as string | undefined;
-    const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
+  try {
+    if (!isTest) {
+      const signature = req.headers['x-webhook-signature'] as string | undefined;
+      const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
 
-    if (!signature || !timestamp) {
-      console.warn('Webhook missing signature or timestamp headers');
-      return res.status(401).json({ error: 'Missing signature' });
-    }
+      if (!signature || !timestamp) {
+        console.warn('Webhook missing signature or timestamp headers');
+        return res.status(401).json({ error: 'Missing signature' });
+      }
 
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-    const payload = timestamp + rawBody;
+      const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      const payload = timestamp + rawBody;
 
-    try {
       if (!verifySignature(payload, signature, secretKey)) {
         console.warn('Webhook signature verification failed');
         return res.status(401).json({ error: 'Invalid signature' });
       }
-    } catch {
+    } else {
+      console.log('Skipping Cashfree signature verification in test mode');
+    }
+  } catch {
+    if (!isTest) {
       console.warn('Webhook signature comparison error');
       return res.status(401).json({ error: 'Invalid signature' });
     }
-  } else {
-    console.log('Skipping Cashfree signature verification in test mode');
+    console.log('Signature verification failed but continuing in test mode');
   }
 
   // --- Parse event ---
