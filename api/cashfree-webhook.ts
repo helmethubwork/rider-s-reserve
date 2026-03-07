@@ -148,9 +148,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sheetPayload),
         });
-        console.log(`Google Sheets webhook response: ${sheetRes.status}`);
+        console.log(`[${istNow()}] Google Sheets webhook response: ${sheetRes.status}`);
       } catch (sheetErr) {
-        console.error('Google Sheets webhook failed (non-blocking):', sheetErr);
+        console.error(`[${istNow()}] Google Sheets webhook failed (non-blocking):`, sheetErr);
       }
     } else {
       console.warn('GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync');
