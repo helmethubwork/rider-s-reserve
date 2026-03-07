@@ -5,11 +5,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { orderId, orderAmount, customerId, customerEmail, customerPhone } = req.body || {};
+  const { orderId, orderAmount, customerId, customerName, customerEmail, customerPhone } = req.body || {};
 
   if (!orderId || !orderAmount || !customerId || !customerEmail || !customerPhone) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  console.log('Creating Cashfree order for:', customerName || 'unknown');
 
   const appId = process.env.CASHFREE_APP_ID;
   const secretKey = process.env.CASHFREE_SECRET_KEY;
