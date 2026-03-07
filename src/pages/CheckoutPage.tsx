@@ -127,7 +127,7 @@ const CheckoutPage = () => {
         body: JSON.stringify({
           orderId: order.order_number,
           orderAmount: orderTotal,
-          customerId: user?.id || formData.email,
+          customerId: user?.id || `guest_${formData.email.replace(/[^a-zA-Z0-9]/g, '_')}`,
           customerEmail: formData.email,
           customerPhone: formData.phone,
         }),
@@ -136,8 +136,8 @@ const CheckoutPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error('Cashfree API error:', data);
-        throw new Error(data.error || 'Failed to initiate payment');
+        console.error('Cashfree API error — status:', res.status, 'body:', JSON.stringify(data));
+        throw new Error(data.error || data.message || 'Failed to initiate payment');
       }
 
       if (!data.payment_session_id) {
