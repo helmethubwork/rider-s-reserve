@@ -394,8 +394,7 @@ const CheckoutPage = () => {
                       )}
                     </div>
                   </>
-                )
-                </div>
+                )}
 
                 {/* Payment Notice */}
                 <div className="bg-secondary/50 rounded-lg p-4 flex gap-3">
