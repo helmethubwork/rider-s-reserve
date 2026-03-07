@@ -57,7 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const payload = timestamp + rawBody;
 
         if (!verifySignature(payload, signature, secretKey)) {
-          console.warn('Webhook signature verification failed');
+          console.warn(`[${istNow()}] Webhook signature verification failed`);
         }
       }
     } else {
