@@ -18,7 +18,9 @@ import {
   Eye,
   Settings,
   MapPin,
-  Circle
+  Circle,
+  IndianRupee,
+  CalendarCheck
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -95,6 +97,34 @@ const AdminDashboard = () => {
         .from('orders')
         .select('*', { count: 'exact', head: true })
         .eq('order_status', 'placed');
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  // Fetch total revenue (paid orders)
+  const { data: totalRevenue = 0, isLoading: loadingRevenue } = useQuery({
+    queryKey: ['admin', 'revenue', 'total'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('total_amount')
+        .eq('payment_status', 'paid');
+      if (error) throw error;
+      return (data ?? []).reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    },
+  });
+
+  // Fetch orders today
+  const { data: ordersToday = 0, isLoading: loadingToday } = useQuery({
+    queryKey: ['admin', 'orders', 'today'],
+    queryFn: async () => {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count, error } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', todayStart.toISOString());
       if (error) throw error;
       return count || 0;
     },
@@ -183,17 +213,7 @@ const AdminDashboard = () => {
 
   const stats = [
     {
-      label: 'Products',
-      value: productCount,
-      icon: Package,
-      href: '/admin/products',
-      color: 'bg-amber-500',
-      lightColor: 'bg-amber-50',
-      textColor: 'text-amber-600',
-      isLoading: loadingProducts,
-    },
-    {
-      label: 'Orders',
+      label: 'Total Orders',
       value: orderCount,
       icon: ShoppingCart,
       href: '/admin/orders',
@@ -201,6 +221,29 @@ const AdminDashboard = () => {
       lightColor: 'bg-emerald-50',
       textColor: 'text-emerald-600',
       isLoading: loadingOrders,
+      formatValue: (v: number) => String(v),
+    },
+    {
+      label: 'Total Revenue',
+      value: totalRevenue,
+      icon: IndianRupee,
+      href: '/admin/orders',
+      color: 'bg-green-500',
+      lightColor: 'bg-green-50',
+      textColor: 'text-green-600',
+      isLoading: loadingRevenue,
+      formatValue: (v: number) => formatPrice(v),
+    },
+    {
+      label: 'Orders Today',
+      value: ordersToday,
+      icon: CalendarCheck,
+      href: '/admin/orders',
+      color: 'bg-blue-500',
+      lightColor: 'bg-blue-50',
+      textColor: 'text-blue-600',
+      isLoading: loadingToday,
+      formatValue: (v: number) => String(v),
     },
     {
       label: 'Pending',
@@ -211,16 +254,29 @@ const AdminDashboard = () => {
       lightColor: 'bg-orange-50',
       textColor: 'text-orange-600',
       isLoading: loadingPending,
+      formatValue: (v: number) => String(v),
+    },
+    {
+      label: 'Products',
+      value: productCount,
+      icon: Package,
+      href: '/admin/products',
+      color: 'bg-amber-500',
+      lightColor: 'bg-amber-50',
+      textColor: 'text-amber-600',
+      isLoading: loadingProducts,
+      formatValue: (v: number) => String(v),
     },
     {
       label: 'Messages',
       value: messageCount,
       icon: MessageSquare,
       href: '/admin/messages',
-      color: 'bg-blue-500',
-      lightColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
+      color: 'bg-purple-500',
+      lightColor: 'bg-purple-50',
+      textColor: 'text-purple-600',
       isLoading: loadingMessages,
+      formatValue: (v: number) => String(v),
     },
   ];
 
@@ -249,7 +305,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {stats.map((stat) => (
             <Link
               key={stat.label}
@@ -264,9 +320,9 @@ const AdminDashboard = () => {
               </div>
               
               {stat.isLoading ? (
-                <Skeleton className="h-7 w-12 mb-1" />
+                <Skeleton className="h-7 w-16 mb-1" />
               ) : (
-                <p className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 truncate">{stat.formatValue(stat.value)}</p>
               )}
               <p className="text-xs md:text-sm text-gray-500 font-medium">{stat.label}</p>
             </Link>
