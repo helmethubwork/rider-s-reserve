@@ -25,6 +25,12 @@ interface CreateOrderInput {
   customer_name: string;
   customer_phone?: string;
   shipping_address: string;
+  delivery_full_name?: string;
+  delivery_phone?: string;
+  delivery_address?: string;
+  delivery_city?: string;
+  delivery_state?: string;
+  delivery_pincode?: string;
   items: OrderItem[];
   total_amount: number;
   user_id?: string;
