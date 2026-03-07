@@ -104,7 +104,6 @@ const AddressesPage = () => {
         state: data.state.trim(),
         pincode: data.pincode.trim(),
         country: data.country.trim(),
-        is_default: data.is_default,
         updated_at: new Date().toISOString(),
       };
 
