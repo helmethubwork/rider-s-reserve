@@ -236,7 +236,7 @@ const AddressesPage = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {addresses.map((addr) => (
-              <Card key={addr.id} className={addr.is_default ? 'border-primary' : ''}>
+              <Card key={addr.id}>
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
