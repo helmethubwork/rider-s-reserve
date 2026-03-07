@@ -176,8 +176,8 @@ const AddressesPage = () => {
     setFormData({
       full_name: addr.full_name,
       phone: addr.phone,
-      address_line_1: addr.address_line_1,
-      address_line_2: addr.address_line_2 || '',
+      address_line1: addr.address_line1,
+      address_line2: addr.address_line2 || '',
       city: addr.city,
       state: addr.state,
       pincode: addr.pincode,
