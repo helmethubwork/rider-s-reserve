@@ -18,10 +18,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCreateOrder } from '@/hooks/useOrders';
-import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft, MapPin, Plus } from 'lucide-react';
 import { z } from 'zod';
 import { startCashfreePayment } from '@/lib/cashfree';
 import { getShippingCost, SHIPPING_INFO_LINES } from '@/lib/shipping';
+import { supabase } from '@/lib/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 // Form validation schema
 const checkoutSchema = z.object({
