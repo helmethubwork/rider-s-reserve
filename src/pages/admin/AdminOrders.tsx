@@ -259,7 +259,7 @@ const AdminOrders = () => {
                         </td>
                         <td className="px-4 py-3">
                           <p className="font-medium text-gray-900">{order.customer_name}</p>
-                          <p className="text-xs text-gray-500">{order.customer_email}</p>
+                          <p className="text-xs text-gray-500">{order.customer_phone}</p>
                         </td>
                         <td className="px-4 py-3 font-bold text-gray-900">
                           {formatPrice(order.total_amount)}
