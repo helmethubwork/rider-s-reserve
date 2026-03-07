@@ -42,8 +42,7 @@ const accountOptions = [
     icon: MapPin, 
     title: "Addresses", 
     description: "Manage delivery addresses", 
-    link: "#",
-    disabled: true,
+    link: "/account/addresses",
     color: "text-orange-500"
   },
   { 
