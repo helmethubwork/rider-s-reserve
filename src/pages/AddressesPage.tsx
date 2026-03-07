@@ -314,8 +314,8 @@ const AddressesPage = () => {
                 <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.city} onChange={(e) => updateField('city', e.target.value)} placeholder="City" />
               </div>
               <div className="space-y-2">
-                <Label>State *</Label>
-                <Input value={formData.state} onChange={(e) => updateField('state', e.target.value)} placeholder="State" />
+                <Label className="text-gray-700 font-medium">State *</Label>
+                <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.state} onChange={(e) => updateField('state', e.target.value)} placeholder="State" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
