@@ -18,7 +18,9 @@ import {
   Eye,
   Settings,
   MapPin,
-  Circle
+  Circle,
+  IndianRupee,
+  CalendarCheck
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
