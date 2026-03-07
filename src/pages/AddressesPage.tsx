@@ -306,7 +306,7 @@ const AddressesPage = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-gray-700 font-medium">Address Line 2</Label>
-              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line_2} onChange={(e) => updateField('address_line_2', e.target.value)} placeholder="Landmark, Area" />
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line2} onChange={(e) => updateField('address_line2', e.target.value)} placeholder="Landmark, Area" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
