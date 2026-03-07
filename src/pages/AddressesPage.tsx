@@ -55,8 +55,8 @@ interface Address {
 const emptyForm = {
   full_name: '',
   phone: '',
-  address_line_1: '',
-  address_line_2: '',
+  address_line1: '',
+  address_line2: '',
   city: '',
   state: '',
   pincode: '',
