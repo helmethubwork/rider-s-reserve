@@ -72,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
   } catch (parseError) {
-    console.error('Failed to parse webhook payload:', parseError);
+    console.error(`[${istNow()}] Failed to parse webhook payload:`, parseError);
     return res.status(200).json({ received: true });
   }
 
