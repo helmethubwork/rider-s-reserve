@@ -143,15 +143,35 @@ const ViewOrderPage = () => {
                 <p className="text-lg font-bold text-primary">{formatPrice(order.total_amount)}</p>
               </div>
 
-              {/* Tracking */}
-              {order.tracking_id && (
-                <div className="p-5">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Tracking</p>
-                  <p className="text-sm text-foreground">
-                    {order.tracking_id} {order.courier_name && `(${order.courier_name})`}
-                  </p>
+              {/* Shipment Tracking */}
+              <div className="p-5">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Shipment Tracking</p>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Order Status</p>
+                    <Badge className={statusColors[order.order_status] || ''} variant="secondary">
+                      {order.order_status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Courier</p>
+                    <p className="text-sm font-medium text-foreground">{order.courier_name || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Tracking ID</p>
+                    <p className="text-sm font-medium text-foreground">{order.tracking_id || '—'}</p>
+                  </div>
                 </div>
-              )}
+                {order.tracking_id && (
+                  <div className="mt-3 bg-secondary/50 rounded-lg p-3 flex items-start gap-2">
+                    <Package size={16} className="text-primary mt-0.5 shrink-0" />
+                    <p className="text-sm text-foreground">
+                      Your order is being shipped via <span className="font-medium">{order.courier_name || 'courier'}</span>.
+                      Tracking ID: <span className="font-mono font-medium">{order.tracking_id}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}
