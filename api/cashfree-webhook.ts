@@ -118,9 +118,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .eq('order_number', orderId);
 
     if (error) {
-      console.error('Supabase update error:', error);
+      console.error(`[${istNow()}] Supabase update error:`, error);
     } else {
-      console.log(`Order ${orderId} updated to payment_status=${paymentStatus}`);
+      console.log(`[${istNow()}] Order ${orderId} updated to payment_status=${paymentStatus}`);
     }
   } catch (err) {
     console.error('Error during Supabase update:', err);
