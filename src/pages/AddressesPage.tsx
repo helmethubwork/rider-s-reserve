@@ -320,8 +320,8 @@ const AddressesPage = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Pincode *</Label>
-                <Input value={formData.pincode} onChange={(e) => updateField('pincode', e.target.value)} placeholder="560001" />
+                <Label className="text-gray-700 font-medium">Pincode *</Label>
+                <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.pincode} onChange={(e) => updateField('pincode', e.target.value)} placeholder="560001" />
               </div>
               <div className="space-y-2">
                 <Label>Country</Label>
