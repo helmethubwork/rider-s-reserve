@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
 
       if (!signature || !timestamp) {
-        console.warn('Webhook missing signature or timestamp headers');
+        console.warn(`[${istNow()}] Webhook missing signature or timestamp headers`);
       } else {
         const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
         const payload = timestamp + rawBody;
