@@ -139,6 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone: customerDetails?.customer_phone ?? '',
         amount: paymentAmount,
         payment_status: paymentStatus,
+        timestamp: istNow(),
       };
 
       try {
