@@ -115,12 +115,24 @@ const CheckoutPage = () => {
     let customerName = formData.name;
     let customerPhone = formData.phone;
     let shippingAddress = formData.address;
+    let deliveryFullName = formData.name;
+    let deliveryPhone = formData.phone;
+    let deliveryAddress = formData.address;
+    let deliveryCity = '';
+    let deliveryState = '';
+    let deliveryPincode = '';
 
     if (!useNewAddress && selectedAddressId !== 'new') {
       const addr = savedAddresses.find((a: any) => a.id === selectedAddressId);
       if (addr) {
         customerName = addr.full_name;
         customerPhone = addr.phone;
+        deliveryFullName = addr.full_name;
+        deliveryPhone = addr.phone;
+        deliveryAddress = [addr.address_line1, addr.address_line2].filter(Boolean).join(', ');
+        deliveryCity = addr.city || '';
+        deliveryState = addr.state || '';
+        deliveryPincode = addr.pincode || '';
         shippingAddress = [
           addr.address_line1,
           addr.address_line2,
@@ -174,6 +186,12 @@ const CheckoutPage = () => {
         customer_name: customerName,
         customer_phone: sanitizedPhone,
         shipping_address: shippingAddress,
+        delivery_full_name: deliveryFullName,
+        delivery_phone: deliveryPhone.replace(/\D/g, '').slice(-10),
+        delivery_address: deliveryAddress,
+        delivery_city: deliveryCity,
+        delivery_state: deliveryState,
+        delivery_pincode: deliveryPincode,
         total_amount: orderTotal,
         user_id: user?.id,
         items: items.map((item) => ({
