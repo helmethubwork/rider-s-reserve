@@ -123,7 +123,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[${istNow()}] Order ${orderId} updated to payment_status=${paymentStatus}`);
     }
   } catch (err) {
-    console.error('Error during Supabase update:', err);
+    console.error(`[${istNow()}] Error during Supabase update:`, err);
   }
 
   // --- Forward successful payments to Google Sheets ---
