@@ -108,13 +108,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // --- Update Supabase ---
+  const customerDetails = body?.data?.customer_details ?? body?.data?.order?.customer_details ?? orderData?.customer_details ?? {};
+  const customerName = customerDetails?.customer_name || 'Guest';
+  const customerEmail = customerDetails?.customer_email || '';
+  const customerPhone = customerDetails?.customer_phone || '';
+
   console.log(`[${istNow()}] Updating Supabase order:`, orderId);
+  console.log(`[${istNow()}] Customer:`, customerName);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
     const { error } = await supabase
       .from('orders')
-      .update({ payment_status: paymentStatus })
+      .update({
+        payment_status: paymentStatus,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
+      })
       .eq('order_number', orderId);
 
     if (error) {
