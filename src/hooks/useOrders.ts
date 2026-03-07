@@ -25,6 +25,12 @@ interface CreateOrderInput {
   customer_name: string;
   customer_phone?: string;
   shipping_address: string;
+  delivery_full_name?: string;
+  delivery_phone?: string;
+  delivery_address?: string;
+  delivery_city?: string;
+  delivery_state?: string;
+  delivery_pincode?: string;
   items: OrderItem[];
   total_amount: number;
   user_id?: string;
@@ -109,9 +115,15 @@ export const useCreateOrder = () => {
           customer_name: input.customer_name,
           customer_phone: input.customer_phone || null,
           shipping_address: input.shipping_address,
+          delivery_full_name: input.delivery_full_name || null,
+          delivery_phone: input.delivery_phone || null,
+          delivery_address: input.delivery_address || null,
+          delivery_city: input.delivery_city || null,
+          delivery_state: input.delivery_state || null,
+          delivery_pincode: input.delivery_pincode || null,
           total_amount: input.total_amount,
           order_status: 'placed',
-          payment_status: 'pending', // Always pending - payment integration later
+          payment_status: 'pending',
         })
         .select()
         .single();
