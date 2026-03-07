@@ -229,7 +229,6 @@ const AdminOrders = () => {
                     <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Phone
                     </th>
-                    </th>
                     <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Total
                     </th>
