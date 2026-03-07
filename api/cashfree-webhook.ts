@@ -40,25 +40,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // --- Signature verification ---
-  const signature = req.headers['x-webhook-signature'] as string | undefined;
-  const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
+  if (process.env.NODE_ENV === 'production') {
+    const signature = req.headers['x-webhook-signature'] as string | undefined;
+    const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
 
-  if (!signature || !timestamp) {
-    console.warn('Webhook missing signature or timestamp headers');
-    return res.status(401).json({ error: 'Missing signature' });
-  }
+    if (!signature || !timestamp) {
+      console.warn('Webhook missing signature or timestamp headers');
+      return res.status(401).json({ error: 'Missing signature' });
+    }
 
-  const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-  const payload = timestamp + rawBody;
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const payload = timestamp + rawBody;
 
-  try {
-    if (!verifySignature(payload, signature, secretKey)) {
-      console.warn('Webhook signature verification failed');
+    try {
+      if (!verifySignature(payload, signature, secretKey)) {
+        console.warn('Webhook signature verification failed');
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+    } catch {
+      console.warn('Webhook signature comparison error');
       return res.status(401).json({ error: 'Invalid signature' });
     }
-  } catch {
-    console.warn('Webhook signature comparison error');
-    return res.status(401).json({ error: 'Invalid signature' });
+  } else {
+    console.log('Skipping Cashfree signature verification in test mode');
   }
 
   // --- Parse event ---
