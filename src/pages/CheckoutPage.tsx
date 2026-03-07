@@ -101,6 +101,7 @@ const CheckoutPage = () => {
     }
 
     // Create order in database first, then start Cashfree payment
+    setCheckoutError('');
     try {
       const order = await createOrder.mutateAsync({
         customer_email: formData.email,
@@ -135,14 +136,21 @@ const CheckoutPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
+        console.error('Cashfree API error:', data);
         throw new Error(data.error || 'Failed to initiate payment');
       }
 
-      // Clear cart and start Cashfree checkout
-      clearCart();
+      if (!data.payment_session_id) {
+        console.error('No payment_session_id in response:', data);
+        throw new Error('Payment session not received. Please try again.');
+      }
+
+      // Start Cashfree checkout — only clear cart after successful redirect
       await startCashfreePayment(data);
-    } catch (error) {
+      clearCart();
+    } catch (error: any) {
       console.error('Checkout error:', error);
+      setCheckoutError(error?.message || 'Something went wrong. Please try again.');
     }
   };
 
