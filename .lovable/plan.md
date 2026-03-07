@@ -1,39 +1,63 @@
 
 
-## Fix: "Could not find 'customer_email' column" Error
+## Fix Guest Checkout for Cashfree Payment
 
-The `orders` table in your Supabase database is missing several columns that the checkout code tries to insert into. The table needs to be updated to match what the code expects.
+### Problem
+Guest (non-logged-in) users cannot complete checkout because:
+1. **Invalid `customer_id`** — Cashfree requires alphanumeric-only `customer_id`, but guest checkout passes raw email (contains `@`, `.`)
+2. **Possible RLS blocking** — Supabase may block anonymous order creation if policies are missing for the `anon` role
 
-### What's Wrong
+### Changes
 
-The code in `useOrders.ts` tries to insert these fields into the `orders` table, but they don't exist in the database:
-- `customer_email`
-- `customer_name`
-- `customer_phone`
-- `shipping_address`
-
-### Fix: Add Missing Columns via Migration
-
-Create a Supabase migration to add the missing columns to the `orders` table:
-
-```sql
-ALTER TABLE public.orders
-  ADD COLUMN IF NOT EXISTS customer_email text NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS customer_name text NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS customer_phone text,
-  ADD COLUMN IF NOT EXISTS shipping_address text NOT NULL DEFAULT '';
+#### 1. Sanitize `customerId` in CheckoutPage (`src/pages/CheckoutPage.tsx`, line 130)
+Replace:
+```typescript
+customerId: user?.id || formData.email,
+```
+With:
+```typescript
+customerId: user?.id || `guest_${formData.email.replace(/[^a-zA-Z0-9]/g, '_')}`,
 ```
 
-This single migration will add all four columns the checkout flow needs.
+#### 2. Improve error logging (same file, lines 136-141)
+Add full response logging before throwing:
+```typescript
+const data = await res.json();
 
-### Also Needed: RLS Policies
+if (!res.ok) {
+  console.error('Cashfree API error — status:', res.status, 'body:', JSON.stringify(data));
+  throw new Error(data.error || data.message || 'Failed to initiate payment');
+}
+```
 
-As discussed in the previous plan, the following RLS policies are still required if not already added:
+#### 3. Supabase RLS Policies (migration)
+Based on the memory note, these policies may already exist. The plan will verify and add if missing:
 
-1. INSERT policy on `orders` for `authenticated` and `anon`
-2. SELECT policy on `orders` for `authenticated` and `anon`
-3. INSERT policy on `order_items` for `authenticated` and `anon`
+```sql
+-- Allow guest and authenticated users to insert orders
+CREATE POLICY "Allow anon insert orders" ON public.orders
+  FOR INSERT TO anon WITH CHECK (true);
 
-### No Code Changes Needed
+CREATE POLICY "Allow authenticated insert orders" ON public.orders
+  FOR INSERT TO authenticated WITH CHECK (true);
 
-The existing `useOrders.ts` and `CheckoutPage.tsx` code is correct -- only the database schema needs to be updated.
+-- Allow select for order number generation
+CREATE POLICY "Allow anon select orders" ON public.orders
+  FOR SELECT TO anon USING (true);
+
+CREATE POLICY "Allow authenticated select orders" ON public.orders
+  FOR SELECT TO authenticated USING (true);
+
+-- Order items
+CREATE POLICY "Allow anon insert order_items" ON public.order_items
+  FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated insert order_items" ON public.order_items
+  FOR INSERT TO authenticated WITH CHECK (true);
+```
+
+Note: Per the memory (`checkout-architecture`), these policies should already exist. The migration will use `IF NOT EXISTS` or be skipped if already present — will verify during implementation.
+
+#### 4. No other file changes needed
+The `useOrders.ts` hook and `api/create-cashfree-order.ts` are correct as-is.
+
