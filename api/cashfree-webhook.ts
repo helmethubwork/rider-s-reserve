@@ -24,6 +24,7 @@ const verifySignature = (rawBody: string, signature: string, secret: string): bo
     Buffer.from(expectedSignature),
   );
 };
+const istNow = () => new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -39,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Server misconfigured' });
   }
 
-  console.log('Webhook received');
+  console.log(`[${istNow()}] Webhook received`);
 
   // --- Signature verification ---
   const isTest = process.env.NODE_ENV !== 'production';
@@ -50,20 +51,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
 
       if (!signature || !timestamp) {
-        console.warn('Webhook missing signature or timestamp headers');
+        console.warn(`[${istNow()}] Webhook missing signature or timestamp headers`);
       } else {
         const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
         const payload = timestamp + rawBody;
 
         if (!verifySignature(payload, signature, secretKey)) {
-          console.warn('Webhook signature verification failed');
+          console.warn(`[${istNow()}] Webhook signature verification failed`);
         }
       }
     } else {
-      console.log('Skipping Cashfree signature verification in test mode');
+      console.log(`[${istNow()}] Skipping Cashfree signature verification in test mode`);
     }
   } catch {
-    console.log('Signature verification failed but continuing (test mode)');
+    console.log(`[${istNow()}] Signature verification failed but continuing (test mode)`);
   }
 
   // --- Parse event ---
@@ -71,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
   } catch (parseError) {
-    console.error('Failed to parse webhook payload:', parseError);
+    console.error(`[${istNow()}] Failed to parse webhook payload:`, parseError);
     return res.status(200).json({ received: true });
   }
 
@@ -81,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const cashfreePaymentStatus = String(paymentData?.payment_status ?? '').toUpperCase();
 
   if (!orderData?.order_id) {
-    console.warn('Webhook payload missing order data:', JSON.stringify(body));
+    console.warn(`[${istNow()}] Webhook payload missing order data:`, JSON.stringify(body));
     return res.status(200).json({ received: true });
   }
 
@@ -89,25 +90,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const cfPaymentId: string | null = paymentData?.cf_payment_id ?? null;
   const paymentAmount: number | null = paymentData?.payment_amount ?? orderData.order_amount ?? null;
 
-  console.log(`Webhook received: ${eventType ?? 'unknown'} for order ${orderId}`);
-  console.log('Processing payment status');
+  console.log(`[${istNow()}] Webhook received: ${eventType ?? 'unknown'} for order ${orderId}`);
+  console.log(`[${istNow()}] Processing payment status`);
 
   // --- Determine new status ---
   let paymentStatus: string | null = null;
 
   if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' || cashfreePaymentStatus === 'SUCCESS') {
-    console.log('Payment success received');
+    console.log(`[${istNow()}] Payment success received`);
     paymentStatus = 'paid';
   } else if (eventType === 'PAYMENT_FAILED_WEBHOOK' || cashfreePaymentStatus === 'FAILED') {
     paymentStatus = 'failed';
   } else {
     // Acknowledge unknown events without processing
-    console.log(`Ignoring unhandled event type: ${eventType}`);
+    console.log(`[${istNow()}] Ignoring unhandled event type: ${eventType}`);
     return res.status(200).json({ received: true });
   }
 
   // --- Update Supabase ---
-  console.log('Updating Supabase order:', orderId);
+  console.log(`[${istNow()}] Updating Supabase order:`, orderId);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
@@ -117,17 +118,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .eq('order_number', orderId);
 
     if (error) {
-      console.error('Supabase update error:', error);
+      console.error(`[${istNow()}] Supabase update error:`, error);
     } else {
-      console.log(`Order ${orderId} updated to payment_status=${paymentStatus}`);
+      console.log(`[${istNow()}] Order ${orderId} updated to payment_status=${paymentStatus}`);
     }
   } catch (err) {
-    console.error('Error during Supabase update:', err);
+    console.error(`[${istNow()}] Error during Supabase update:`, err);
   }
 
   // --- Forward successful payments to Google Sheets ---
   if (paymentStatus === 'paid') {
-    console.log('Sending order to Google Sheets');
+    console.log(`[${istNow()}] Sending order to Google Sheets`);
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
       const customerDetails = body?.data?.customer_details ?? orderData?.customer_details ?? {};
@@ -138,6 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone: customerDetails?.customer_phone ?? '',
         amount: paymentAmount,
         payment_status: paymentStatus,
+        timestamp: istNow(),
       };
 
       try {
@@ -146,12 +148,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sheetPayload),
         });
-        console.log(`Google Sheets webhook response: ${sheetRes.status}`);
+        console.log(`[${istNow()}] Google Sheets webhook response: ${sheetRes.status}`);
       } catch (sheetErr) {
-        console.error('Google Sheets webhook failed (non-blocking):', sheetErr);
+        console.error(`[${istNow()}] Google Sheets webhook failed (non-blocking):`, sheetErr);
       }
     } else {
-      console.warn('GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync');
+      console.warn(`[${istNow()}] GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync`);
     }
   }
 
