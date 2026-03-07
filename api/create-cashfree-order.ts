@@ -36,6 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         order_currency: 'INR',
         customer_details: {
           customer_id: customerId,
+          customer_name: customerName || '',
           customer_email: customerEmail,
           customer_phone: customerPhone,
         },
