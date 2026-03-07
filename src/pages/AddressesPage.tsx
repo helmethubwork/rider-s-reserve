@@ -339,10 +339,10 @@ const AddressesPage = () => {
               <Label htmlFor="is_default" className="cursor-pointer text-sm text-gray-700">Set as default address</Label>
             </div>
             <div className="flex gap-3 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={handleCloseForm}>
+              <Button type="button" variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100" onClick={handleCloseForm}>
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1" disabled={saveMutation.isPending}>
+              <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" disabled={saveMutation.isPending}>
                 {saveMutation.isPending ? 'Saving...' : editingAddress ? 'Update' : 'Save'}
               </Button>
             </div>
