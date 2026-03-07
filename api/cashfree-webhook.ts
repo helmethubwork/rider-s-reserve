@@ -153,7 +153,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error(`[${istNow()}] Google Sheets webhook failed (non-blocking):`, sheetErr);
       }
     } else {
-      console.warn('GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync');
+      console.warn(`[${istNow()}] GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync`);
     }
   }
 
