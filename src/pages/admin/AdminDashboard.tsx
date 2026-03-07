@@ -305,7 +305,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {stats.map((stat) => (
             <Link
               key={stat.label}
@@ -320,9 +320,9 @@ const AdminDashboard = () => {
               </div>
               
               {stat.isLoading ? (
-                <Skeleton className="h-7 w-12 mb-1" />
+                <Skeleton className="h-7 w-16 mb-1" />
               ) : (
-                <p className="text-2xl md:text-3xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 truncate">{stat.formatValue(stat.value)}</p>
               )}
               <p className="text-xs md:text-sm text-gray-500 font-medium">{stat.label}</p>
             </Link>
