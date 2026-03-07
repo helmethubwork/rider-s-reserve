@@ -64,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[${istNow()}] Skipping Cashfree signature verification in test mode`);
     }
   } catch {
-    console.log('Signature verification failed but continuing (test mode)');
+    console.log(`[${istNow()}] Signature verification failed but continuing (test mode)`);
   }
 
   // --- Parse event ---
