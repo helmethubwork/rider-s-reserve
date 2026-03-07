@@ -169,7 +169,7 @@ const AddressesPage = () => {
       state: addr.state,
       pincode: addr.pincode,
       country: addr.country,
-      is_default: addr.is_default,
+      
     });
     setIsFormOpen(true);
   };
