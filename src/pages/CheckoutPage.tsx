@@ -94,6 +94,13 @@ const CheckoutPage = () => {
       return;
     }
 
+    // Sanitize and validate phone number
+    const sanitizedPhone = formData.phone.replace(/\D/g, '').slice(-10);
+    if (sanitizedPhone.length < 10) {
+      setErrors((prev) => ({ ...prev, phone: 'Please enter a valid 10 digit mobile number' }));
+      return;
+    }
+
     // Check if cart has items
     if (items.length === 0) {
       navigate('/cart');
@@ -106,7 +113,7 @@ const CheckoutPage = () => {
       const order = await createOrder.mutateAsync({
         customer_email: formData.email,
         customer_name: formData.name,
-        customer_phone: formData.phone,
+        customer_phone: sanitizedPhone,
         shipping_address: formData.address,
         total_amount: orderTotal,
         user_id: user?.id,
@@ -129,7 +136,7 @@ const CheckoutPage = () => {
           orderAmount: orderTotal,
           customerId: user?.id || `guest_${formData.email.replace(/[^a-zA-Z0-9]/g, '_')}`,
           customerEmail: formData.email,
-          customerPhone: formData.phone,
+          customerPhone: sanitizedPhone,
         }),
       });
 
