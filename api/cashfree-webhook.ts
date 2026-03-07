@@ -132,10 +132,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
       const customerDetails = body?.data?.customer_details ?? body?.data?.order?.customer_details ?? orderData?.customer_details ?? {};
+      const customerName = customerDetails?.customer_name || body?.data?.payment?.payment_group_details?.customer_name || 'Guest';
+      console.log(`[${istNow()}] Customer name received:`, customerName);
       console.log(`[${istNow()}] Customer details:`, JSON.stringify(customerDetails));
       const sheetPayload = {
         order_id: orderId,
-        customer_name: customerDetails?.customer_name ?? '',
+        customer_name: customerName,
         email: customerDetails?.customer_email ?? '',
         phone: customerDetails?.customer_phone ?? '',
         amount: paymentAmount,
