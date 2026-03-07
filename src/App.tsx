@@ -37,6 +37,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentFailed = lazy(() => import("./pages/PaymentFailed"));
 const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"));
+const AddressesPage = lazy(() => import("./pages/AddressesPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminAddProduct = lazy(() => import("./pages/admin/AdminAddProduct"));
@@ -88,6 +89,7 @@ const App = () => (
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
                 <Route path="/my-orders" element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
+                <Route path="/account/addresses" element={<ProtectedRoute><AddressesPage /></ProtectedRoute>} />
                 <Route path="/latest-offers" element={<CategoryPage />} />
                 <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
                 <Route path="/warranty-policy" element={<WarrantyPolicyPage />} />
