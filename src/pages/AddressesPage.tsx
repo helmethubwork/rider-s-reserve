@@ -121,18 +121,6 @@ const AddressesPage = () => {
         if (error) throw error;
       }
 
-      // If setting as default, unset others
-      if (data.is_default) {
-        const currentId = editingAddress?.id;
-        const otherAddresses = addresses.filter(a => a.id !== currentId && a.is_default);
-        for (const addr of otherAddresses) {
-          await supabase
-            .from('addresses')
-            .update({ is_default: false })
-            .eq('id', addr.id)
-            .eq('user_id', user.id);
-        }
-      }
     },
     onSuccess: () => {
       toast.success(editingAddress ? 'Address updated!' : 'Address added!');
