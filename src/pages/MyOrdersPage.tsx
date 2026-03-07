@@ -1,18 +1,18 @@
 /**
  * My Orders Page
  * 
- * Shows authenticated user's order history with status and items.
+ * Shows authenticated user's order history fetched from Supabase.
+ * Displays order ID, date, amount, payment & order status with a View Order button.
  */
 
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { goBack } from '@/lib/navigation';
-import { ChevronLeft, Package, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, ShoppingBag, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserOrders, useOrderItems, Order } from '@/hooks/useOrders';
+import { useUserOrders, Order } from '@/hooks/useOrders';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -31,65 +31,42 @@ const paymentColors: Record<string, string> = {
   refunded: 'bg-gray-100 text-gray-800',
 };
 
-const OrderItemsList = ({ orderId }: { orderId: string }) => {
-  const { data: items, isLoading } = useOrderItems(orderId);
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(value);
 
-  if (isLoading) return <Skeleton className="h-4 w-48" />;
-  if (!items?.length) return <p className="text-xs text-muted-foreground">No items</p>;
+const OrderRow = ({ order }: { order: Order }) => (
+  <div className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+    {/* Order Info */}
+    <div className="flex-1 min-w-0 space-y-1">
+      <p className="font-bold text-foreground text-sm sm:text-base">{order.order_number}</p>
+      <p className="text-xs text-muted-foreground">
+        {format(new Date(order.created_at), 'dd MMM yyyy, hh:mm a')}
+      </p>
+    </div>
 
-  return (
-    <ul className="space-y-1">
-      {items.map((item) => (
-        <li key={item.id} className="text-sm text-muted-foreground flex justify-between">
-          <span>
-            {item.product_name || 'Product'} × {item.quantity}
-            {item.color && <span className="ml-1 text-xs">({item.color})</span>}
-            {item.size && <span className="ml-1 text-xs">- {item.size}</span>}
-          </span>
-          <span className="font-medium text-foreground">₹{(item.price * item.quantity).toLocaleString()}</span>
-        </li>
-      ))}
-    </ul>
-  );
-};
+    {/* Amount */}
+    <div className="sm:text-right">
+      <p className="text-sm font-semibold text-foreground">{formatPrice(order.total_amount)}</p>
+    </div>
 
-const OrderCard = ({ order }: { order: Order }) => (
-  <Card>
-    <CardContent className="p-4 sm:p-6 space-y-3">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="font-bold text-foreground">{order.order_number}</p>
-          <p className="text-xs text-muted-foreground">
-            {format(new Date(order.created_at), 'dd MMM yyyy, hh:mm a')}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Badge className={statusColors[order.order_status] || ''} variant="secondary">
-            {order.order_status}
-          </Badge>
-          <Badge className={paymentColors[order.payment_status] || ''} variant="secondary">
-            {order.payment_status}
-          </Badge>
-        </div>
-      </div>
+    {/* Statuses */}
+    <div className="flex items-center gap-2 flex-wrap">
+      <Badge className={paymentColors[order.payment_status] || ''} variant="secondary">
+        {order.payment_status}
+      </Badge>
+      <Badge className={statusColors[order.order_status] || ''} variant="secondary">
+        {order.order_status}
+      </Badge>
+    </div>
 
-      {/* Items */}
-      <OrderItemsList orderId={order.id} />
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-border">
-        <p className="font-semibold text-foreground">
-          Total: ₹{order.total_amount.toLocaleString()}
-        </p>
-        {order.tracking_id && (
-          <p className="text-xs text-muted-foreground">
-            Tracking: {order.tracking_id} {order.courier_name && `(${order.courier_name})`}
-          </p>
-        )}
-      </div>
-    </CardContent>
-  </Card>
+    {/* View Order */}
+    <Button variant="outline" size="sm" asChild className="shrink-0">
+      <Link to={`/order-confirmation/${order.order_number}`}>
+        <Eye size={14} className="mr-1.5" />
+        View Order
+      </Link>
+    </Button>
+  </div>
 );
 
 const MyOrdersPage = () => {
@@ -116,10 +93,18 @@ const MyOrdersPage = () => {
       <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">My Orders</h1>
 
+        {/* Table header - desktop */}
+        <div className="hidden sm:flex items-center gap-4 px-5 pb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <span className="flex-1">Order</span>
+          <span className="w-24 text-right">Amount</span>
+          <span className="w-40">Status</span>
+          <span className="w-28"></span>
+        </div>
+
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+              <Skeleton key={i} className="h-20 w-full rounded-lg" />
             ))}
           </div>
         ) : !orders?.length ? (
@@ -132,9 +117,9 @@ const MyOrdersPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {orders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <OrderRow key={order.id} order={order} />
             ))}
           </div>
         )}
