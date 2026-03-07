@@ -275,14 +275,22 @@ const CheckoutPage = () => {
 
                 {/* Payment Notice */}
                 <div className="bg-secondary/50 rounded-lg p-4 flex gap-3">
-                  <AlertCircle className="text-primary flex-shrink-0 mt-0.5" size={20} />
+                  <CreditCard className="text-primary flex-shrink-0 mt-0.5" size={20} />
                   <div>
-                    <p className="text-sm font-medium text-foreground">Payment on Delivery</p>
+                    <p className="text-sm font-medium text-foreground">Secure Online Payment</p>
                     <p className="text-sm text-muted-foreground">
-                      Online payment will be available soon. Currently, we accept Cash on Delivery.
+                      Pay securely via UPI, cards, net banking or wallets powered by Cashfree.
                     </p>
                   </div>
                 </div>
+
+                {/* Checkout Error */}
+                {checkoutError && (
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex gap-3">
+                    <AlertCircle className="text-destructive flex-shrink-0 mt-0.5" size={20} />
+                    <p className="text-sm text-destructive">{checkoutError}</p>
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <Button
