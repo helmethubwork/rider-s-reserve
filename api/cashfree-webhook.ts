@@ -88,6 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let paymentStatus: string | null = null;
 
   if (eventType === 'PAYMENT_SUCCESS_WEBHOOK') {
+    console.log('Payment success received');
     paymentStatus = 'paid';
   } else if (eventType === 'PAYMENT_FAILED_WEBHOOK') {
     paymentStatus = 'failed';
@@ -117,6 +118,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // --- Forward successful payments to Google Sheets ---
   if (paymentStatus === 'paid') {
+    console.log('Sending order to Google Sheets');
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
       const customerDetails = body?.data?.customer_details ?? orderData?.customer_details ?? {};
