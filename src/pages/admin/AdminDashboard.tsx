@@ -102,6 +102,34 @@ const AdminDashboard = () => {
     },
   });
 
+  // Fetch total revenue (paid orders)
+  const { data: totalRevenue = 0, isLoading: loadingRevenue } = useQuery({
+    queryKey: ['admin', 'revenue', 'total'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('total_amount')
+        .eq('payment_status', 'paid');
+      if (error) throw error;
+      return (data ?? []).reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    },
+  });
+
+  // Fetch orders today
+  const { data: ordersToday = 0, isLoading: loadingToday } = useQuery({
+    queryKey: ['admin', 'orders', 'today'],
+    queryFn: async () => {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count, error } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', todayStart.toISOString());
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
   // Fetch messages count
   const { data: messageCount = 0, isLoading: loadingMessages } = useQuery({
     queryKey: ['admin', 'contact-messages', 'count'],
