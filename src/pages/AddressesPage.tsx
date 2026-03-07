@@ -41,8 +41,8 @@ interface Address {
   user_id: string;
   full_name: string;
   phone: string;
-  address_line_1: string;
-  address_line_2: string | null;
+  address_line1: string;
+  address_line2: string | null;
   city: string;
   state: string;
   pincode: string;
@@ -55,8 +55,8 @@ interface Address {
 const emptyForm = {
   full_name: '',
   phone: '',
-  address_line_1: '',
-  address_line_2: '',
+  address_line1: '',
+  address_line2: '',
   city: '',
   state: '',
   pincode: '',
@@ -98,8 +98,8 @@ const AddressesPage = () => {
       const payload = {
         full_name: data.full_name.trim(),
         phone: data.phone.trim(),
-        address_line_1: data.address_line_1.trim(),
-        address_line_2: data.address_line_2.trim() || null,
+        address_line1: data.address_line1.trim(),
+        address_line2: data.address_line2.trim() || null,
         city: data.city.trim(),
         state: data.state.trim(),
         pincode: data.pincode.trim(),
@@ -176,8 +176,8 @@ const AddressesPage = () => {
     setFormData({
       full_name: addr.full_name,
       phone: addr.phone,
-      address_line_1: addr.address_line_1,
-      address_line_2: addr.address_line_2 || '',
+      address_line1: addr.address_line1,
+      address_line2: addr.address_line2 || '',
       city: addr.city,
       state: addr.state,
       pincode: addr.pincode,
@@ -195,7 +195,7 @@ const AddressesPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.full_name || !formData.phone || !formData.address_line_1 || !formData.city || !formData.state || !formData.pincode) {
+    if (!formData.full_name || !formData.phone || !formData.address_line1 || !formData.city || !formData.state || !formData.pincode) {
       toast.error('Please fill all required fields');
       return;
     }
@@ -271,8 +271,8 @@ const AddressesPage = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">{addr.phone}</p>
                   <p className="text-sm text-foreground mt-1">
-                    {addr.address_line_1}
-                    {addr.address_line_2 && `, ${addr.address_line_2}`}
+                    {addr.address_line1}
+                    {addr.address_line2 && `, ${addr.address_line2}`}
                   </p>
                   <p className="text-sm text-foreground">
                     {addr.city}, {addr.state} - {addr.pincode}
@@ -302,11 +302,11 @@ const AddressesPage = () => {
             </div>
             <div className="space-y-2">
               <Label className="text-gray-700 font-medium">Address Line 1 *</Label>
-              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line_1} onChange={(e) => updateField('address_line_1', e.target.value)} placeholder="House/Flat No, Street" />
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line1} onChange={(e) => updateField('address_line1', e.target.value)} placeholder="House/Flat No, Street" />
             </div>
             <div className="space-y-2">
               <Label className="text-gray-700 font-medium">Address Line 2</Label>
-              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line_2} onChange={(e) => updateField('address_line_2', e.target.value)} placeholder="Landmark, Area" />
+              <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.address_line2} onChange={(e) => updateField('address_line2', e.target.value)} placeholder="Landmark, Area" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
