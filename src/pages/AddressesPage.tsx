@@ -310,15 +310,6 @@ const AddressesPage = () => {
                 <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.country} onChange={(e) => updateField('country', e.target.value)} placeholder="India" />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_default"
-                checked={formData.is_default}
-                onChange={(e) => updateField('is_default', e.target.checked)}
-                className="rounded border-gray-300 accent-primary"
-              />
-              <Label htmlFor="is_default" className="cursor-pointer text-sm text-gray-700">Set as default address</Label>
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100" onClick={handleCloseForm}>
