@@ -40,6 +40,33 @@ const CheckoutPage = () => {
   const { user, profile } = useAuth();
   const createOrder = useCreateOrder();
 
+  // Fetch saved addresses for logged-in users
+  const { data: savedAddresses = [] } = useQuery({
+    queryKey: ['checkout-addresses', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) { console.error('Error fetching addresses:', error); return []; }
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const [selectedAddressId, setSelectedAddressId] = useState<string | 'new'>('new');
+  const [useNewAddress, setUseNewAddress] = useState(true);
+
+  // When addresses load, auto-select first one
+  useEffect(() => {
+    if (savedAddresses.length > 0 && selectedAddressId === 'new') {
+      setSelectedAddressId(savedAddresses[0].id);
+      setUseNewAddress(false);
+    }
+  }, [savedAddresses]);
+
   // Pre-fill form with user data if logged in
   const [formData, setFormData] = useState({
     name: profile?.full_name || '',
