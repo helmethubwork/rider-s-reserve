@@ -108,7 +108,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // --- Update Supabase ---
-  console.log('Updating Supabase order:', orderId);
+  console.log(`[${istNow()}] Updating Supabase order:`, orderId);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
