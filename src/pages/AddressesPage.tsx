@@ -310,7 +310,6 @@ const AddressesPage = () => {
                 <Input className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400" value={formData.country} onChange={(e) => updateField('country', e.target.value)} placeholder="India" />
               </div>
             </div>
-            </div>
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100" onClick={handleCloseForm}>
                 Cancel
