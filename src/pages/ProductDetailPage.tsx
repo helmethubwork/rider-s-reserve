@@ -142,6 +142,7 @@ const ProductDetailPage = () => {
     );
   }
   if (!product || error) {
+    console.warn(`[ProductDetailPage] Product not found for UUID: "${id}". Error:`, error || 'No matching active product in database.');
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
@@ -161,8 +162,11 @@ const ProductDetailPage = () => {
             <h1 className="text-2xl font-bold text-foreground mb-4">
               Product Not Found
             </h1>
-            <Link to="/sale" className="text-primary hover:underline">
-              Back to Sale
+            <p className="text-muted-foreground mb-4 text-sm">
+              This product may have been removed or is currently unavailable.
+            </p>
+            <Link to="/" className="text-primary hover:underline">
+              Back to Home
             </Link>
           </div>
         </main>
