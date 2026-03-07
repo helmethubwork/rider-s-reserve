@@ -9,6 +9,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const EMAIL_FROM = process.env.EMAIL_FROM || 'orders@helmethub.in';
 
+  console.log('RESEND KEY PRESENT:', !!RESEND_API_KEY);
+  console.log('RESEND KEY LENGTH:', RESEND_API_KEY?.length ?? 0);
+  console.log('EMAIL_FROM:', EMAIL_FROM);
+
   if (!RESEND_API_KEY) {
     console.error('RESEND_API_KEY is not configured');
     return res.status(500).json({ error: 'Email service not configured' });
