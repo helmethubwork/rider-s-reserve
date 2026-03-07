@@ -107,20 +107,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // --- Update Supabase ---
+  console.log('Updating Supabase order:', orderId);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-  const { error } = await supabase
-    .from('orders')
-    .update({
-      payment_status: paymentStatus,
-      ...(cfPaymentId ? { cf_payment_id: cfPaymentId } : {}),
-    })
-    .eq('order_number', orderId);
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .update({ payment_status: paymentStatus })
+      .eq('order_id', orderId);
 
-  if (error) {
-    console.error('Supabase update error:', error);
-  } else {
-    console.log(`Order ${orderId} updated to payment_status=${paymentStatus}`);
+    if (error) {
+      console.error('Supabase update error:', error);
+    } else {
+      console.log(`Order ${orderId} updated to payment_status=${paymentStatus}`);
+    }
+  } catch (err) {
+    console.error('Error during Supabase update:', err);
   }
 
   // --- Forward successful payments to Google Sheets ---
