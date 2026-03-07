@@ -98,8 +98,8 @@ const AddressesPage = () => {
       const payload = {
         full_name: data.full_name.trim(),
         phone: data.phone.trim(),
-        address_line_1: data.address_line_1.trim(),
-        address_line_2: data.address_line_2.trim() || null,
+        address_line1: data.address_line1.trim(),
+        address_line2: data.address_line2.trim() || null,
         city: data.city.trim(),
         state: data.state.trim(),
         pincode: data.pincode.trim(),
