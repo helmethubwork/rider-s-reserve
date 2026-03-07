@@ -114,7 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { error } = await supabase
       .from('orders')
       .update({ payment_status: paymentStatus })
-      .eq('order_id', orderId);
+      .eq('order_number', orderId);
 
     if (error) {
       console.error('Supabase update error:', error);
