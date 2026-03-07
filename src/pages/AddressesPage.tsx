@@ -61,7 +61,7 @@ const emptyForm = {
   state: '',
   pincode: '',
   country: 'India',
-  is_default: false,
+  
 };
 
 const AddressesPage = () => {
