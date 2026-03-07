@@ -270,24 +270,7 @@ const CheckoutPage = () => {
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="name">
-                    Full Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={errors.name ? 'border-destructive' : ''}
-                    placeholder="Enter your full name"
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name}</p>
-                  )}
-                </div>
-
-                {/* Email */}
+                {/* Email - always shown */}
                 <div className="space-y-2">
                   <Label htmlFor="email">
                     Email <span className="text-destructive">*</span>
@@ -305,39 +288,113 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* Phone */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone">
-                    Phone Number <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className={errors.phone ? 'border-destructive' : ''}
-                    placeholder="Enter your phone number"
-                  />
-                  {errors.phone && (
-                    <p className="text-sm text-destructive">{errors.phone}</p>
-                  )}
-                </div>
+                {/* Saved Addresses Section */}
+                {user && savedAddresses.length > 0 && (
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium flex items-center gap-2">
+                      <MapPin size={16} className="text-primary" />
+                      Deliver to
+                    </Label>
+                    <RadioGroup
+                      value={selectedAddressId}
+                      onValueChange={(val) => {
+                        setSelectedAddressId(val);
+                        setUseNewAddress(val === 'new');
+                      }}
+                      className="space-y-2"
+                    >
+                      {savedAddresses.map((addr: any) => (
+                        <label
+                          key={addr.id}
+                          className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                            selectedAddressId === addr.id
+                              ? 'border-primary bg-primary/5'
+                              : 'border-border hover:border-muted-foreground/30'
+                          }`}
+                        >
+                          <RadioGroupItem value={addr.id} className="mt-1" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">{addr.full_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {[addr.address_line1, addr.address_line2, addr.city, addr.state, addr.pincode].filter(Boolean).join(', ')}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{addr.phone}</p>
+                          </div>
+                        </label>
+                      ))}
+                      <label
+                        className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                          selectedAddressId === 'new'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-muted-foreground/30'
+                        }`}
+                      >
+                        <RadioGroupItem value="new" />
+                        <div className="flex items-center gap-1.5">
+                          <Plus size={14} />
+                          <span className="text-sm font-medium text-foreground">Use a new address</span>
+                        </div>
+                      </label>
+                    </RadioGroup>
+                  </div>
+                )}
 
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="address">
-                    Shipping Address <span className="text-destructive">*</span>
-                  </Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className={errors.address ? 'border-destructive' : ''}
-                    placeholder="Enter your complete shipping address"
-                    rows={3}
-                  />
-                  {errors.address && (
-                    <p className="text-sm text-destructive">{errors.address}</p>
-                  )}
+                {/* Manual address fields - shown for guests or when "new address" selected */}
+                {useNewAddress && (
+                  <>
+                    {/* Name */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name">
+                        Full Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        className={errors.name ? 'border-destructive' : ''}
+                        placeholder="Enter your full name"
+                      />
+                      {errors.name && (
+                        <p className="text-sm text-destructive">{errors.name}</p>
+                      )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">
+                        Phone Number <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="phone"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className={errors.phone ? 'border-destructive' : ''}
+                        placeholder="Enter your phone number"
+                      />
+                      {errors.phone && (
+                        <p className="text-sm text-destructive">{errors.phone}</p>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    <div className="space-y-2">
+                      <Label htmlFor="address">
+                        Shipping Address <span className="text-destructive">*</span>
+                      </Label>
+                      <Textarea
+                        id="address"
+                        value={formData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        className={errors.address ? 'border-destructive' : ''}
+                        placeholder="Enter your complete shipping address"
+                        rows={3}
+                      />
+                      {errors.address && (
+                        <p className="text-sm text-destructive">{errors.address}</p>
+                      )}
+                    </div>
+                  </>
+                )
                 </div>
 
                 {/* Payment Notice */}
