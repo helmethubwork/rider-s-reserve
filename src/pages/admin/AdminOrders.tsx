@@ -224,7 +224,10 @@ const AdminOrders = () => {
                       Order
                     </th>
                     <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
-                      Customer
+                      Customer Name
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
+                      Phone
                     </th>
                     <th className="text-left px-4 py-3 text-sm font-bold text-gray-700">
                       Total
@@ -258,8 +261,10 @@ const AdminOrders = () => {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900">{order.customer_name}</p>
-                          <p className="text-xs text-gray-500">{order.customer_email}</p>
+                          <p className="font-medium text-gray-900">{order.customer_name || 'Guest'}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="text-sm text-gray-700">{order.customer_phone || '-'}</p>
                         </td>
                         <td className="px-4 py-3 font-bold text-gray-900">
                           {formatPrice(order.total_amount)}
