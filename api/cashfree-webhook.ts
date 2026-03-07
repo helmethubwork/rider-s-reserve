@@ -40,7 +40,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // --- Signature verification ---
-  if (process.env.NODE_ENV === 'production') {
+  const isTest = process.env.NODE_ENV !== 'production';
+
+  if (!isTest) {
     const signature = req.headers['x-webhook-signature'] as string | undefined;
     const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
 
