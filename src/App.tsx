@@ -38,6 +38,7 @@ const PaymentFailed = lazy(() => import("./pages/PaymentFailed"));
 const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
 const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"));
 const AddressesPage = lazy(() => import("./pages/AddressesPage"));
+const ViewOrderPage = lazy(() => import("./pages/ViewOrderPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminAddProduct = lazy(() => import("./pages/admin/AdminAddProduct"));
