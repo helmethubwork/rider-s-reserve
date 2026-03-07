@@ -82,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const cashfreePaymentStatus = String(paymentData?.payment_status ?? '').toUpperCase();
 
   if (!orderData?.order_id) {
-    console.warn('Webhook payload missing order data:', JSON.stringify(body));
+    console.warn(`[${istNow()}] Webhook payload missing order data:`, JSON.stringify(body));
     return res.status(200).json({ received: true });
   }
 
