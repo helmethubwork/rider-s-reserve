@@ -352,10 +352,10 @@ const AddressesPage = () => {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white text-gray-900">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Address?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-gray-900">Delete Address?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
               This action cannot be undone. The address will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
