@@ -103,7 +103,6 @@ const AddressesPage = () => {
         state: data.state.trim(),
         pincode: data.pincode.trim(),
         country: data.country.trim(),
-        updated_at: new Date().toISOString(),
       };
 
       if (editingAddress) {
