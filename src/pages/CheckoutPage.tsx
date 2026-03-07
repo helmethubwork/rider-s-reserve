@@ -111,8 +111,37 @@ const CheckoutPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Determine shipping details based on selected address
+    let customerName = formData.name;
+    let customerPhone = formData.phone;
+    let shippingAddress = formData.address;
+
+    if (!useNewAddress && selectedAddressId !== 'new') {
+      const addr = savedAddresses.find((a: any) => a.id === selectedAddressId);
+      if (addr) {
+        customerName = addr.full_name;
+        customerPhone = addr.phone;
+        shippingAddress = [
+          addr.address_line1,
+          addr.address_line2,
+          addr.city,
+          addr.state,
+          addr.pincode,
+          addr.country,
+        ].filter(Boolean).join(', ');
+      }
+    }
+
+    // Build validation data
+    const dataToValidate = {
+      name: customerName,
+      email: formData.email,
+      phone: customerPhone,
+      address: shippingAddress,
+    };
+
     // Validate form
-    const result = checkoutSchema.safeParse(formData);
+    const result = checkoutSchema.safeParse(dataToValidate);
     if (!result.success) {
       const newErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
@@ -125,7 +154,7 @@ const CheckoutPage = () => {
     }
 
     // Sanitize and validate phone number
-    const sanitizedPhone = formData.phone.replace(/\D/g, '').slice(-10);
+    const sanitizedPhone = customerPhone.replace(/\D/g, '').slice(-10);
     if (sanitizedPhone.length < 10) {
       setErrors((prev) => ({ ...prev, phone: 'Please enter a valid 10 digit mobile number' }));
       return;
@@ -142,9 +171,9 @@ const CheckoutPage = () => {
     try {
       const order = await createOrder.mutateAsync({
         customer_email: formData.email,
-        customer_name: formData.name,
+        customer_name: customerName,
         customer_phone: sanitizedPhone,
-        shipping_address: formData.address,
+        shipping_address: shippingAddress,
         total_amount: orderTotal,
         user_id: user?.id,
         items: items.map((item) => ({
