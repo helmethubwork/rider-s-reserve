@@ -90,8 +90,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const cfPaymentId: string | null = paymentData?.cf_payment_id ?? null;
   const paymentAmount: number | null = paymentData?.payment_amount ?? orderData.order_amount ?? null;
 
-  console.log(`Webhook received: ${eventType ?? 'unknown'} for order ${orderId}`);
-  console.log('Processing payment status');
+  console.log(`[${istNow()}] Webhook received: ${eventType ?? 'unknown'} for order ${orderId}`);
+  console.log(`[${istNow()}] Processing payment status`);
 
   // --- Determine new status ---
   let paymentStatus: string | null = null;
