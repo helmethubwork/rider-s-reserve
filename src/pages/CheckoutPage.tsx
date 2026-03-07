@@ -135,6 +135,7 @@ const CheckoutPage = () => {
           orderId: order.order_number,
           orderAmount: orderTotal,
           customerId: user?.id || `guest_${formData.email.replace(/[^a-zA-Z0-9]/g, '_')}`,
+          customerName: formData.name,
           customerEmail: formData.email,
           customerPhone: sanitizedPhone,
         }),
