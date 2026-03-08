@@ -205,6 +205,7 @@ const AdminOrders = () => {
       <!DOCTYPE html>
       <html>
       <head>
+        <meta charset="UTF-8">
         <title>Invoice - ${order.order_number}</title>
         <style>
           @media print {
