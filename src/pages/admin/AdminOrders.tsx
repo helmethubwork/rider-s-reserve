@@ -520,6 +520,15 @@ const AdminOrders = () => {
                     {formatPrice(selectedOrder.total_amount)}
                   </span>
                 </div>
+
+                {/* Download Invoice Button */}
+                <Button
+                  onClick={() => handleDownloadInvoice(selectedOrder, orderItems)}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Invoice (Print / Stick on Box)
+                </Button>
               </div>
             )}
           </DialogContent>
