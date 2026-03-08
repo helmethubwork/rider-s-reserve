@@ -197,7 +197,7 @@ const AdminOrders = () => {
         <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;">${item.product_name}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:center;">${[item.color, item.size].filter(Boolean).join(' / ') || '-'}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:center;">${item.quantity}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:right;">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</td>
       </tr>
     `).join('');
 
@@ -205,6 +205,7 @@ const AdminOrders = () => {
       <!DOCTYPE html>
       <html>
       <head>
+        <meta charset="UTF-8">
         <title>Invoice - ${order.order_number}</title>
         <style>
           @media print {
@@ -245,7 +246,7 @@ const AdminOrders = () => {
           <h3>Ship To</h3>
           <div class="ship-to">
             <p style="font-weight:bold;font-size:13px;">${order.customer_name || 'Guest'}</p>
-            ${order.customer_phone ? `<p>📞 ${order.customer_phone}</p>` : ''}
+            ${order.customer_phone ? `<p>Phone: ${order.customer_phone}</p>` : ''}
             <p>${shippingAddr}</p>
           </div>
         </div>
@@ -265,18 +266,18 @@ const AdminOrders = () => {
           </table>
           <div class="total-row">
             <span>Total</span>
-            <span>₹${Number(order.total_amount).toLocaleString('en-IN')}</span>
+            <span>&#8377;${Number(order.total_amount).toLocaleString('en-IN')}</span>
           </div>
         </div>
 
         <p style="text-align:center;font-size:10px;color:#888;margin-top:16px;">Thank you for shopping with Helmet Hub!</p>
         
-        <button class="btn no-print" onclick="window.print()">🖨️ Print Invoice</button>
+        <button class="btn no-print" onclick="window.print()">Print Invoice</button>
       </body>
       </html>
     `;
 
-    const blob = new Blob([html], { type: 'text/html' });
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const win = window.open(url, '_blank');
     if (win) {
