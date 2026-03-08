@@ -232,7 +232,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log(`[${istNow()}] Sending email to ${emailTo} for order ${orderId}`);
 
           const data = await resend.emails.send({
-            from: `Helmet Hub <${EMAIL_FROM}>`,
+            from: 'HelmetHub <orders@helmethub.in>',
             to: [emailTo],
             subject: `Order Confirmation - Helmet Hub - ${orderId}`,
             html: htmlContent,
