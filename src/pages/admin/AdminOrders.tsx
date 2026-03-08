@@ -246,7 +246,7 @@ const AdminOrders = () => {
           <h3>Ship To</h3>
           <div class="ship-to">
             <p style="font-weight:bold;font-size:13px;">${order.customer_name || 'Guest'}</p>
-            ${order.customer_phone ? `<p>📞 ${order.customer_phone}</p>` : ''}
+            ${order.customer_phone ? `<p>Phone: ${order.customer_phone}</p>` : ''}
             <p>${shippingAddr}</p>
           </div>
         </div>
