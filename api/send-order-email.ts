@@ -58,9 +58,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     `;
 
     const data = await resend.emails.send({
-      from: EMAIL_FROM,
-      to: customerEmail,
-      subject: `HelmetHub Order Confirmation – ${orderId}`,
+      from: `Helmet Hub <${EMAIL_FROM}>`,
+      to: [customerEmail],
+      subject: `Order Confirmation - Helmet Hub - ${orderId}`,
       html: htmlContent,
     });
 
