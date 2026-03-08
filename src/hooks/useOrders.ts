@@ -50,6 +50,8 @@ export interface Order {
   payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
   tracking_id: string | null;
   courier_name: string | null;
+  shipped_at: string | null;
+  email_sent: boolean;
   created_at: string;
   updated_at: string;
 }

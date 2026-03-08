@@ -89,17 +89,44 @@ const AdminOrders = () => {
   // Update order mutation
   const updateOrder = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof editData }) => {
+      const updatePayload: Record<string, any> = {
+        order_status: data.order_status,
+        tracking_id: data.tracking_id || null,
+        courier_name: data.courier_name || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Set shipped_at when status changes to shipped
+      if (data.order_status === 'shipped') {
+        updatePayload.shipped_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('orders')
-        .update({
-          order_status: data.order_status,
-          tracking_id: data.tracking_id || null,
-          courier_name: data.courier_name || null,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updatePayload)
         .eq('id', id);
 
       if (error) throw error;
+
+      // If tracking_id is provided, trigger dispatch email
+      if (data.tracking_id) {
+        try {
+          const res = await fetch('/api/send-dispatch-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: id }),
+          });
+          const result = await res.json();
+          if (result.message === 'Email already sent') {
+            console.log('Dispatch email already sent for this order');
+          } else if (result.success) {
+            toast.success('Dispatch email sent to customer');
+          }
+        } catch (emailErr) {
+          console.error('Failed to trigger dispatch email:', emailErr);
+          toast.error('Order updated but dispatch email failed');
+        }
+      }
     },
     onSuccess: () => {
       toast.success('Order updated successfully');
