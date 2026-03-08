@@ -272,7 +272,7 @@ const AdminOrders = () => {
 
         <p style="text-align:center;font-size:10px;color:#888;margin-top:16px;">Thank you for shopping with Helmet Hub!</p>
         
-        <button class="btn no-print" onclick="window.print()">🖨️ Print Invoice</button>
+        <button class="btn no-print" onclick="window.print()">Print Invoice</button>
       </body>
       </html>
     `;
