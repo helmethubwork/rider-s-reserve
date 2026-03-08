@@ -93,7 +93,6 @@ const AdminOrders = () => {
         order_status: data.order_status,
         tracking_id: data.tracking_id || null,
         courier_name: data.courier_name || null,
-        updated_at: new Date().toISOString(),
       };
 
       // Set shipped_at when status changes to shipped
