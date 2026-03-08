@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
 /**
  * Cashfree Webhook Handler
@@ -170,76 +171,80 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.warn(`[${istNow()}] GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync`);
     }
 
-    // --- Send order confirmation email ---
-    console.log(`[${istNow()}] Fetching order details for confirmation email`);
-    try {
-      // Fetch order record
-      const { data: orderRecord, error: orderErr } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_number', orderId)
-        .maybeSingle();
+    // --- Send order confirmation email via Resend SDK ---
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    const EMAIL_FROM = process.env.EMAIL_FROM || 'orders@helmethub.in';
+    console.log(`[${istNow()}] RESEND_API_KEY exists: ${!!RESEND_API_KEY}`);
+    console.log(`[${istNow()}] EMAIL_FROM: ${EMAIL_FROM}`);
 
-      if (orderErr || !orderRecord) {
-        console.error(`[${istNow()}] Could not fetch order for email:`, orderErr);
-      } else {
-        // Fetch order items
-        const { data: orderItems } = await supabase
-          .from('order_items')
-          .select('product_name, quantity, price, color, size')
-          .eq('order_id', orderRecord.id);
+    if (!RESEND_API_KEY) {
+      console.error(`[${istNow()}] RESEND_API_KEY not configured, skipping email`);
+    } else {
+      try {
+        const { data: orderRecord, error: orderErr } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('order_number', orderId)
+          .maybeSingle();
 
-        const shippingAddress = orderRecord.shipping_address || [
-          orderRecord.delivery_address,
-          orderRecord.delivery_city,
-          orderRecord.delivery_state,
-          orderRecord.delivery_pincode,
-        ].filter(Boolean).join(', ');
-
-        const emailPayload = {
-          orderId,
-          customerName: orderRecord.customer_name || customerName,
-          customerEmail: orderRecord.customer_email || customerEmail,
-          products: orderItems || [],
-          amount: orderRecord.total_amount ?? paymentAmount,
-          shippingAddress,
-          invoiceUrl: null, // TODO: Generate invoice PDF and pass URL here
-        };
-
-        // Determine base URL for internal API call
-        const baseUrl = process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.SITE_URL || 'https://helmethub.in';
-
-        console.log(`[${istNow()}] Calling send-order-email API at ${baseUrl}`);
-        console.log(`[${istNow()}] Email payload:`, JSON.stringify(emailPayload));
-
-        const emailRes = await fetch(`${baseUrl}/api/send-order-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(emailPayload),
-        });
-
-        const emailText = await emailRes.text();
-        let emailData: any;
-        try {
-          emailData = JSON.parse(emailText);
-        } catch {
-          console.error(`[${istNow()}] Email API returned non-JSON response:`, emailText);
-          emailData = { raw: emailText };
-        }
-
-        if (emailRes.ok) {
-          console.log(`[${istNow()}] Order confirmation email sent successfully:`, JSON.stringify(emailData));
+        if (orderErr || !orderRecord) {
+          console.error(`[${istNow()}] Could not fetch order for email:`, orderErr);
         } else {
-          console.error(`[${istNow()}] Email API error (${emailRes.status}):`, JSON.stringify(emailData));
+          const { data: orderItems } = await supabase
+            .from('order_items')
+            .select('product_name, quantity, price, color, size')
+            .eq('order_id', orderRecord.id);
+
+          const shippingAddress = orderRecord.shipping_address || [
+            orderRecord.delivery_address,
+            orderRecord.delivery_city,
+            orderRecord.delivery_state,
+            orderRecord.delivery_pincode,
+          ].filter(Boolean).join(', ');
+
+          const productLines = (orderItems || [])
+            .map((p: any) => `<li>${p.product_name} (Qty: ${p.quantity}) — ₹${(p.price * p.quantity).toFixed(2)}</li>`)
+            .join('');
+
+          const emailTo = orderRecord.customer_email || customerEmail;
+          const emailName = orderRecord.customer_name || customerName;
+          const emailAmount = orderRecord.total_amount ?? paymentAmount;
+
+          const htmlContent = `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#222;">
+              <h2 style="color:#e65100;">HelmetHub Order Confirmation</h2>
+              <p>Hello <strong>${emailName}</strong>,</p>
+              <p>Your order has been successfully placed.</p>
+              <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+                <tr><td style="padding:8px 0;color:#666;">Order ID</td><td style="padding:8px 0;font-weight:600;">${orderId}</td></tr>
+                <tr><td style="padding:8px 0;color:#666;">Total Amount</td><td style="padding:8px 0;font-weight:600;">₹${Number(emailAmount).toFixed(2)}</td></tr>
+              </table>
+              <h3 style="margin-bottom:8px;">Products</h3>
+              <ul style="background:#f5f5f5;padding:12px 12px 12px 28px;border-radius:6px;font-size:14px;">${productLines}</ul>
+              <h3 style="margin-bottom:8px;">Shipping Address</h3>
+              <p style="background:#f5f5f5;padding:12px;border-radius:6px;">${shippingAddress}</p>
+              <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
+              <p>Thank you for shopping with <strong>HelmetHub</strong>.</p>
+            </div>
+          `;
+
+          const resend = new Resend(RESEND_API_KEY);
+          console.log(`[${istNow()}] Sending email to ${emailTo} for order ${orderId}`);
+
+          const data = await resend.emails.send({
+            from: `Helmet Hub <${EMAIL_FROM}>`,
+            to: [emailTo],
+            subject: `Order Confirmation - Helmet Hub - ${orderId}`,
+            html: htmlContent,
+          });
+
+          console.log(`[${istNow()}] Email sent successfully:`, JSON.stringify(data));
         }
+      } catch (emailErr) {
+        console.error(`[${istNow()}] Email sending failed (non-blocking):`, emailErr);
       }
-    } catch (emailErr) {
-      console.error(`[${istNow()}] Email sending failed (non-blocking):`, emailErr);
     }
   }
 
   return res.status(200).json({ received: true });
-}
 }
