@@ -29,7 +29,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Order, OrderItemDB } from '@/hooks/useOrders';
-import { Eye, Loader2, Package, Truck, Circle } from 'lucide-react';
+import { Eye, Loader2, Package, Truck, Circle, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
