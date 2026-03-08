@@ -197,7 +197,7 @@ const AdminOrders = () => {
         <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;">${item.product_name}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:center;">${[item.color, item.size].filter(Boolean).join(' / ') || '-'}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:center;">${item.quantity}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:right;">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</td>
       </tr>
     `).join('');
 
