@@ -189,6 +189,108 @@ const AdminOrders = () => {
     }
   };
 
+  // Generate and download a printable courier-box invoice
+  const handleDownloadInvoice = (order: Order, items: OrderItemDB[]) => {
+    const shippingAddr = order.shipping_address || 'N/A';
+    const itemRows = items.map(item => `
+      <tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;">${item.product_name}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:center;">${[item.color, item.size].filter(Boolean).join(' / ') || '-'}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:center;">${item.quantity}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #ddd;font-size:12px;text-align:right;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice - ${order.order_number}</title>
+        <style>
+          @media print {
+            body { margin: 0; padding: 10mm; }
+            .no-print { display: none !important; }
+          }
+          body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 16px; color: #222; }
+          .header { text-align: center; border-bottom: 2px solid #222; padding-bottom: 8px; margin-bottom: 12px; }
+          .header h1 { margin: 0; font-size: 20px; }
+          .header p { margin: 2px 0; font-size: 11px; color: #666; }
+          .section { margin-bottom: 10px; }
+          .section h3 { margin: 0 0 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+          .section p { margin: 2px 0; font-size: 12px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+          th { background: #f0f0f0; padding: 6px 8px; font-size: 11px; text-align: left; border-bottom: 2px solid #999; }
+          .total-row { font-size: 14px; font-weight: bold; border-top: 2px solid #222; padding-top: 8px; margin-top: 8px; display: flex; justify-content: space-between; }
+          .ship-to { border: 2px dashed #999; padding: 8px; border-radius: 4px; }
+          .btn { display: block; margin: 16px auto; padding: 10px 32px; background: #e65100; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>HELMET HUB</h1>
+          <p>www.helmethub.in</p>
+          <p style="font-size:13px;font-weight:bold;margin-top:4px;">TAX INVOICE / PACKING SLIP</p>
+        </div>
+
+        <div class="section">
+          <h3>Order Info</h3>
+          <p><strong>Order:</strong> ${order.order_number}</p>
+          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+          <p><strong>Payment:</strong> ${(order.payment_status || '').toUpperCase()}</p>
+          ${order.courier_name ? `<p><strong>Courier:</strong> ${order.courier_name}</p>` : ''}
+          ${order.tracking_id ? `<p><strong>Tracking:</strong> ${order.tracking_id}</p>` : ''}
+        </div>
+
+        <div class="section">
+          <h3>Ship To</h3>
+          <div class="ship-to">
+            <p style="font-weight:bold;font-size:13px;">${order.customer_name || 'Guest'}</p>
+            ${order.customer_phone ? `<p>📞 ${order.customer_phone}</p>` : ''}
+            <p>${shippingAddr}</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Items</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th style="text-align:center;">Variant</th>
+                <th style="text-align:center;">Qty</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>${itemRows}</tbody>
+          </table>
+          <div class="total-row">
+            <span>Total</span>
+            <span>₹${Number(order.total_amount).toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+
+        <p style="text-align:center;font-size:10px;color:#888;margin-top:16px;">Thank you for shopping with Helmet Hub!</p>
+        
+        <button class="btn no-print" onclick="window.print()">🖨️ Print Invoice</button>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) {
+      win.onload = () => URL.revokeObjectURL(url);
+    } else {
+      // Fallback: download as HTML file
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Invoice-${order.order_number}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
   // Get status badge color
   const getStatusColor = (status: string) => {
     switch (status) {
