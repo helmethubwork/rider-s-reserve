@@ -53,7 +53,6 @@ export interface Order {
   shipped_at: string | null;
   email_sent: boolean;
   created_at: string;
-  updated_at: string;
 }
 
 // Order item from database
