@@ -266,7 +266,7 @@ const AdminOrders = () => {
           </table>
           <div class="total-row">
             <span>Total</span>
-            <span>₹${Number(order.total_amount).toLocaleString('en-IN')}</span>
+            <span>&#8377;${Number(order.total_amount).toLocaleString('en-IN')}</span>
           </div>
         </div>
 
