@@ -49,7 +49,10 @@ const PaymentStatus = () => {
               <CheckCircle size={72} className="mx-auto text-green-500 mb-6" />
               <h1 className="text-3xl font-bold text-foreground mb-3">Payment Successful 🎉</h1>
               <p className="text-muted-foreground mb-2">
-                Your order has been confirmed and is being processed.
+                Your order has been confirmed and is being prepared.
+              </p>
+              <p className="text-sm text-muted-foreground mb-2">
+                Tracking details and invoice will be sent to your email within 24 hours once the order is dispatched.
               </p>
               {orderId && (
                 <p className="text-sm text-muted-foreground mb-8">
