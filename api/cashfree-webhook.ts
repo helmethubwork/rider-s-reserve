@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
 /**
  * Cashfree Webhook Handler
