@@ -1,19 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
-
-/**
- * Cashfree Webhook Handler
- *
- * Verifies the webhook signature, then updates the order's payment_status
- * in Supabase based on the event type.
- *
- * Required env vars:
- *   CASHFREE_SECRET_KEY   – used to verify x-webhook-signature
- *   SUPABASE_URL
- *   SUPABASE_SERVICE_ROLE_KEY  – service role to bypass RLS
- */
 
 const verifySignature = (rawBody: string, signature: string, secret: string): boolean => {
   const expectedSignature = crypto
@@ -25,7 +12,13 @@ const verifySignature = (rawBody: string, signature: string, secret: string): bo
     Buffer.from(expectedSignature),
   );
 };
+
 const istNow = () => new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+const BASE_URL =
+  process.env.CASHFREE_ENV === 'production'
+    ? 'https://api.cashfree.com'
+    : 'https://sandbox.cashfree.com';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -43,29 +36,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   console.log(`[${istNow()}] Webhook received`);
 
-  // --- Signature verification ---
-  const isTest = process.env.NODE_ENV !== 'production';
+  // --- Signature verification (enforced in production only) ---
+  const isTest = process.env.CASHFREE_ENV !== 'production';
 
-  try {
-    if (!isTest) {
-      const signature = req.headers['x-webhook-signature'] as string | undefined;
-      const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
+  if (!isTest) {
+    const signature = req.headers['x-webhook-signature'] as string | undefined;
+    const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
 
-      if (!signature || !timestamp) {
-        console.warn(`[${istNow()}] Webhook missing signature or timestamp headers`);
-      } else {
-        const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-        const payload = timestamp + rawBody;
-
-        if (!verifySignature(payload, signature, secretKey)) {
-          console.warn(`[${istNow()}] Webhook signature verification failed`);
-        }
-      }
-    } else {
-      console.log(`[${istNow()}] Skipping Cashfree signature verification in test mode`);
+    if (!signature || !timestamp) {
+      console.warn(`[${istNow()}] Webhook missing signature or timestamp headers`);
+      return res.status(401).json({ error: 'Missing signature' });
     }
-  } catch {
-    console.log(`[${istNow()}] Signature verification failed but continuing (test mode)`);
+
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const payload = timestamp + rawBody;
+
+    if (!verifySignature(payload, signature, secretKey)) {
+      console.warn(`[${istNow()}] Webhook signature verification failed`);
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+  } else {
+    console.log(`[${istNow()}] Skipping signature verification (test mode)`);
   }
 
   // --- Parse event ---
@@ -73,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
   } catch (parseError) {
-    console.error(`[${istNow()}] Failed to parse webhook payload:`, parseError);
+    console.error(`[${istNow()}] Failed to parse webhook payload`);
     return res.status(200).json({ received: true });
   }
 
@@ -83,27 +74,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const cashfreePaymentStatus = String(paymentData?.payment_status ?? '').toUpperCase();
 
   if (!orderData?.order_id) {
-    console.warn(`[${istNow()}] Webhook payload missing order data:`, JSON.stringify(body));
+    console.warn(`[${istNow()}] Webhook payload missing order data`);
     return res.status(200).json({ received: true });
   }
 
-  const orderId: string = orderData.order_id; // matches our order_number
+  const orderId: string = orderData.order_id;
   const cfPaymentId: string | null = paymentData?.cf_payment_id ?? null;
   const paymentAmount: number | null = paymentData?.payment_amount ?? orderData.order_amount ?? null;
 
-  console.log(`[${istNow()}] Webhook received: ${eventType ?? 'unknown'} for order ${orderId}`);
-  console.log(`[${istNow()}] Processing payment status`);
+  console.log(`[${istNow()}] Event: ${eventType ?? 'unknown'} for order ${orderId}`);
 
   // --- Determine new status ---
   let paymentStatus: string | null = null;
 
   if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' || cashfreePaymentStatus === 'SUCCESS') {
-    console.log(`[${istNow()}] Payment success received`);
     paymentStatus = 'paid';
   } else if (eventType === 'PAYMENT_FAILED_WEBHOOK' || cashfreePaymentStatus === 'FAILED') {
     paymentStatus = 'failed';
   } else {
-    // Acknowledge unknown events without processing
     console.log(`[${istNow()}] Ignoring unhandled event type: ${eventType}`);
     return res.status(200).json({ received: true });
   }
@@ -114,8 +102,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const customerEmail = customerDetails?.customer_email || '';
   const customerPhone = customerDetails?.customer_phone || '';
 
-  console.log(`[${istNow()}] Updating Supabase order:`, orderId);
-  console.log(`[${istNow()}] Customer:`, customerName);
+  console.log(`[${istNow()}] Updating order ${orderId} to ${paymentStatus}`);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
@@ -132,7 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (error) {
       console.error(`[${istNow()}] Supabase update error:`, error);
     } else {
-      console.log(`[${istNow()}] Order ${orderId} updated to payment_status=${paymentStatus}`);
+      console.log(`[${istNow()}] Order ${orderId} updated`);
     }
   } catch (err) {
     console.error(`[${istNow()}] Error during Supabase update:`, err);
@@ -140,18 +127,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // --- Forward successful payments to Google Sheets ---
   if (paymentStatus === 'paid') {
-    console.log(`[${istNow()}] Sending order to Google Sheets`);
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
-      const sheetCustomerDetails = body?.data?.customer_details ?? body?.data?.order?.customer_details ?? orderData?.customer_details ?? {};
-      const sheetCustomerName = sheetCustomerDetails?.customer_name || body?.data?.payment?.payment_group_details?.customer_name || 'Guest';
-      console.log(`[${istNow()}] Customer name received:`, sheetCustomerName);
-      console.log(`[${istNow()}] Customer details:`, JSON.stringify(sheetCustomerDetails));
       const sheetPayload = {
         order_id: orderId,
-        customer_name: sheetCustomerName,
-        email: sheetCustomerDetails?.customer_email ?? '',
-        phone: sheetCustomerDetails?.customer_phone ?? '',
+        customer_name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
         amount: paymentAmount,
         payment_status: paymentStatus,
         timestamp: istNow(),
@@ -163,18 +145,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sheetPayload),
         });
-        console.log(`[${istNow()}] Google Sheets webhook response: ${sheetRes.status}`);
+        console.log(`[${istNow()}] Sheets webhook: ${sheetRes.status}`);
       } catch (sheetErr) {
-        console.error(`[${istNow()}] Google Sheets webhook failed (non-blocking):`, sheetErr);
+        console.error(`[${istNow()}] Sheets webhook failed (non-blocking)`);
       }
-    } else {
-      console.warn(`[${istNow()}] GOOGLE_SHEET_WEBHOOK_URL not set, skipping Sheets sync`);
     }
 
-    // Email is NOT sent here. Dispatch email with invoice is sent when admin adds tracking info.
-    console.log(`[${istNow()}] Skipping immediate email — will be sent on dispatch with tracking info`);
+    console.log(`[${istNow()}] Skipping immediate email — sent on dispatch`);
   }
 
   return res.status(200).json({ received: true });
-}
 }

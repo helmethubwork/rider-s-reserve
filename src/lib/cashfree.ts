@@ -1,8 +1,10 @@
 import { load } from "@cashfreepayments/cashfree-js";
 
+const CASHFREE_MODE = import.meta.env.VITE_CASHFREE_ENV === "production" ? "production" : "sandbox";
+
 export const startCashfreePayment = async (orderData: any) => {
   const cashfree = await load({
-    mode: "sandbox", // change to production later
+    mode: CASHFREE_MODE,
   });
 
   cashfree.checkout({

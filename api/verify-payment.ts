@@ -1,21 +1,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-/**
- * Verify Payment API
- *
- * Checks the payment status of a Cashfree order by order_id.
- * Called by the frontend PaymentStatus page after redirect.
- *
- * Required env vars:
- *   CASHFREE_APP_ID
- *   CASHFREE_SECRET_KEY
- */
+const BASE_URL =
+  process.env.CASHFREE_ENV === 'production'
+    ? 'https://api.cashfree.com'
+    : 'https://sandbox.cashfree.com';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const orderId = req.query.order_id as string;
 
-  if (!orderId) {
-    return res.status(400).json({ error: 'Missing order_id', status: 'FAILED' });
+  if (!orderId || typeof orderId !== 'string' || orderId.length > 100) {
+    return res.status(400).json({ error: 'Invalid order_id', status: 'FAILED' });
   }
 
   const appId = process.env.CASHFREE_APP_ID;
@@ -27,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const response = await fetch(`https://sandbox.cashfree.com/pg/orders/${orderId}`, {
+    const response = await fetch(`${BASE_URL}/pg/orders/${encodeURIComponent(orderId)}`, {
       method: 'GET',
       headers: {
         'x-client-id': appId,
@@ -39,11 +37,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Cashfree verify error:', data);
+      console.error('Cashfree verify error');
       return res.status(200).json({ status: 'FAILED', order_id: orderId });
     }
 
-    // Cashfree order_status: ACTIVE, PAID, EXPIRED
     const paymentStatus = data.order_status === 'PAID' ? 'PAID' : 'FAILED';
 
     return res.status(200).json({
