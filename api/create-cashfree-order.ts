@@ -1,17 +1,31 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { z } from 'zod';
+
+const schema = z.object({
+  orderId: z.string().min(1).max(100),
+  orderAmount: z.number().positive().max(100000),
+  customerId: z.string().min(1).max(200),
+  customerName: z.string().max(200).optional().default(''),
+  customerEmail: z.string().email(),
+  customerPhone: z.string().regex(/^[0-9]{10}$/, 'Phone must be 10 digits'),
+});
+
+const BASE_URL =
+  process.env.CASHFREE_ENV === 'production'
+    ? 'https://api.cashfree.com'
+    : 'https://sandbox.cashfree.com';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { orderId, orderAmount, customerId, customerName, customerEmail, customerPhone } = req.body || {};
-
-  if (!orderId || !orderAmount || !customerId || !customerEmail || !customerPhone) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  console.log('Creating Cashfree order for:', customerName || 'unknown');
+  const { orderId, orderAmount, customerId, customerName, customerEmail, customerPhone } = parsed.data;
 
   const appId = process.env.CASHFREE_APP_ID;
   const secretKey = process.env.CASHFREE_SECRET_KEY;
@@ -22,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const response = await fetch('https://sandbox.cashfree.com/pg/orders', {
+    const response = await fetch(`${BASE_URL}/pg/orders`, {
       method: 'POST',
       headers: {
         'x-client-id': appId,
@@ -36,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         order_currency: 'INR',
         customer_details: {
           customer_id: customerId,
-          customer_name: customerName || '',
+          customer_name: customerName,
           customer_email: customerEmail,
           customer_phone: customerPhone,
         },
