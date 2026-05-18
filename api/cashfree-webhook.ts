@@ -172,22 +172,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
       try {
-        const sheetRes = await fetch(sheetWebhookUrl, {
+        const sheetPayload = JSON.stringify({
+          order_id:       orderId,
+          customer_name:  customerName,
+          email:          customerEmail,
+          phone:          customerPhone,
+          amount:         paymentAmount,
+          payment_status: paymentStatus,
+          timestamp:      istNow(),
+        });
+        // GAS returns 302; Node fetch converts POST→GET on redirect (body lost).
+        // Intercept with redirect:'manual' and replay the POST to the redirect target.
+        const initRes = await fetch(sheetWebhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            order_id:       orderId,
-            customer_name:  customerName,
-            email:          customerEmail,
-            phone:          customerPhone,
-            amount:         paymentAmount,
-            payment_status: paymentStatus,
-            timestamp:      istNow(),
-          }),
+          body: sheetPayload,
+          redirect: 'manual',
         });
-        console.log(`[${istNow()}] Sheets webhook: ${sheetRes.status}`);
+        let sheetStatus: number;
+        let sheetBody: string;
+        if (initRes.status >= 300 && initRes.status < 400) {
+          const location = initRes.headers.get('location');
+          if (location) {
+            const followed = await fetch(location, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: sheetPayload,
+            });
+            sheetStatus = followed.status;
+            sheetBody = await followed.text();
+          } else {
+            sheetStatus = initRes.status;
+            sheetBody = '(redirect with no location header)';
+          }
+        } else {
+          sheetStatus = initRes.status;
+          sheetBody = await initRes.text();
+        }
+        console.log(`[${istNow()}] Sheets webhook: HTTP ${sheetStatus} — ${sheetBody.slice(0, 200)}`);
       } catch {
-        console.error(`[${istNow()}] Sheets webhook failed (non-blocking)`);
+        console.error(`[${istNow()}] Sheets webhook failed`);
       }
     }
 

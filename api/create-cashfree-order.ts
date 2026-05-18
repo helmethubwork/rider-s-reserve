@@ -102,13 +102,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(response.status).json({ error: data.message || 'Failed to create order' });
     }
 
-    // Fire-and-forget — notify Google Sheets when an order is initiated
+    // Notify Google Sheets — must be awaited before returning.
+    // Vercel freezes the function the moment res.json() is sent, so fire-and-forget never completes.
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
-      fetch(sheetWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      try {
+        const sheetPayload = JSON.stringify({
           order_id:       orderId,
           customer_name:  customerName,
           email:          customerEmail,
@@ -116,8 +115,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           amount:         orderAmount,
           payment_status: 'pending',
           timestamp:      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-        }),
-      }).catch((err) => console.error('[Sheets] Webhook failed (non-blocking):', err));
+        });
+        // Google Apps Script returns a 302 redirect. Node fetch follows 302 by converting
+        // POST→GET and dropping the body, so doPost(e) never fires. Use redirect:'manual'
+        // to intercept the redirect, then replay the POST to the actual destination URL.
+        const initRes = await fetch(sheetWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: sheetPayload,
+          redirect: 'manual',
+        });
+        let sheetStatus: number;
+        let sheetBody: string;
+        if (initRes.status >= 300 && initRes.status < 400) {
+          const location = initRes.headers.get('location');
+          if (location) {
+            const followed = await fetch(location, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: sheetPayload,
+            });
+            sheetStatus = followed.status;
+            sheetBody = await followed.text();
+          } else {
+            sheetStatus = initRes.status;
+            sheetBody = '(redirect with no location header)';
+          }
+        } else {
+          sheetStatus = initRes.status;
+          sheetBody = await initRes.text();
+        }
+        console.log(`[Sheets] Pending row: HTTP ${sheetStatus} — ${sheetBody.slice(0, 200)}`);
+      } catch (err) {
+        console.error('[Sheets] Webhook failed:', err);
+      }
     }
 
     return res.status(200).json({
