@@ -2,31 +2,47 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
-const verifySignature = (rawBody: string, signature: string, secret: string): boolean => {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(rawBody)
-    .digest('base64');
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature),
-  );
+// Disable Vercel's body parser so we receive the raw bytes Cashfree signed (C2)
+export const config = { api: { bodyParser: false } };
+
+const readRawBody = (req: VercelRequest): Promise<string> =>
+  new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => { data += chunk; });
+    req.on('end', () => resolve(data));
+    req.on('error', reject);
+  });
+
+const verifySignature = (payload: string, signature: string, secret: string): boolean => {
+  const expected = crypto.createHmac('sha256', secret).update(payload).digest('base64');
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expected);
+  // Lengths must match before timingSafeEqual or it throws
+  if (sigBuf.length !== expBuf.length) return false;
+  try {
+    return crypto.timingSafeEqual(sigBuf, expBuf);
+  } catch {
+    return false;
+  }
 };
+
+// Reject webhooks whose timestamp deviates more than 5 minutes from now (C3)
+const TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000;
 
 const istNow = () => new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-const BASE_URL =
-  process.env.CASHFREE_ENV === 'production'
-    ? 'https://api.cashfree.com'
-    : 'https://sandbox.cashfree.com';
+// PII validators — applied before any DB write (M1)
+const isValidEmail = (v: string) => /^[^\s@]{1,64}@[^\s@]{1,255}$/.test(v);
+const isValidPhone = (v: string) => /^[0-9]{10}$/.test(v);
+const sanitizeName  = (v: string) => v.slice(0, 200).replace(/[<>"'&]/g, '');
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const secretKey = process.env.CASHFREE_SECRET_KEY;
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const secretKey         = process.env.CASHFREE_SECRET_KEY;
+  const supabaseUrl       = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!secretKey || !supabaseUrl || !supabaseServiceKey) {
@@ -34,42 +50,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Server misconfigured' });
   }
 
+  // Read raw body before any JSON parsing (C2)
+  let rawBody: string;
+  try {
+    rawBody = await readRawBody(req);
+  } catch {
+    return res.status(400).json({ error: 'Failed to read request body' });
+  }
+
   console.log(`[${istNow()}] Webhook received`);
 
-  // --- Signature verification (enforced in production only) ---
-  const isTest = process.env.CASHFREE_ENV !== 'production';
+  // --- Signature verification (C1, C2, C3) ---
+  // Set WEBHOOK_SKIP_SIGNATURE=true only for local development.
+  // The Cashfree sandbox sends properly signed webhooks, so this is not needed in test mode.
+  const skipSignature = process.env.WEBHOOK_SKIP_SIGNATURE === 'true';
 
-  if (!isTest) {
+  if (skipSignature) {
+    console.warn(`[${istNow()}] ⚠ Signature verification DISABLED via WEBHOOK_SKIP_SIGNATURE — never set in production`);
+  } else {
     const signature = req.headers['x-webhook-signature'] as string | undefined;
-    const timestamp = req.headers['x-webhook-timestamp'] as string | undefined;
+    const timestamp  = req.headers['x-webhook-timestamp']  as string | undefined;
 
     if (!signature || !timestamp) {
       console.warn(`[${istNow()}] Webhook missing signature or timestamp headers`);
       return res.status(401).json({ error: 'Missing signature' });
     }
 
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-    const payload = timestamp + rawBody;
+    // Replay-attack guard: reject if timestamp is outside 5-minute window (C3)
+    const tsMs  = Number(timestamp) * 1000;
+    const ageMs = Math.abs(Date.now() - tsMs);
+    if (isNaN(tsMs) || ageMs > TIMESTAMP_TOLERANCE_MS) {
+      console.warn(`[${istNow()}] Webhook timestamp out of tolerance (age: ${ageMs}ms)`);
+      return res.status(401).json({ error: 'Request too old or timestamp invalid' });
+    }
 
-    if (!verifySignature(payload, signature, secretKey)) {
+    // HMAC over raw bytes, not re-serialised parsed JSON (C2)
+    if (!verifySignature(timestamp + rawBody, signature, secretKey)) {
       console.warn(`[${istNow()}] Webhook signature verification failed`);
       return res.status(401).json({ error: 'Invalid signature' });
     }
-  } else {
-    console.log(`[${istNow()}] Skipping signature verification (test mode)`);
   }
 
   // --- Parse event ---
   let body: any;
   try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-  } catch (parseError) {
+    body = JSON.parse(rawBody);
+  } catch {
     console.error(`[${istNow()}] Failed to parse webhook payload`);
     return res.status(200).json({ received: true });
   }
 
   const eventType: string | undefined = body?.type;
-  const orderData = body?.data?.order;
+  const orderData  = body?.data?.order;
   const paymentData = body?.data?.payment;
   const cashfreePaymentStatus = String(paymentData?.payment_status ?? '').toUpperCase();
 
@@ -78,8 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ received: true });
   }
 
-  const orderId: string = orderData.order_id;
-  const cfPaymentId: string | null = paymentData?.cf_payment_id ?? null;
+  const orderId: string       = orderData.order_id;
   const paymentAmount: number | null = paymentData?.payment_amount ?? orderData.order_amount ?? null;
 
   console.log(`[${istNow()}] Event: ${eventType ?? 'unknown'} for order ${orderId}`);
@@ -96,11 +127,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ received: true });
   }
 
-  // --- Update Supabase ---
-  const customerDetails = body?.data?.customer_details ?? body?.data?.order?.customer_details ?? orderData?.customer_details ?? {};
-  const customerName = customerDetails?.customer_name || 'Guest';
-  const customerEmail = customerDetails?.customer_email || '';
-  const customerPhone = customerDetails?.customer_phone || '';
+  // --- Validate and sanitize PII before writing to DB (M1) ---
+  const customerDetails = body?.data?.customer_details ?? orderData?.customer_details ?? {};
+  const rawName  = String(customerDetails?.customer_name  || '').trim();
+  const rawEmail = String(customerDetails?.customer_email || '').trim();
+  const rawPhone = String(customerDetails?.customer_phone || '').trim();
+
+  const customerName  = sanitizeName(rawName) || 'Guest';
+  const customerEmail = isValidEmail(rawEmail) ? rawEmail : '';
+  const customerPhone = isValidPhone(rawPhone) ? rawPhone : '';
+
+  if (rawEmail && !customerEmail) {
+    console.warn(`[${istNow()}] Dropping invalid customer_email from webhook payload`);
+  }
+  if (rawPhone && !customerPhone) {
+    console.warn(`[${istNow()}] Dropping invalid customer_phone from webhook payload`);
+  }
 
   console.log(`[${istNow()}] Updating order ${orderId} to ${paymentStatus}`);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -110,7 +152,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .from('orders')
       .update({
         payment_status: paymentStatus,
-        customer_name: customerName,
+        customer_name:  customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
       })
@@ -129,24 +171,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (paymentStatus === 'paid') {
     const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     if (sheetWebhookUrl) {
-      const sheetPayload = {
-        order_id: orderId,
-        customer_name: customerName,
-        email: customerEmail,
-        phone: customerPhone,
-        amount: paymentAmount,
-        payment_status: paymentStatus,
-        timestamp: istNow(),
-      };
-
       try {
         const sheetRes = await fetch(sheetWebhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sheetPayload),
+          body: JSON.stringify({
+            order_id:       orderId,
+            customer_name:  customerName,
+            email:          customerEmail,
+            phone:          customerPhone,
+            amount:         paymentAmount,
+            payment_status: paymentStatus,
+            timestamp:      istNow(),
+          }),
         });
         console.log(`[${istNow()}] Sheets webhook: ${sheetRes.status}`);
-      } catch (sheetErr) {
+      } catch {
         console.error(`[${istNow()}] Sheets webhook failed (non-blocking)`);
       }
     }
