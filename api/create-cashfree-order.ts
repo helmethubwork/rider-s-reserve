@@ -102,6 +102,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(response.status).json({ error: data.message || 'Failed to create order' });
     }
 
+    // Fire-and-forget — notify Google Sheets when an order is initiated
+    const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+    if (sheetWebhookUrl) {
+      fetch(sheetWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id:       orderId,
+          customer_name:  customerName,
+          email:          customerEmail,
+          phone:          customerPhone,
+          amount:         orderAmount,
+          payment_status: 'pending',
+          timestamp:      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+        }),
+      }).catch((err) => console.error('[Sheets] Webhook failed (non-blocking):', err));
+    }
+
     return res.status(200).json({
       payment_session_id: data.payment_session_id,
     });
