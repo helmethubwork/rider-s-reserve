@@ -4,11 +4,13 @@
     "lib": ["ES2022"],
     "module": "CommonJS",
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": false,
     "noImplicitAny": false,
     "types": ["node"],
+    "rootDir": "./api",
     "outDir": ".vercel/output"
   },
   "include": ["api"]
