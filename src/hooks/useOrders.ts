@@ -1,8 +1,8 @@
 /**
  * Orders Hook
- * 
+ *
  * Manages order creation and retrieval.
- * Generates readable order numbers (e.g., HH-10001).
+ * Order numbers are generated server-side via next_order_number() Postgres function.
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -67,34 +67,13 @@ export interface OrderItemDB {
   size: string | null;
 }
 
-/**
- * Generate a readable order number
- * Format: HH-XXXXX (e.g., HH-10001)
- */
 const generateOrderNumber = async (): Promise<string> => {
-  // Get the latest order number
-  const { data, error } = await supabase
-    .from('orders')
-    .select('order_number')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error getting last order:', error);
+  const { data, error } = await supabase.rpc('next_order_number');
+  if (error || !data) {
+    console.error('Error generating order number:', error);
+    throw new Error('Failed to generate order number');
   }
-
-  let nextNumber = 10001; // Start from 10001
-
-  if (data?.order_number) {
-    // Extract number from existing order number (e.g., HH-10001 -> 10001)
-    const match = data.order_number.match(/HH-(\d+)/);
-    if (match) {
-      nextNumber = parseInt(match[1], 10) + 1;
-    }
-  }
-
-  return `HH-${nextNumber}`;
+  return data as string;
 };
 
 // Create a new order
