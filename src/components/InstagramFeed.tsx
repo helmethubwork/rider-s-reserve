@@ -209,33 +209,40 @@ const InstagramFeed = () => {
           background: transparent !important;
         }
 
-        /* Top mask — covers Instagram's profile header bar */
+        /* Top mask — hides any Instagram header residue */
         .ig-top-mask {
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 12px;
-          background: #0a0a0a;
-          z-index: 8;
+          height: 8px;
+          background: #000;
+          z-index: 9;
           pointer-events: none;
         }
 
-        /* Bottom mask — covers Instagram's white footer (likes, comments, View more) */
+        /* Bottom mask — completely hides white Instagram footer (View more, likes, comments) */
+        /* Uses a short fade then solid black so the footer is always 100% covered */
         .ig-bottom-mask {
           position: absolute;
           bottom: 0;
           left: 0;
           right: 0;
-          height: 220px;
-          background: linear-gradient(to bottom, transparent 0%, #000000 45%);
-          z-index: 8;
+          height: 250px;
+          background: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(0,0,0,0.6) 15%,
+            rgba(0,0,0,0.95) 28%,
+            #000 35%,
+            #000 100%
+          );
+          z-index: 9;
           pointer-events: none;
         }
 
         @media (min-width: 640px) {
           .ig-bottom-mask {
-            height: 260px;
+            height: 280px;
           }
         }
       `}</style>

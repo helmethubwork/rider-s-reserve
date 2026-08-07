@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: hide Instagram footer chrome + server-side guest order creation + CSP for Instagram
+set MSG=fix: solid black Instagram footer mask + server-side guest order creation + CSP for Instagram
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
