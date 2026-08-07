@@ -26,7 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const RESEND_API_KEY  = process.env.RESEND_API_KEY;
-  const EMAIL_FROM      = process.env.EMAIL_FROM || 'orders@helmethub.in';
+  const EMAIL_FROM      = process.env.EMAIL_FROM || 'noreply@helmethub.in';
+  const SUPPORT_EMAIL   = process.env.SUPPORT_EMAIL || 'support@helmethub.in';
   // ORDER_EMAIL_API_KEY must be set in Vercel env vars and passed as x-api-key
   // by whatever server-side code triggers this endpoint (never from the browser). (C5)
   const ORDER_EMAIL_KEY = process.env.ORDER_EMAIL_API_KEY;
@@ -100,10 +101,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     `;
 
     const data = await resend.emails.send({
-      from:    `HelmetHub <${EMAIL_FROM}>`,
-      to:      [customerEmail],
-      subject: `Order Confirmation - Helmet Hub - ${safeOrderId}`,
-      html:    htmlContent,
+      from:     `Helmet Hub <${EMAIL_FROM}>`,
+      to:       [customerEmail],
+      replyTo:  SUPPORT_EMAIL,
+      subject:  `Order Confirmation - Helmet Hub - ${safeOrderId}`,
+      html:     htmlContent,
     });
 
     console.log('Email sent successfully');
