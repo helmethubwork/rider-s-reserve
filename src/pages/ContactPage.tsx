@@ -42,20 +42,35 @@ const ContactPage = () => {
 
     try {
       const { supabase } = await import("@/lib/supabase");
-      
+
+      // 1. Save to Supabase (admin panel visibility)
       const { error } = await supabase.from("contact_messages").insert({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim() || null,
+        name:    formData.name.trim(),
+        email:   formData.email.trim(),
+        phone:   formData.phone.trim() || null,
         subject: formData.subject.trim(),
         message: formData.message.trim(),
       });
 
       if (error) throw error;
 
+      // 2. Trigger email notifications (auto-reply to customer + alert to support)
+      //    Fire-and-forget: don't block the UI if email fails
+      fetch('/api/send-contact-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:    formData.name.trim(),
+          email:   formData.email.trim(),
+          phone:   formData.phone.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim(),
+        }),
+      }).catch(err => console.error('Contact email notification failed:', err));
+
       toast({
-        title: "Message Sent",
-        description: "Thank you for contacting us. We'll get back to you soon!"
+        title: "Message Sent ✅",
+        description: "Thank you! We've sent a confirmation to your email and will reply within 24 hours."
       });
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (error) {

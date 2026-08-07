@@ -22,7 +22,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: security audit - DOMPurify XSS fix, payment flow, security headers
+set MSG=feat: professional email flow + policy fixes + shipping charge correction
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

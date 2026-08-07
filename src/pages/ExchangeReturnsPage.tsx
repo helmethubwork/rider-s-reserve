@@ -33,11 +33,12 @@ const STATIC_POLICY_CONTENT = `
 <div>
 <h2 class="text-lg font-bold text-black mb-3">Returns & Refund Policy:</h2>
   <p>Products once purchased can only be exchanged. They cannot be returned claiming for a refund. If the replacement product is not available in the requested size, customer must choose another model. If that is also not available, then a refund will be issued as store credit according to our policy. Refund timelines depend on approval and processing conditions. The store credit will be valid for 30 days only.</p>
+  <p class="mt-3"><strong>Payment Failure Exception:</strong> In cases where payment is deducted but the order is not confirmed due to a technical failure (e.g., internet disruption, payment gateway timeout, or duplicate charge), the amount will be automatically refunded to the original payment method within 5–7 business days. Customers must report such cases at <a href="mailto:support@helmethub.in">support@helmethub.in</a> within 48 hours of the failed transaction, along with the transaction reference number. This exception applies only to genuine payment failures — not to change-of-mind cancellations.</p>
 </div>
 
 <div>
   <h2 class="text-lg font-bold text-black mb-3">Cancellation Policy:</h2>
-  <p>We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled.</p>
+  <p>We start processing the orders soon after receiving them. Hence, orders once placed cannot be cancelled. However, if a payment was deducted but your order was not created due to a technical issue, please contact us immediately at <a href="mailto:support@helmethub.in">support@helmethub.in</a> or call <strong>+91 7842646888</strong> within 48 hours.</p>
 </div>
 `;
 
@@ -66,27 +67,45 @@ const ExchangeReturnsPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const {
-        supabase
-      } = await import("@/lib/supabase");
-      const {
-        error
-      } = await supabase.from("return_requests").insert({
-        full_name: formData.fullName.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        order_number: formData.orderNumber.trim(),
-        product_type: formData.productType,
-        original_product: formData.originalProduct.trim(),
-        product_color: formData.productColor.trim(),
-        size_ordered: formData.sizeOrdered.trim(),
-        size_needed: formData.sizeNeeded.trim(),
-        alternate_products: [formData.alternateProduct1, formData.alternateProduct2, formData.alternateProduct3].filter(Boolean)
+      const { supabase } = await import("@/lib/supabase");
+      const alternateProducts = [formData.alternateProduct1, formData.alternateProduct2, formData.alternateProduct3].filter(Boolean);
+
+      // 1. Save to Supabase (admin panel visibility)
+      const { error } = await supabase.from("return_requests").insert({
+        full_name:         formData.fullName.trim(),
+        email:             formData.email.trim(),
+        phone:             formData.phone.trim(),
+        order_number:      formData.orderNumber.trim(),
+        product_type:      formData.productType,
+        original_product:  formData.originalProduct.trim(),
+        product_color:     formData.productColor.trim(),
+        size_ordered:      formData.sizeOrdered.trim(),
+        size_needed:       formData.sizeNeeded.trim(),
+        alternate_products: alternateProducts,
       });
       if (error) throw error;
+
+      // 2. Trigger email notifications (auto-reply to customer + alert to support)
+      fetch('/api/send-exchange-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName:          formData.fullName.trim(),
+          email:             formData.email.trim(),
+          phone:             formData.phone.trim(),
+          orderNumber:       formData.orderNumber.trim(),
+          productType:       formData.productType,
+          originalProduct:   formData.originalProduct.trim(),
+          productColor:      formData.productColor.trim(),
+          sizeOrdered:       formData.sizeOrdered.trim(),
+          sizeNeeded:        formData.sizeNeeded.trim(),
+          alternateProducts,
+        }),
+      }).catch(err => console.error('Exchange email notification failed:', err));
+
       toast({
-        title: "Request Submitted",
-        description: "We'll review your exchange request and get back to you within 48 hours."
+        title: "Request Submitted ✅",
+        description: "We've sent a confirmation to your email. We'll review your request within 48 hours."
       });
       setFormData({
         fullName: "",

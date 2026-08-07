@@ -40,9 +40,9 @@ const STATIC_CONTENT = `
 const DELIVERY_CHARGES_SECTION = `
 <h2>Shipping Charges</h2>
 <ul>
-<li>Free delivery on prepaid orders above ₹2000 across India.</li>
-<li>A flat shipping charge of ₹200 applies to orders below ₹1000.</li>
-<li>Orders between ₹1000 and ₹1999 may include standard shipping charges displayed during checkout.</li>
+<li>Free delivery on prepaid orders above ₹2,000 across India.</li>
+<li>A flat shipping charge of ₹100 applies to orders between ₹1,000 and ₹1,999.</li>
+<li>A flat shipping charge of ₹200 applies to orders below ₹1,000.</li>
 <li>Final shipping charges are always shown at checkout before payment confirmation.</li>
 <li>Helmet Hub does not apply hidden delivery or handling charges after order confirmation.</li>
 </ul>
@@ -53,6 +53,11 @@ Helmet Hub operates on a <strong>prepaid-only prepared order model</strong>.
 Orders are confirmed and processed only after successful payment.
 Once preparation or packing begins, the order cannot be cancelled or modified.
 Customers are advised to review all details carefully before completing payment.
+</p>
+
+<h2>Payment Failure Policy</h2>
+<p>
+If your payment was deducted but your order was not confirmed due to a technical failure (such as an internet disruption, payment gateway timeout, or duplicate charge), the amount will be automatically refunded to your original payment method within <strong>5–7 business days</strong>. Please report such cases to <a href="mailto:support@helmethub.in">support@helmethub.in</a> within 48 hours with your transaction reference number. This policy applies only to genuine technical failures, not to cancellation requests.
 </p>
 
 <p style="margin-top:2rem;"><strong>Helmet Hub operates on a prepaid-only model to ensure secure transactions and efficient order fulfillment.</strong></p>
