@@ -90,7 +90,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           customer_phone: customerPhone,
         },
         order_meta: {
-          return_url: `https://www.helmethub.in/payment-status?order_id=${encodeURIComponent(orderId)}`,
+          // Use FRONTEND_URL env var so this works in both dev and production.
+          // Set FRONTEND_URL=https://www.helmethub.in in Vercel production env vars.
+          return_url: `${process.env.FRONTEND_URL || 'https://www.helmethub.in'}/payment-status?order_id=${encodeURIComponent(orderId)}`,
         },
       }),
     });

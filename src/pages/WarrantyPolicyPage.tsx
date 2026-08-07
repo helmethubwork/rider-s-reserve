@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { useContentPage } from "@/hooks/useContentPages";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "dompurify";
 
 // Static fallback content
 const STATIC_CONTENT = `
@@ -71,7 +72,7 @@ const WarrantyPolicyPage = () => {
             ) : (
               <div 
                 className="prose prose-lg max-w-none text-foreground leading-relaxed space-y-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-primary [&_h2]:mb-4 [&_ul]:list-disc [&_ul]:list-inside [&_ul]:space-y-2 [&_ul]:text-muted-foreground [&_ol]:list-decimal [&_ol]:list-inside [&_ol]:space-y-2 [&_ol]:text-muted-foreground [&_p]:text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: content }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
               />
             )}
           </div>

@@ -1,0 +1,40 @@
+@echo off
+cd /d "%~dp0"
+
+echo ========================================
+echo   HELMET HUB — Git Push to GitHub
+echo ========================================
+echo.
+
+:: Clean any stale git locks
+if exist ".git\index.lock" (
+    echo Cleaning git lock file...
+    del /f ".git\index.lock"
+)
+
+:: Show what changed
+echo Changed files:
+git status --short
+echo.
+
+:: Stage everything
+echo Adding all changes...
+git add -A
+
+:: Commit with fixed message (no prompt needed)
+set MSG=fix: security audit - DOMPurify XSS fix, payment flow, security headers
+echo Committing: %MSG%
+git commit -m "%MSG%"
+
+:: Push
+echo.
+echo Pushing to GitHub...
+git push origin main
+
+echo.
+echo ========================================
+echo   Done! Vercel will auto-deploy in ~1 min
+echo   Check: https://vercel.com/dashboard
+echo ========================================
+echo.
+pause

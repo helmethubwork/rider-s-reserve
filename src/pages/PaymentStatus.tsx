@@ -22,7 +22,8 @@ const PaymentStatus = () => {
       try {
         const res = await fetch(`/api/verify-payment?order_id=${encodeURIComponent(orderId)}`);
         const data = await res.json();
-        setStatus(data.status === 'SUCCESS' || data.status === 'PAID' ? 'success' : 'failed');
+        // support both old {status:'PAID'} and new {success:true} response shapes
+        setStatus(data.success === true || data.status === 'PAID' || data.status === 'SUCCESS' ? 'success' : 'failed');
       } catch {
         setStatus('failed');
       }

@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.6",
+    "@types/dompurify": "^3.0.5",
+    "dompurify": "^3.2.6",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",

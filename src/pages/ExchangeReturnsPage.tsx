@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Phone, Package, Upload, Loader2, ArrowLeft } from "lucide-react";
+import DOMPurify from "dompurify";
 import { useToast } from "@/hooks/use-toast";
 import { useContentPage } from "@/hooks/useContentPages";
 
@@ -151,7 +152,7 @@ const ExchangeReturnsPage = () => {
             ) : (
               <div 
                 className="prose prose-lg max-w-none text-foreground leading-relaxed space-y-6 mb-8 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ul]:text-muted-foreground [&_p]:text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: policyContent }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(policyContent) }}
               />
             )}
 

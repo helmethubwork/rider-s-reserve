@@ -230,9 +230,10 @@ const CheckoutPage = () => {
         throw new Error('Payment session not received. Please try again.');
       }
 
-      // Start Cashfree checkout — only clear cart after successful redirect
-      await startCashfreePayment(data);
+      // Clear cart BEFORE redirect — startCashfreePayment redirects the page so
+      // any code after it never executes. (Same pattern as Meena Rajwada.)
       clearCart();
+      await startCashfreePayment(data);
     } catch (error: any) {
       console.error('Checkout error:', error);
       setCheckoutError(error?.message || 'Something went wrong. Please try again.');
