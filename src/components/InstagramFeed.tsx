@@ -1,57 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Instagram, Play } from "lucide-react";
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: posts, isLoading } = useInstagramPosts();
-  const [embedsReady, setEmbedsReady] = useState(false);
 
   const reelIds = posts?.map(p => p.reel_url) || [];
-
-  // Load Instagram embed script and process embeds
-  useEffect(() => {
-    if (reelIds.length === 0) return;
-
-    setEmbedsReady(false);
-
-    // Remove any existing script first
-    const existing = document.querySelector('script[src*="instagram.com/embed.js"]');
-    if (existing) existing.remove();
-
-    const script = document.createElement("script");
-    script.src = "https://www.instagram.com/embed.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    script.onload = () => {
-      setTimeout(() => {
-        try {
-          if ((window as any).instgrm) {
-            (window as any).instgrm.Embeds.process();
-          }
-        } catch (_) {}
-        // Always reveal after script loads — embed or fallback link will show
-        setEmbedsReady(true);
-      }, 800);
-    };
-
-    // Fallback: reveal after 3s no matter what (script blocked, slow network, etc.)
-    const fallbackTimer = setTimeout(() => setEmbedsReady(true), 3000);
-
-    return () => {
-      clearTimeout(fallbackTimer);
-    };
-  }, [reelIds.length]);
-
-  // Re-process if reelIds change while script is already loaded
-  useEffect(() => {
-    if ((window as any).instgrm && reelIds.length > 0) {
-      setTimeout(() => {
-        try { (window as any).instgrm.Embeds.process(); } catch (_) {}
-      }, 200);
-    }
-  }, [reelIds]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -80,15 +35,16 @@ const InstagramFeed = () => {
 
   return (
     <section className="py-12 sm:py-20 md:py-28 bg-gradient-to-b from-background via-secondary/20 to-background overflow-hidden relative">
-      {/* Background decoration */}
+      {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-transparent rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-tl from-orange-400/10 via-pink-500/10 to-transparent rounded-full blur-3xl" />
       </div>
 
+      {/* Section header */}
       <div className="container mx-auto px-4 sm:px-6 mb-8 sm:mb-12 relative z-10">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-5 sm:px-8 py-2.5 sm:py-3 rounded-full mb-5 sm:mb-8 shadow-xl shadow-purple-500/20 hover:shadow-purple-500/30 transition-shadow duration-300">
+          <div className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-5 sm:px-8 py-2.5 sm:py-3 rounded-full mb-5 sm:mb-8 shadow-xl shadow-purple-500/20">
             <Instagram size={18} className="sm:w-5 sm:h-5" />
             <span className="text-xs sm:text-sm font-bold tracking-wider uppercase">Follow Us</span>
           </div>
@@ -109,7 +65,7 @@ const InstagramFeed = () => {
 
       {/* Reel Embeds */}
       <div className="relative px-2 sm:px-0">
-        {/* Gradient fade edges */}
+        {/* Fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-4 sm:w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-4 sm:w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
@@ -120,18 +76,18 @@ const InstagramFeed = () => {
             className="pointer-events-auto w-10 sm:w-12 h-10 sm:h-12 bg-background/90 backdrop-blur-md hover:bg-primary hover:text-primary-foreground rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border/50 group"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform" />
           </button>
           <button
             onClick={() => scroll("right")}
             className="pointer-events-auto w-10 sm:w-12 h-10 sm:h-12 bg-background/90 backdrop-blur-md hover:bg-primary hover:text-primary-foreground rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border border-border/50 group"
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-x-0.5" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
 
-        {/* Scrollable Container */}
+        {/* Scrollable Reel Row */}
         <div
           ref={scrollRef}
           className="flex gap-3 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-4 sm:px-16 lg:px-24 py-4"
@@ -139,52 +95,25 @@ const InstagramFeed = () => {
           {reelIds.map((reelId, index) => (
             <div
               key={reelId}
-              className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px] aspect-[9/16] overflow-hidden relative instagram-video-container rounded-xl sm:rounded-2xl border-2 border-border/30 hover:border-primary/50 shadow-2xl shadow-black/40 bg-card transition-all duration-500 hover:scale-[1.02] hover:shadow-primary/10"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="reel-card flex-shrink-0 w-[260px] sm:w-[280px] md:w-[300px] lg:w-[320px] rounded-xl sm:rounded-2xl shadow-2xl shadow-black/50 border border-border/40 hover:border-primary/50 bg-black transition-all duration-300 hover:scale-[1.02] hover:shadow-primary/10"
             >
-              {/* Gradient shimmer on hover */}
-              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-orange-400/20 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20" />
-
-              {/* Loading placeholder — hidden once script ready */}
-              {!embedsReady && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-pink-500/10 via-purple-600/15 to-orange-400/10 z-10">
-                  <div className="w-14 h-14 rounded-full bg-background/80 backdrop-blur-md flex items-center justify-center mb-3 shadow-xl animate-pulse">
-                    <Play className="w-6 h-6 text-primary fill-primary ml-1" />
-                  </div>
-                  <p className="text-xs text-muted-foreground font-medium">Loading reel...</p>
-                </div>
-              )}
-
-              <blockquote
-                className="instagram-media"
-                data-instgrm-permalink={`https://www.instagram.com/reel/${reelId}/`}
-                data-instgrm-version="14"
-                style={{
-                  background: "transparent",
-                  border: 0,
-                  margin: 0,
-                  padding: 0,
-                  width: "100%",
-                  maxWidth: "100%",
-                }}
-              >
-                {/* Fallback link if embed script is blocked */}
-                <a
-                  href={`https://www.instagram.com/reel/${reelId}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-col items-center justify-center w-full h-full p-6 text-center gap-3"
-                >
-                  <Instagram size={32} className="text-primary opacity-60" />
-                  <span className="text-sm text-muted-foreground">Watch on Instagram →</span>
-                </a>
-              </blockquote>
+              {/* Direct Instagram embed iframe — no embed.js needed */}
+              <iframe
+                src={`https://www.instagram.com/reel/${reelId}/embed/captioned/`}
+                className="reel-iframe"
+                scrolling="no"
+                frameBorder="0"
+                allowTransparency={true}
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                loading={index < 3 ? "eager" : "lazy"}
+                title={`Helmet Hub Reel ${index + 1}`}
+              />
             </div>
           ))}
         </div>
       </div>
 
-      {/* CTA Button */}
+      {/* CTA */}
       <div className="text-center mt-4 sm:mt-8 relative z-10">
         <a
           href="https://www.instagram.com/helmethub46"
@@ -193,43 +122,29 @@ const InstagramFeed = () => {
           className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105"
         >
           <Instagram size={20} />
-          View All Reels
+          View All Reels on Instagram
         </a>
       </div>
 
       <style>{`
-        .instagram-video-container {
+        /* Each card clips Instagram's header/footer chrome — shows just the video */
+        .reel-card {
           position: relative;
           overflow: hidden;
+          /* aspect: ~9/14 — taller than standard to fit the captioned embed cleanly */
+          aspect-ratio: 9 / 14;
+        }
+
+        .reel-iframe {
+          /* Make iframe fill container + extend beyond to clip Instagram chrome */
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          width: calc(100% + 4px);
+          /* Taller than container so overflow:hidden clips the bottom actions bar */
+          height: calc(100% + 4px);
+          border: 0;
           background: #000;
-          clip-path: inset(0 0 160px 0);
-        }
-        @media (min-width: 640px) {
-          .instagram-video-container {
-            clip-path: inset(0 0 200px 0);
-          }
-        }
-        .instagram-video-container iframe {
-          position: absolute !important;
-          top: -50px !important;
-          left: -1px !important;
-          width: calc(100% + 2px) !important;
-          height: calc(100% + 260px) !important;
-          border: 0 !important;
-        }
-        @media (min-width: 640px) {
-          .instagram-video-container iframe {
-            top: -70px !important;
-            height: calc(100% + 340px) !important;
-          }
-        }
-        .instagram-video-container .instagram-media {
-          min-width: 100% !important;
-          width: 100% !important;
-          background: transparent !important;
-        }
-        .instagram-video-container .instagram-media-rendered {
-          background: transparent !important;
         }
       `}</style>
     </section>

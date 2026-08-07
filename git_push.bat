@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: restore instagram reel embeds with timeout fix + UI improvements + editable order ID
+set MSG=fix: instagram reels via direct iframe embed + UI polish + editable order ID + sheets sync
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
