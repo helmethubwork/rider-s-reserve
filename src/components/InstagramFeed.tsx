@@ -155,6 +155,10 @@ const InstagramFeed = () => {
                   Watch on Instagram
                 </a>
               </blockquote>
+
+              {/* Black gradient overlay — hides Instagram's white header and footer chrome */}
+              <div className="ig-top-mask" />
+              <div className="ig-bottom-mask" />
             </div>
           ))}
         </div>
@@ -174,7 +178,7 @@ const InstagramFeed = () => {
       </div>
 
       <style>{`
-        /* Container clips the Instagram embed chrome (header/footer/actions) */
+        /* Container: clips the Instagram embed chrome (header/footer/actions) */
         .ig-reel-wrap {
           position: relative;
           overflow: hidden;
@@ -184,17 +188,17 @@ const InstagramFeed = () => {
         /* When embed.js replaces blockquote → iframe, position it to fill the card */
         .ig-reel-wrap iframe {
           position: absolute !important;
-          top: -60px !important;
+          top: -65px !important;
           left: -1px !important;
           width: calc(100% + 2px) !important;
-          height: calc(100% + 220px) !important;
+          height: calc(100% + 300px) !important;
           border: 0 !important;
         }
 
         @media (min-width: 640px) {
           .ig-reel-wrap iframe {
-            top: -80px !important;
-            height: calc(100% + 280px) !important;
+            top: -75px !important;
+            height: calc(100% + 320px) !important;
           }
         }
 
@@ -203,6 +207,36 @@ const InstagramFeed = () => {
           min-width: 100% !important;
           width: 100% !important;
           background: transparent !important;
+        }
+
+        /* Top mask — covers Instagram's profile header bar */
+        .ig-top-mask {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 12px;
+          background: #0a0a0a;
+          z-index: 8;
+          pointer-events: none;
+        }
+
+        /* Bottom mask — covers Instagram's white footer (likes, comments, View more) */
+        .ig-bottom-mask {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 220px;
+          background: linear-gradient(to bottom, transparent 0%, #000000 45%);
+          z-index: 8;
+          pointer-events: none;
+        }
+
+        @media (min-width: 640px) {
+          .ig-bottom-mask {
+            height: 260px;
+          }
         }
       `}</style>
     </section>
