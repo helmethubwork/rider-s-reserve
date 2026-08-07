@@ -53,7 +53,7 @@ const PaymentStatus = () => {
                 Your order has been confirmed and is being prepared.
               </p>
               <p className="text-sm text-muted-foreground mb-2">
-                Tracking details and invoice will be sent to your email within 24 hours once the order is dispatched.
+                A confirmation email has been sent to your inbox. Tracking details will be emailed once your order is dispatched.
               </p>
               {orderId && (
                 <p className="text-sm text-muted-foreground mb-8">
@@ -62,7 +62,7 @@ const PaymentStatus = () => {
               )}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button asChild>
-                  <Link to="/sale">
+                  <Link to="/">
                     <ShoppingBag className="mr-2" size={18} />
                     Continue Shopping
                   </Link>

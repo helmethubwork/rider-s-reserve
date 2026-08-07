@@ -29,7 +29,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Order, OrderItemDB } from '@/hooks/useOrders';
-import { Eye, Loader2, Package, Truck, Circle, Download } from 'lucide-react';
+import { Eye, Loader2, Package, Truck, Circle, Download, Hash } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
@@ -51,6 +51,7 @@ const AdminOrders = () => {
 
   // Edit form state
   const [editData, setEditData] = useState({
+    order_number: '',
     order_status: '',
     tracking_id: '',
     courier_name: '',
@@ -88,12 +89,18 @@ const AdminOrders = () => {
 
   // Update order mutation
   const updateOrder = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: typeof editData }) => {
+    mutationFn: async ({ id, data, originalOrderNumber }: { id: string; data: typeof editData; originalOrderNumber: string }) => {
       const updatePayload: Record<string, any> = {
         order_status: data.order_status,
         tracking_id: data.tracking_id || null,
         courier_name: data.courier_name || null,
       };
+
+      // Update order_number if it changed (display/reference only)
+      const newOrderNumber = data.order_number.trim();
+      if (newOrderNumber && newOrderNumber !== originalOrderNumber) {
+        updatePayload.order_number = newOrderNumber;
+      }
 
       // Set shipped_at when status changes to shipped
       if (data.order_status === 'shipped') {
@@ -106,6 +113,23 @@ const AdminOrders = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      // Sync to Google Sheets whenever order is updated
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await fetch('/api/sync-order-sheet', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ order_id: id }),
+          });
+        }
+      } catch (sheetErr) {
+        console.warn('Google Sheets sync failed (non-fatal):', sheetErr);
+      }
 
       // If tracking_id is provided, trigger dispatch email
       if (data.tracking_id) {
@@ -183,6 +207,7 @@ const AdminOrders = () => {
   const handleEdit = (order: Order) => {
     setSelectedOrder(order);
     setEditData({
+      order_number: order.order_number,
       order_status: order.order_status,
       tracking_id: order.tracking_id || '',
       courier_name: order.courier_name || '',
@@ -195,7 +220,11 @@ const AdminOrders = () => {
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedOrder) {
-      updateOrder.mutate({ id: selectedOrder.id, data: editData });
+      updateOrder.mutate({
+        id: selectedOrder.id,
+        data: editData,
+        originalOrderNumber: selectedOrder.order_number,
+      });
     }
   };
 
@@ -552,6 +581,25 @@ const AdminOrders = () => {
               <DialogTitle className="text-gray-900 text-xl font-bold">Update Order - {selectedOrder?.order_number}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleEditSubmit} className="space-y-4">
+              {/* Editable Order Number */}
+              <div className="space-y-2">
+                <Label htmlFor="order_number" className="text-gray-900 font-bold flex items-center gap-1.5">
+                  <Hash size={14} />
+                  Order Number
+                </Label>
+                <Input
+                  id="order_number"
+                  value={editData.order_number}
+                  onChange={(e) =>
+                    setEditData((prev) => ({ ...prev, order_number: e.target.value }))
+                  }
+                  placeholder="e.g., HH-12345"
+                />
+                <p className="text-xs text-gray-500">
+                  Changing this updates your records and Google Sheets. Does not affect the original payment reference.
+                </p>
+              </div>
+
               {/* Order Status */}
               <div className="space-y-2">
                 <Label className="text-gray-900 font-bold">Order Status</Label>

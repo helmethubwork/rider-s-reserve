@@ -1,4 +1,4 @@
-import { Truck, ShieldCheck, Award } from "lucide-react";
+import { Truck, ShieldCheck, Award, Headphones } from "lucide-react";
 
 const features = [
   {
@@ -9,12 +9,17 @@ const features = [
   {
     icon: Truck,
     title: "Express Delivery",
-    description: "Fast & secure delivery within 3-4 business days nationwide.",
+    description: "Fast & secure delivery within 3–4 business days nationwide.",
   },
   {
     icon: ShieldCheck,
     title: "Extended Warranty",
     description: "6 months to 2-year warranty coverage on all products.",
+  },
+  {
+    icon: Headphones,
+    title: "Expert Support",
+    description: "Our riding gear specialists are available on call & WhatsApp to help you choose right.",
   },
 ];
 
@@ -44,7 +49,7 @@ const WhyHelmetHub = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <div 
               key={index} 

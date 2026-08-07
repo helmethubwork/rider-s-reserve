@@ -171,14 +171,18 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-border">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
             <p className="text-muted-foreground text-[10px] sm:text-xs text-center sm:text-left">
-              © 2024 Helmet Hub. All rights reserved.
+              © {new Date().getFullYear()} Helmet Hub. All rights reserved.
             </p>
-            <p className="text-muted-foreground text-[10px] sm:text-xs text-center sm:text-right flex items-center gap-1">
-              🔒 Secure Payments powered by Cashfree
-            </p>
+            <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">🔒 Secure Payments</span>
+              <span className="hidden sm:inline text-border">|</span>
+              <Link to="/shipping-policy" className="hover:text-primary transition-colors">Shipping Policy</Link>
+              <span className="text-border">|</span>
+              <Link to="/exchange-returns" className="hover:text-primary transition-colors">Returns</Link>
+            </div>
           </div>
         </div>
       </div>

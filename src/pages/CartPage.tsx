@@ -44,61 +44,86 @@ const CartPage = () => {
 
           {items.length === 0 ? (
             <div className="text-center py-20">
-              <ShoppingCart size={64} className="mx-auto text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold text-foreground mb-2">
+              <div className="w-24 h-24 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+                <ShoppingCart size={40} className="text-muted-foreground" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
                 Your cart is empty
               </h2>
-              <p className="text-muted-foreground mb-6">
-                Add some awesome gear to get started!
+              <p className="text-muted-foreground mb-8 max-w-xs mx-auto">
+                Looks like you haven't added any riding gear yet. Let's fix that!
               </p>
-              <Button asChild>
-                <Link to="/sale">Shop Sale</Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild size="lg">
+                  <Link to="/category/all">Shop All Products</Link>
+                </Button>
+                <Button variant="outline" asChild size="lg">
+                  <Link to="/sale">View Sale</Link>
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Cart Items */}
-              <div className="lg:col-span-2 space-y-4">
+              <div className="lg:col-span-2 space-y-3 sm:space-y-4">
                 {items.map((item) => (
                   <div
                     key={`${item.id}-${item.color}-${item.size}`}
-                    className="flex gap-4 bg-card rounded-lg p-4 border border-border"
+                    className="flex gap-3 sm:gap-4 bg-card rounded-xl p-3 sm:p-4 border border-border hover:border-primary/30 transition-colors"
                   >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-24 h-24 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <p className="text-xs text-muted-foreground uppercase">{item.brand}</p>
-                      <h3 className="font-semibold text-foreground">{item.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Color: {item.color} | Size: {item.size}
-                      </p>
-                      <p className="text-primary font-bold mt-1">
+                    {/* Product image - larger on mobile */}
+                    <Link to={`/product/${item.id}`} className="flex-shrink-0">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-20 h-20 sm:w-28 sm:h-28 object-cover rounded-lg bg-secondary"
+                      />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      {item.brand && (
+                        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase font-medium tracking-wide">{item.brand}</p>
+                      )}
+                      <h3 className="font-semibold text-foreground text-sm sm:text-base leading-tight mt-0.5 line-clamp-2">
+                        {item.name}
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {item.color && (
+                          <span className="text-[10px] sm:text-xs bg-secondary text-muted-foreground px-2 py-0.5 rounded-full">{item.color}</span>
+                        )}
+                        {item.size && (
+                          <span className="text-[10px] sm:text-xs bg-secondary text-muted-foreground px-2 py-0.5 rounded-full">Size: {item.size}</span>
+                        )}
+                      </div>
+                      <p className="text-primary font-bold text-sm sm:text-base mt-1.5">
                         {formatPrice(item.price)}
                       </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <button 
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      <div className="flex items-center gap-2 bg-secondary rounded-lg">
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="p-2 hover:text-primary transition-colors"
+
+                      {/* Quantity + Remove — on same row for mobile */}
+                      <div className="flex items-center justify-between mt-2 sm:mt-3">
+                        <div className="flex items-center gap-1 sm:gap-2 bg-secondary rounded-lg overflow-hidden">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="p-1.5 sm:p-2 hover:bg-primary/10 hover:text-primary transition-colors active:scale-95"
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus size={13} />
+                          </button>
+                          <span className="w-6 sm:w-8 text-center font-bold text-sm">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="p-1.5 sm:p-2 hover:bg-primary/10 hover:text-primary transition-colors active:scale-95"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus size={13} />
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors p-1"
+                          aria-label="Remove item"
                         >
-                          <Minus size={14} />
-                        </button>
-                        <span className="w-8 text-center font-medium">{item.quantity}</span>
-                        <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-2 hover:text-primary transition-colors"
-                        >
-                          <Plus size={14} />
+                          <Trash2 size={14} />
+                          <span className="hidden sm:inline">Remove</span>
                         </button>
                       </div>
                     </div>
@@ -107,34 +132,42 @@ const CartPage = () => {
               </div>
 
               {/* Order Summary */}
-              <div className="bg-card rounded-lg p-6 border border-border h-fit sticky top-24">
-                <h3 className="font-display text-xl font-bold text-foreground mb-4">
+              <div className="bg-card rounded-xl p-5 sm:p-6 border border-border h-fit lg:sticky lg:top-24 shadow-sm">
+                <h3 className="font-display text-lg sm:text-xl font-bold text-foreground mb-4 pb-3 border-b border-border">
                   Order Summary
                 </h3>
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(totalPrice)}</span>
+                <div className="space-y-3 mb-5">
+                  <div className="flex justify-between text-muted-foreground text-sm">
+                    <span>Subtotal ({items.length} item{items.length !== 1 ? 's' : ''})</span>
+                    <span className="font-medium text-foreground">{formatPrice(totalPrice)}</span>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Shipping</span>
-                    <span>{getShippingCost(totalPrice) === 0 ? "FREE" : formatPrice(getShippingCost(totalPrice))}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className={getShippingCost(totalPrice) === 0 ? "text-green-600 font-semibold" : "text-foreground font-medium"}>
+                      {getShippingCost(totalPrice) === 0 ? "🎉 FREE" : formatPrice(getShippingCost(totalPrice))}
+                    </span>
                   </div>
-                  <div className="border-t border-border pt-3 flex justify-between font-bold text-foreground">
-                    <span>Total</span>
-                    <span className="text-primary">
+                  <div className="border-t border-border pt-3 flex justify-between font-bold">
+                    <span className="text-foreground text-base">Total</span>
+                    <span className="text-primary text-lg">
                       {formatPrice(totalPrice + getShippingCost(totalPrice))}
                     </span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg" asChild>
-                  <Link to="/checkout">Proceed to Checkout</Link>
+                <Button className="w-full font-bold text-base py-6" size="lg" asChild>
+                  <Link to="/checkout">Proceed to Checkout →</Link>
                 </Button>
-                <ul className="text-xs text-muted-foreground text-center mt-4 space-y-0.5">
-                  {SHIPPING_INFO_LINES.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
+                <div className="mt-4 bg-secondary/50 rounded-lg p-3">
+                  <ul className="text-xs text-muted-foreground text-center space-y-1">
+                    {SHIPPING_INFO_LINES.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <span>🔒</span>
+                  <span>Secure checkout powered by Cashfree</span>
+                </div>
               </div>
             </div>
           )}

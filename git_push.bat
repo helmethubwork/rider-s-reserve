@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: dispatch email uses separate flag + google sheets paid sync in verify-payment
+set MSG=feat: fix instagram reels + editable order ID + UI improvements + google sheets sync
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
