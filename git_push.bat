@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: instagram embed.js with guaranteed overlay removal + all previous fixes
+set MSG=fix: allow Instagram CSP + server-side order creation for guest payment support
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

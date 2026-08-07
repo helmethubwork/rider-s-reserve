@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCreateOrder } from '@/hooks/useOrders';
+// Order creation is now server-side (see api/create-order.ts) so guests can pay too
 import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft, MapPin, Plus } from 'lucide-react';
 import { z } from 'zod';
 import { startCashfreePayment } from '@/lib/cashfree';
@@ -38,7 +38,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile } = useAuth();
-  const createOrder = useCreateOrder();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch saved addresses for logged-in users
   const { data: savedAddresses = [] } = useQuery({
@@ -178,31 +178,40 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Create order in database first, then start Cashfree payment
+    // Create order server-side (bypasses RLS — works for guests and signed-in users)
     setCheckoutError('');
+    setIsSubmitting(true);
     try {
-      const order = await createOrder.mutateAsync({
-        customer_email: formData.email,
-        customer_name: customerName,
-        customer_phone: sanitizedPhone,
-        shipping_address: shippingAddress,
-        delivery_full_name: deliveryFullName,
-        delivery_phone: deliveryPhone.replace(/\D/g, '').slice(-10),
-        delivery_address: deliveryAddress,
-        delivery_city: deliveryCity,
-        delivery_state: deliveryState,
-        delivery_pincode: deliveryPincode,
-        total_amount: orderTotal,
-        user_id: user?.id,
-        items: items.map((item) => ({
-          product_id: item.id,
-          product_name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          color: item.color,
-          size: item.size,
-        })),
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_email: formData.email,
+          customer_name: customerName,
+          customer_phone: sanitizedPhone,
+          shipping_address: shippingAddress,
+          delivery_full_name: deliveryFullName,
+          delivery_phone: deliveryPhone.replace(/\D/g, '').slice(-10),
+          delivery_address: deliveryAddress,
+          delivery_city: deliveryCity,
+          delivery_state: deliveryState,
+          delivery_pincode: deliveryPincode,
+          total_amount: orderTotal,
+          user_id: user?.id || null,
+          items: items.map((item) => ({
+            product_id: item.id,
+            product_name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            color: item.color,
+            size: item.size,
+          })),
+        }),
       });
+      const order = await orderRes.json();
+      if (!orderRes.ok) {
+        throw new Error(order.error || 'Failed to create order');
+      }
 
       // Call Cashfree API to create payment session
       const res = await fetch('/api/create-cashfree-order', {
@@ -237,6 +246,8 @@ const CheckoutPage = () => {
     } catch (error: any) {
       console.error('Checkout error:', error);
       setCheckoutError(error?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -439,10 +450,10 @@ const CheckoutPage = () => {
                   type="submit"
                   size="lg"
                   className="w-full"
-                  disabled={createOrder.isPending}
+                  disabled={isSubmitting}
                 >
                   <CreditCard className="mr-2" size={20} />
-                  {createOrder.isPending ? 'Processing...' : `Pay Now - ${formatPrice(orderTotal)}`}
+                  {isSubmitting ? 'Processing...' : `Pay Now - ${formatPrice(orderTotal)}`}
                 </Button>
               </form>
             </div>
