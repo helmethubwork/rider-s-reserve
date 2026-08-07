@@ -123,13 +123,17 @@ const AdminOrders = () => {
           });
           const result = await res.json();
           if (result.message === 'Email already sent') {
-            console.log('Dispatch email already sent for this order');
+            toast.info('Dispatch email was already sent for this order');
           } else if (result.success) {
-            toast.success('Dispatch email sent to customer');
+            toast.success('Dispatch email sent to customer ✅');
+          } else {
+            const errMsg = result.error || `HTTP ${res.status}`;
+            console.error('Dispatch email API error:', result);
+            toast.error(`Dispatch email failed: ${errMsg}`);
           }
         } catch (emailErr) {
           console.error('Failed to trigger dispatch email:', emailErr);
-          toast.error('Order updated but dispatch email failed');
+          toast.error('Dispatch email failed — check console for details');
         }
       }
     },

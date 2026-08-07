@@ -8,8 +8,12 @@ echo.
 
 :: Clean any stale git locks
 if exist ".git\index.lock" (
-    echo Cleaning git lock file...
+    echo Cleaning index lock...
     del /f ".git\index.lock"
+)
+if exist ".git\HEAD.lock" (
+    echo Cleaning HEAD lock...
+    del /f ".git\HEAD.lock"
 )
 
 :: Show what changed
@@ -22,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: professional email flow + policy fixes + shipping charge correction
+set MSG=fix: dispatch email uses separate flag + google sheets paid sync in verify-payment
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

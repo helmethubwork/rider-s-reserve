@@ -76,6 +76,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from('orders')
             .update({ payment_status: 'paid' })
             .eq('order_number', orderId);
+
+          // Sync paid status to Google Sheets
+          const sheetWebhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+          if (sheetWebhookUrl) {
+            try {
+              const sheetPayload = JSON.stringify({
+                order_id:       order.order_number,
+                customer_name:  order.customer_name,
+                email:          order.customer_email,
+                phone:          order.customer_phone,
+                amount:         order.total_amount,
+                payment_status: 'paid',
+                timestamp:      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+              });
+              const initRes = await fetch(sheetWebhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: sheetPayload,
+                redirect: 'manual',
+              });
+              if (initRes.status >= 300 && initRes.status < 400) {
+                const location = initRes.headers.get('location');
+                if (location) await fetch(location, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: sheetPayload });
+              }
+              console.log('[verify-payment] Google Sheets updated to paid');
+            } catch (sheetErr) {
+              console.error('[verify-payment] Sheets update failed:', sheetErr);
+            }
+          }
         }
 
         // Send confirmation email once

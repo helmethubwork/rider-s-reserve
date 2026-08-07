@@ -157,7 +157,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { data: order, error: orderErr } = await supabase
     .from('orders')
-    .select('*')
+    .select('*, dispatch_email_sent')
     .eq('id', order_id)
     .maybeSingle();
 
@@ -166,8 +166,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(404).json({ error: 'Order not found' });
   }
 
-  if (order.email_sent) {
-    console.log(`[${istNow()}] Email already sent for order ${order.order_number}`);
+  if (order.dispatch_email_sent) {
+    console.log(`[${istNow()}] Dispatch email already sent for order ${order.order_number}`);
     return res.status(200).json({ success: true, message: 'Email already sent' });
   }
 
@@ -266,7 +266,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await supabase
       .from('orders')
-      .update({ email_sent: true })
+      .update({ dispatch_email_sent: true })
       .eq('id', order.id);
 
     return res.status(200).json({ success: true });
