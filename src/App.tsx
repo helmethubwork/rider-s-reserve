@@ -1,4 +1,27 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, Component, ReactNode } from "react";
+
+// Error boundary — prevents a single page crash from blanking the entire app
+class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'sans-serif', padding: '24px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Something went wrong</h1>
+          <p style={{ color: '#999', marginBottom: '24px' }}>Please go back to the home page and try again.</p>
+          <a href="/" style={{ background: '#FFD700', color: '#000', padding: '10px 24px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>Go to Home Page</a>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -68,9 +91,22 @@ const PageLoader = () => (
   </div>
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    mutations: {
+      // Prevent React Query from throwing mutation errors to the error boundary.
+      // Errors are handled inside try/catch blocks in each component instead.
+      throwOnError: false,
+    },
+    queries: {
+      throwOnError: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
+  <AppErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <CartProvider>
@@ -138,6 +174,7 @@ const App = () => (
       </CartProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </AppErrorBoundary>
 );
 
 export default App;
