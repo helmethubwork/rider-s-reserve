@@ -18,7 +18,12 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["system-ui", "-apple-system", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+        display: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+      },
+      letterSpacing: {
+        tightest: "-0.045em",
+        tighter: "-0.03em",
       },
       colors: {
         border: "hsl(var(--border))",

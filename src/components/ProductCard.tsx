@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Zap } from "lucide-react";
+import { ShoppingCart, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getSwatchBackground } from "@/lib/colorUtils";
 import { supabase } from "@/lib/supabase";
@@ -29,8 +29,10 @@ const ProductCard = ({
   const getImageExt = () => {
     try {
       const pathname = new URL(image, window.location.origin).pathname;
-      return pathname.split('.').pop() || 'jpg';
-    } catch { return 'jpg'; }
+      return pathname.split(".").pop() || "jpg";
+    } catch {
+      return "jpg";
+    }
   };
 
   const getColorImageUrl = (colorIndex: number) => {
@@ -40,13 +42,12 @@ const ProductCard = ({
     return data.publicUrl;
   };
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("en-IN", {
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       minimumFractionDigits: 0,
     }).format(value);
-  };
 
   const getBadgeStyles = (badgeType?: string) => {
     switch (badgeType) {
@@ -64,14 +65,18 @@ const ProductCard = ({
   };
 
   return (
-    <Link 
+    <Link
       to={`/product/${id}`}
-      className="group block bg-card rounded-lg sm:rounded-xl relative overflow-hidden border border-border/30 transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:-translate-y-1 active:scale-[0.98]"
+      className="group relative flex flex-col bg-card rounded-xl sm:rounded-2xl overflow-hidden border border-border/40 transition-all duration-300 ease-out hover:border-primary/50 hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.6)] hover:-translate-y-1 active:scale-[0.99]"
     >
       {/* Badge */}
       {badge && (
-        <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
-          <span className={`text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg ${getBadgeStyles(badge)}`}>
+        <div className="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 z-20">
+          <span
+            className={`text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg tracking-wide uppercase ${getBadgeStyles(
+              badge
+            )}`}
+          >
             {badge}
           </span>
         </div>
@@ -79,19 +84,19 @@ const ProductCard = ({
 
       {/* Sold Out Overlay */}
       {isSoldOut && (
-        <div className="absolute inset-0 bg-background/60 z-20 flex items-center justify-center">
-          <span className="bg-destructive text-white px-4 py-2 rounded-lg font-bold text-sm">
+        <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] z-30 flex items-center justify-center">
+          <span className="bg-destructive text-white px-5 py-2.5 rounded-lg font-bold text-sm tracking-wide uppercase shadow-xl">
             Sold Out
           </span>
         </div>
       )}
 
-      {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-secondary/30">
+      {/* Image */}
+      <div className="relative aspect-square overflow-hidden bg-secondary/20">
         <img
           src={displayImage}
           alt={name}
-          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.07]"
           loading="lazy"
           decoding="async"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -103,65 +108,73 @@ const ProductCard = ({
             }
           }}
         />
-
-        {/* Quick View Overlay - Desktop only */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent py-3 sm:py-4 px-4 text-center transition-all duration-500 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hidden sm:block">
-          <button className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm hover:bg-accent transition-colors">
-            <Eye size={14} className="sm:w-4 sm:h-4" />
-            Quick View
-          </button>
-        </div>
+        {/* Subtle vignette for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-5 space-y-1.5 sm:space-y-3">
+      <div className="flex flex-col flex-1 p-3 sm:p-4 gap-2 sm:gap-2.5">
         {/* Name */}
-        <h3 className="font-semibold text-foreground text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-foreground text-[13px] sm:text-sm leading-snug line-clamp-2 tracking-[-0.01em] group-hover:text-primary transition-colors duration-200 min-h-[2.4em]">
           {name}
         </h3>
 
-          {/* Price */}
-          <div className="flex items-center gap-2 sm:gap-3 pt-0.5 sm:pt-1">
-            <span className="text-sm sm:text-lg font-bold text-primary">
-              {formatPrice(price)}
-            </span>
+        {/* Price */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-base sm:text-xl font-black text-primary tracking-[-0.02em] tabular-nums">
+            {formatPrice(price)}
+          </span>
+        </div>
+
+        {/* Color Swatches */}
+        {colors.length > 0 && (
+          <div
+            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide -mx-0.5 px-0.5"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            {colors.map((color, colorIndex) => (
+              <span
+                key={color}
+                title={color}
+                className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex-shrink-0 inline-block ring-1 ring-white/20 ring-offset-2 ring-offset-card shadow-md cursor-pointer transition-all duration-200 hover:scale-115 hover:ring-primary"
+                style={{ background: getSwatchBackground(color) }}
+                onMouseEnter={() => setDisplayImage(getColorImageUrl(colorIndex))}
+                onMouseLeave={() => setDisplayImage(image)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setDisplayImage(getColorImageUrl(colorIndex));
+                }}
+              />
+            ))}
           </div>
+        )}
 
-          {/* Color Swatches */}
-          {colors.length > 0 && (
-            <div
-              className="flex items-center gap-2 pt-1 overflow-x-auto scrollbar-hide"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            >
-              {colors.map((color, colorIndex) => (
-                <span
-                  key={color}
-                  title={color}
-                  className="w-7 h-7 sm:w-9 sm:h-9 rounded-full flex-shrink-0 inline-block ring-2 ring-border ring-offset-2 ring-offset-card shadow-md cursor-pointer transition-transform hover:scale-110"
-                  style={{ background: getSwatchBackground(color) }}
-                  onMouseEnter={() => setDisplayImage(getColorImageUrl(colorIndex))}
-                  onMouseLeave={() => setDisplayImage(image)}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setDisplayImage(getColorImageUrl(colorIndex));
-                  }}
-                />
-              ))}
-            </div>
-          )}
-
-        {/* EMI Option - Hidden on small mobile */}
-        <div className="items-center gap-1.5 sm:gap-2 pt-0.5 sm:pt-1 hidden sm:flex">
-          <Zap size={12} className="sm:w-3.5 sm:h-3.5 text-accent" />
-          <p className="text-[10px] sm:text-xs text-muted-foreground">
-            EMI from ₹{Math.round(price / 3)}/mo
+        {/* EMI */}
+        <div className="flex items-center gap-1.5">
+          <Zap size={11} className="text-accent flex-shrink-0" />
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium tabular-nums">
+            EMI from ₹{Math.round(price / 3).toLocaleString("en-IN")}/mo
           </p>
         </div>
-      </div>
 
-      {/* Bottom glow on hover */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {/* Add to Cart — always visible, works on mobile */}
+        <div className="mt-auto pt-1.5">
+          <div
+            className={`w-full flex items-center justify-center gap-2 rounded-lg font-bold text-[12px] sm:text-[13px] tracking-[-0.01em] py-2.5 sm:py-3 transition-all duration-200 ${
+              isSoldOut
+                ? "bg-secondary text-muted-foreground"
+                : "bg-primary text-primary-foreground shadow-[0_2px_8px_hsl(50_100%_50%/0.2)] group-hover:bg-accent group-hover:shadow-[0_5px_18px_hsl(50_100%_50%/0.4)]"
+            }`}
+          >
+            <ShoppingCart size={14} strokeWidth={2.5} />
+            {isSoldOut ? "Sold Out" : "Add to Cart"}
+          </div>
+        </div>
+      </div>
     </Link>
   );
 };

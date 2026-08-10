@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: CSP allow *.cashfree.com frames + server-side guest order creation + error boundary
+set MSG=feat: professional UI pass - load Inter font, refined type scale, upgraded buttons + product cards
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
