@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: guest payment (server-side order creation) + error boundary + Instagram CSP + footer mask
+set MSG=fix: CSP allow *.cashfree.com frames + server-side guest order creation + error boundary
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
