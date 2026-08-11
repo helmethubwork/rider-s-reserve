@@ -1,5 +1,4 @@
 import { useNavigate, Link } from "react-router-dom";
-import { goBack } from "@/lib/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft } from "lucide-react";
@@ -28,11 +27,11 @@ const CartPage = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => goBack(navigate)}
+          onClick={() => navigate("/")}
           className="flex items-center gap-1.5 text-foreground hover:text-primary"
         >
           <ArrowLeft size={16} />
-          <span className="text-sm">Back</span>
+          <span className="text-sm">Continue Shopping</span>
         </Button>
       </div>
 

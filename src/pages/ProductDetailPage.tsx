@@ -204,6 +204,12 @@ const ProductDetailPage = () => {
     handleAddToCart();
     navigate("/cart");
   };
+  // EMI / Pay Later is offered by Cashfree on the payment page, so send the
+  // customer straight to checkout with this item in the cart.
+  const handleBuyOnEmi = () => {
+    handleAddToCart();
+    navigate("/checkout");
+  };
   const incrementQuantity = () => {
     if (quantity < product.stock) {
       setQuantity(quantity + 1);
@@ -369,7 +375,13 @@ const ProductDetailPage = () => {
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBuyOnEmi}
+                  disabled={product.stock === 0}
+                  className="flex-shrink-0"
+                >
                   BUY ON EMI
                 </Button>
               </div>

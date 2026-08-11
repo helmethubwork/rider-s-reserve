@@ -197,7 +197,7 @@ const AddressesPage = () => {
 
       <div className="container mx-auto px-4 pt-4">
         <button
-          onClick={() => goBack(navigate)}
+          onClick={() => goBack(navigate, "/account")}
           className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-medium text-sm"
         >
           <ChevronLeft size={18} />

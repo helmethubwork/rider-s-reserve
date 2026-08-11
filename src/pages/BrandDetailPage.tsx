@@ -29,7 +29,7 @@ const BrandDetailPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => goBack(navigate)}
+            onClick={() => goBack(navigate, "/brands")}
             className="flex items-center gap-1.5 text-foreground hover:text-primary"
           >
             <ArrowLeft size={16} />
@@ -76,7 +76,7 @@ const BrandDetailPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => goBack(navigate)}
+            onClick={() => goBack(navigate, "/brands")}
             className="flex items-center gap-1.5 text-foreground hover:text-primary"
           >
             <ArrowLeft size={16} />

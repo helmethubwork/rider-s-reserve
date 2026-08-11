@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=polish: refined footer for mobile + consistent admin panel typography and styling
+set MSG=fix: EMI button, back navigation hierarchy, clearer Cashfree auth error
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

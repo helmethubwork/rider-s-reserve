@@ -100,7 +100,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Cashfree API error:', data);
+      const env = process.env.CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+      console.error(
+        `Cashfree API error [${env}] HTTP ${response.status}:`,
+        JSON.stringify(data),
+        `| appId starts with: ${appId.slice(0, 6)}… (len ${appId.length})`
+      );
+
+      // Cashfree returns "authentication Failed" when the App ID / Secret Key
+      // don't match the environment being called. Surface that clearly.
+      const isAuthError =
+        response.status === 401 ||
+        /auth/i.test(data?.message || '') ||
+        data?.code === 'authentication_failed';
+
+      if (isAuthError) {
+        return res.status(500).json({
+          error:
+            'Payment gateway credentials are invalid. Please contact support — the store owner needs to check the Cashfree API keys.',
+          detail: `Cashfree rejected the ${env} credentials.`,
+        });
+      }
+
       return res.status(response.status).json({ error: data.message || 'Failed to create order' });
     }
 
