@@ -19,7 +19,7 @@ const features = [
   {
     icon: Headphones,
     title: "Expert Support",
-    description: "Our riding gear specialists are available on call & WhatsApp to help you choose right.",
+    description: "Riding gear specialists on call & WhatsApp to help you choose.",
   },
 ];
 
@@ -49,33 +49,30 @@ const WhyHelmetHub = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
+        {/* Static grid — equal-height cards, no horizontal scrolling */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 max-w-6xl mx-auto items-stretch">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className="feature-card group p-4 sm:p-6 md:p-8 bg-card/50 rounded-xl sm:rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300"
+            <div
+              key={index}
+              className="group flex flex-col h-full p-4 sm:p-5 md:p-6 bg-card/40 rounded-xl border border-border/40 hover:border-primary/40 hover:bg-card/70 transition-all duration-300"
             >
-              {/* Icon container */}
-              <div className="relative mb-3 sm:mb-4 md:mb-6">
-                <div className="w-12 sm:w-14 md:w-20 h-12 sm:h-14 md:h-20 mx-auto bg-primary/10 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:bg-primary group-hover:shadow-lg group-hover:scale-110">
-                  <feature.icon className="w-6 sm:w-7 md:w-10 h-6 sm:h-7 md:h-10 text-primary group-hover:text-primary-foreground transition-colors duration-500" strokeWidth={1.5} />
-                </div>
-                {/* Glow effect */}
-                <div className="absolute inset-0 w-12 sm:w-14 md:w-20 h-12 sm:h-14 md:h-20 mx-auto bg-primary/20 rounded-lg sm:rounded-xl md:rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {/* Icon */}
+              <div className="w-11 sm:w-12 md:w-14 h-11 sm:h-12 md:h-14 mx-auto mb-3 sm:mb-4 bg-primary/10 rounded-lg flex items-center justify-center transition-colors duration-300 group-hover:bg-primary/20">
+                <feature.icon
+                  className="w-5 sm:w-6 md:w-7 h-5 sm:h-6 md:h-7 text-primary"
+                  strokeWidth={1.75}
+                />
               </div>
-              
+
               {/* Title */}
-              <h3 className="text-sm sm:text-base md:text-xl font-bold text-foreground mb-1.5 sm:mb-2 md:mb-3 text-center group-hover:text-primary transition-colors duration-300">
+              <h3 className="text-[13px] sm:text-[15px] md:text-base font-bold text-foreground mb-1.5 text-center tracking-[-0.01em] group-hover:text-primary transition-colors duration-300">
                 {feature.title}
               </h3>
-              
-              {/* Description */}
-              <p className="text-muted-foreground text-[11px] sm:text-xs md:text-sm lg:text-base leading-relaxed text-center">
+
+              {/* Description — grows to fill so all cards line up */}
+              <p className="text-muted-foreground text-[11px] sm:text-xs md:text-[13px] leading-relaxed text-center flex-1">
                 {feature.description}
               </p>
-
-              {/* Bottom accent line */}
-              <div className="w-0 h-0.5 sm:h-1 bg-primary rounded-full mx-auto mt-3 sm:mt-4 md:mt-6 group-hover:w-10 sm:group-hover:w-12 md:group-hover:w-16 transition-all duration-500" />
             </div>
           ))}
         </div>

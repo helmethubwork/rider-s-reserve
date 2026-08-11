@@ -139,7 +139,7 @@ const HeroSlider = () => {
 
   return (
     <section 
-      className="relative h-[calc(100svh+132px)] sm:h-[calc(100svh+150px)] md:h-[calc(100svh+168px)] min-h-[680px] max-h-[1200px] overflow-hidden bg-background"
+      className="relative h-[calc(100svh-68px)] md:h-[calc(100svh+168px)] min-h-[520px] md:min-h-[680px] max-h-[1200px] overflow-hidden bg-background"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -169,7 +169,7 @@ const HeroSlider = () => {
       <div className="absolute bottom-40 left-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl hidden lg:block" />
 
       {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center relative z-10 pt-[132px] sm:pt-[150px] md:pt-[168px]">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center relative z-10 pt-[84px] sm:pt-[96px] md:pt-[168px]">
         <div className={`max-w-4xl ${slide.align === "center" ? "mx-auto text-center" : ""}`}>
           {/* Animated content */}
           <div key={slide.id} className="space-y-4 sm:space-y-6">

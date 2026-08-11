@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: category search+filters+2col grid, subtler WhatsApp, seamless hero header
+set MSG=fix: sticky filter offset, mobile hero fits screen, equal-height feature cards
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

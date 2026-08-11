@@ -80,7 +80,7 @@ const CollectionPage = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {products.map((product: any) => (
                 <ProductCard
                   key={product.id}

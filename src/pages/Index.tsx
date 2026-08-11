@@ -30,7 +30,7 @@ const Index = () => {
       <Header overlay />
 
       {/* Hero pulled up so it sits behind the transparent header (Vega-style overlay) */}
-      <div className="-mt-[132px] sm:-mt-[150px] md:-mt-[168px]">
+      <div className="-mt-[84px] sm:-mt-[96px] md:-mt-[168px]">
         <HeroSlider />
       </div>
 
