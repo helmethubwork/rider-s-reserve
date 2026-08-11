@@ -315,8 +315,9 @@ const Header = ({ overlay = false }: HeaderProps) => {
         isScrolled
           ? 'bg-background/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] border-b border-border/50'
           : overlay
-            // Transparent over the hero — just enough scrim at the very top for legibility
-            ? 'bg-gradient-to-b from-black/55 via-black/20 to-transparent border-b border-transparent shadow-none'
+            // Completely transparent over the hero — the hero paints its own scrim,
+            // so there is no hard edge where a header gradient would stop
+            ? 'bg-transparent border-b border-transparent shadow-none'
             : 'bg-background/85 backdrop-blur-md border-b border-transparent shadow-none'
       }`}
     >

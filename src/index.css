@@ -361,11 +361,13 @@
     box-shadow: 0 20px 60px hsl(0 0% 0% / 0.4);
   }
 
-  /* WhatsApp button — sits above the mobile bottom nav so they never overlap */
+  /* WhatsApp button — understated, sits above the mobile bottom nav */
   .whatsapp-button {
-    @apply fixed right-4 sm:right-6 z-40 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300;
-    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-    bottom: calc(76px + env(safe-area-inset-bottom));
+    @apply fixed right-4 sm:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300;
+    background: #25D366;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0.92;
+    bottom: calc(80px + env(safe-area-inset-bottom));
   }
 
   @media (min-width: 768px) {
@@ -375,8 +377,13 @@
   }
 
   .whatsapp-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 10px 40px rgba(37, 211, 102, 0.5);
+    opacity: 1;
+    transform: scale(1.06);
+    box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);
+  }
+
+  .whatsapp-button:active {
+    transform: scale(0.95);
   }
 
   /* Feature card */

@@ -17,7 +17,7 @@ const WhatsAppButton = () => {
       className="whatsapp-button"
       aria-label="Chat on WhatsApp"
     >
-      <MessageCircle size={28} className="text-white" fill="white" />
+      <MessageCircle size={20} strokeWidth={2} className="text-white" />
     </a>
   );
 };

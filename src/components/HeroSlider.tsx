@@ -158,6 +158,10 @@ const HeroSlider = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/45 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
+
+        {/* Top scrim for header legibility — tall and soft so it fades out
+            gradually instead of ending in a visible line under the nav */}
+        <div className="absolute top-0 left-0 right-0 h-[340px] bg-gradient-to-b from-black/60 via-black/25 to-transparent pointer-events-none" />
       </div>
 
       {/* Decorative elements - hidden on mobile */}
