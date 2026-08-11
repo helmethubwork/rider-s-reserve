@@ -5,7 +5,7 @@
  * user scrolls down (to free up screen) and slides back in on scroll up.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Store, Search, ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -19,6 +19,16 @@ const MobileBottomNav = () => {
   const { user } = useAuth();
 
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Hidden while the hero is in view, slides up once the user starts scrolling
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 120);
+    onScroll(); // set correct state on mount / route change
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [location.pathname]);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -44,10 +54,13 @@ const MobileBottomNav = () => {
 
   return (
     <>
-      {/* Always pinned to the bottom — never hides on scroll */}
+      {/* Slides up once the user scrolls past the hero, then stays put */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50"
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out ${
+          visible ? "translate-y-0" : "translate-y-full"
+        }`}
         aria-label="Mobile navigation"
+        aria-hidden={!visible}
       >
         <div className="bg-card/95 backdrop-blur-xl border-t border-border/60 shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
           <div className="grid grid-cols-5 pb-[env(safe-area-inset-bottom)]">

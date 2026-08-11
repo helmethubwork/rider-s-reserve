@@ -1,4 +1,5 @@
 import { Truck, ShieldCheck, Award, Headphones } from "lucide-react";
+import SwipeHint from "@/components/SwipeHint";
 
 const features = [
   {
@@ -49,12 +50,12 @@ const WhyHelmetHub = () => {
         </div>
 
         {/* Features Grid */}
-        {/* Static grid — equal-height cards, no horizontal scrolling */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 max-w-6xl mx-auto items-stretch">
+        {/* Swipe carousel on mobile, 4-up grid from large screens */}
+        <div className="flex lg:grid lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 max-w-6xl mx-auto items-stretch overflow-x-auto lg:overflow-visible scrollbar-hide snap-x snap-mandatory pb-2 -mx-3 px-3 sm:-mx-4 sm:px-4 lg:mx-0 lg:px-0">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group flex flex-col h-full p-4 sm:p-5 md:p-6 bg-card/40 rounded-xl border border-border/40 hover:border-primary/40 hover:bg-card/70 transition-all duration-300"
+              className="group flex flex-col h-auto lg:h-full w-[65vw] sm:w-[42vw] md:w-[32vw] lg:w-auto flex-shrink-0 lg:flex-shrink snap-start p-4 sm:p-5 md:p-6 bg-card/40 rounded-xl border border-border/40 hover:border-primary/40 hover:bg-card/70 transition-all duration-300"
             >
               {/* Icon */}
               <div className="w-11 sm:w-12 md:w-14 h-11 sm:h-12 md:h-14 mx-auto mb-3 sm:mb-4 bg-primary/10 rounded-lg flex items-center justify-center transition-colors duration-300 group-hover:bg-primary/20">
@@ -76,6 +77,8 @@ const WhyHelmetHub = () => {
             </div>
           ))}
         </div>
+
+        <SwipeHint hideAbove="lg" />
       </div>
     </section>
   );

@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: sticky filter offset, mobile hero fits screen, equal-height feature cards
+set MSG=fix: static filters, bottom nav reveals on scroll, swipeable feature cards
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

@@ -142,7 +142,7 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overscroll-behavior-y: contain;
-    /* Clearance for the fixed mobile bottom nav so content is never hidden behind it */
+    /* Clearance for the mobile bottom nav so the footer is never hidden behind it */
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
     /* Premium font rendering */
     -webkit-font-smoothing: antialiased;
@@ -367,11 +367,18 @@
     background: #25D366;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     opacity: 0.92;
+    /* Default: bottom nav hidden, so sit near the bottom edge */
+    bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  }
+
+  /* Raised while the mobile bottom nav is on screen */
+  .whatsapp-button--raised {
     bottom: calc(80px + env(safe-area-inset-bottom));
   }
 
   @media (min-width: 768px) {
-    .whatsapp-button {
+    .whatsapp-button,
+    .whatsapp-button--raised {
       bottom: 1.5rem;
     }
   }

@@ -132,9 +132,9 @@ const CategoryPage = () => {
       </section>
 
       {/* Search + Filters */}
-      {/* Sticky offset matches the header: on mobile only the top bar shows
-          (the nav row is md:block), so the offset is smaller there */}
-      <section className="sticky top-[84px] sm:top-[96px] md:top-[168px] z-30 bg-background/98 backdrop-blur-md border-b border-border/60 py-3 shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
+      {/* Search + filters stay put at the top of the list — they do not follow
+          the user down the page */}
+      <section className="bg-background border-b border-border/60 py-3">
         <div className="container mx-auto px-4 space-y-3">
           {/* Search */}
           <div className="relative">
