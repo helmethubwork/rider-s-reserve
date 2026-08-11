@@ -139,7 +139,7 @@ const HeroSlider = () => {
 
   return (
     <section 
-      className="relative h-[85vh] sm:h-[90vh] md:h-screen min-h-[540px] overflow-hidden bg-background"
+      className="relative h-[100svh] min-h-[620px] max-h-[1100px] overflow-hidden bg-background"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -178,9 +178,14 @@ const HeroSlider = () => {
             </div>
 
             {/* Main title with gradient accent */}
-            <h1 
-              className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black text-foreground leading-[0.85] tracking-tighter animate-slide-up"
-              style={{ animationDelay: '0.2s' }}
+            <h1
+              className="font-black text-foreground leading-[0.9] tracking-tightest animate-slide-up max-w-[15ch]"
+              style={{
+                animationDelay: '0.2s',
+                // Scales fluidly with the viewport but never large enough to overflow,
+                // even for long product names like "FF320 STREAM II VINTAGE WHITE BLUE"
+                fontSize: 'clamp(2rem, 6.5vw, 5.5rem)',
+              }}
             >
               <span className="block">{slide.title.split(' ')[0]}</span>
               {slide.title.split(' ').length > 1 && (

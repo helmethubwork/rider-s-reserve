@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, LayoutGrid, Search, ShoppingCart, User } from "lucide-react";
+import { Home, Store, Search, ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import SearchModal from "@/components/SearchModal";
@@ -45,14 +45,20 @@ const MobileBottomNav = () => {
 
   const navItems = [
     { label: "Home", icon: Home, path: "/", action: () => navigate("/") },
-    { label: "Shop", icon: LayoutGrid, path: "/category/all", action: () => navigate("/category/all") },
-    { label: "Search", icon: Search, path: "__search", action: () => setSearchOpen(true) },
-    { label: "Cart", icon: ShoppingCart, path: "/cart", action: () => navigate("/cart"), badge: totalItems },
     {
-      label: user ? "Account" : "Sign In",
+      label: "Account",
       icon: User,
       path: user ? "/account" : "/auth",
       action: () => navigate(user ? "/account" : "/auth"),
+    },
+    { label: "Shop", icon: Store, path: "/category/all", action: () => navigate("/category/all") },
+    { label: "Search", icon: Search, path: "__search", action: () => setSearchOpen(true) },
+    {
+      label: "Cart",
+      icon: ShoppingCart,
+      path: "/cart",
+      action: () => navigate("/cart"),
+      badge: totalItems,
     },
   ];
 

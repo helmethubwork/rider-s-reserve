@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Instagram, Play } from "lucide-react";
 import { useInstagramPosts } from "@/hooks/useInstagramPosts";
+import SwipeHint from "@/components/SwipeHint";
 
 const InstagramFeed = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -162,6 +163,8 @@ const InstagramFeed = () => {
             </div>
           ))}
         </div>
+
+        <SwipeHint hideAbove="lg" />
       </div>
 
       {/* CTA */}

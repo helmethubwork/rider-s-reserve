@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 import { useCollections } from "@/hooks/useCollections";
 import { Skeleton } from "@/components/ui/skeleton";
+import SwipeHint from "@/components/SwipeHint";
 
 const LoadingSkeleton = () => (
   <section className="py-14 sm:py-20 bg-background">
@@ -48,12 +49,12 @@ const ExclusiveCollections = () => {
         <div className="flex justify-center mb-3">
           <span className="inline-flex items-center gap-2 text-primary text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full">
             <ShieldCheck size={13} />
-            Curated For Every Rider
+            Find Your Fit
           </span>
         </div>
 
         {/* Heading with arrows */}
-        <div className="flex items-center justify-center gap-3 sm:gap-5 mb-10 sm:mb-14">
+        <div className="flex items-center justify-center gap-3 sm:gap-5 mb-3">
           <button
             onClick={() => scroll("left")}
             aria-label="Scroll left"
@@ -63,7 +64,7 @@ const ExclusiveCollections = () => {
           </button>
 
           <h2 className="text-xl sm:text-3xl md:text-[2.6rem] font-black text-foreground text-center leading-none tracking-tightest whitespace-nowrap">
-            Shop By <span className="text-gradient">Budget & Type</span>
+            Gear Up Your <span className="text-gradient">Way</span>
           </h2>
 
           <button
@@ -74,6 +75,11 @@ const ExclusiveCollections = () => {
             <ChevronRight size={20} />
           </button>
         </div>
+
+        {/* Supporting line */}
+        <p className="text-center text-muted-foreground text-xs sm:text-sm max-w-md mx-auto mb-10 sm:mb-14">
+          Every budget, every standard — pick the protection that suits your ride.
+        </p>
 
         {/* Circular collection cards */}
         <div
@@ -132,6 +138,9 @@ const ExclusiveCollections = () => {
             </Link>
           ))}
         </div>
+
+        {/* Swipe hint — mobile only, where the row actually overflows */}
+        <SwipeHint hideAbove="lg" />
       </div>
     </section>
   );

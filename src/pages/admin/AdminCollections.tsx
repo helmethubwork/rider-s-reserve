@@ -260,7 +260,7 @@ const AdminCollections = () => {
 
       {/* Add / Edit dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="admin-theme max-w-lg max-h-[90vh] overflow-y-auto bg-white text-gray-900">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Collection' : 'New Collection'}</DialogTitle>
             <DialogDescription>
