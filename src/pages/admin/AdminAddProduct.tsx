@@ -26,6 +26,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { SupabaseCategory } from '@/hooks/useCategories';
+import { useAdminCollections } from '@/hooks/useCollections';
 import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -106,6 +107,8 @@ const AdminAddProduct = () => {
   
   // New fields for featured products and sales
   const [isFeatured, setIsFeatured] = useState(false);
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+  const { data: allCollections = [] } = useAdminCollections();
   const [isOnSale, setIsOnSale] = useState(false);
   const [salePrice, setSalePrice] = useState('');
   const [saleBadge, setSaleBadge] = useState('');
@@ -305,6 +308,21 @@ const AdminAddProduct = () => {
 
       if (insertError) {
         throw new Error(`Product creation failed: ${insertError.message}`);
+      }
+
+      // Assign the product to any selected Exclusive Collections
+      if (selectedCollections.length > 0) {
+        const { error: collError } = await supabase.from('product_collections').insert(
+          selectedCollections.map((collection_id) => ({
+            product_id: productId,
+            collection_id,
+          }))
+        );
+        // Non-fatal — the product exists, only the collection tagging failed
+        if (collError) {
+          console.error('Collection assignment failed:', collError);
+          toast.warning('Product saved, but collection assignment failed. Edit it to retry.');
+        }
       }
 
       toast.success('Product added successfully!');
@@ -709,6 +727,65 @@ const AdminAddProduct = () => {
                 />
               </label>
             </div>
+
+            {/* Exclusive Collections */}
+            {allCollections.length > 0 && (
+              <div className="space-y-3 p-4 bg-gradient-to-br from-slate-50 to-gray-50 rounded-lg border-2 border-gray-200 shadow-sm">
+                <div>
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                    <Star size={18} className="text-slate-500" />
+                    Exclusive Collections
+                  </h3>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Tick every collection this product belongs to. It will show on those homepage
+                    circles.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {allCollections.map((collection) => {
+                    const checked = selectedCollections.includes(collection.id);
+                    return (
+                      <label
+                        key={collection.id}
+                        className={cn(
+                          'flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all',
+                          checked
+                            ? 'border-amber-400 bg-amber-50'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={isLoading}
+                          onChange={(e) => {
+                            setSelectedCollections((prev) =>
+                              e.target.checked
+                                ? [...prev, collection.id]
+                                : prev.filter((id) => id !== collection.id)
+                            );
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-400 flex-shrink-0"
+                        />
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          {collection.image_url && (
+                            <img
+                              src={collection.image_url}
+                              alt=""
+                              className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200"
+                            />
+                          )}
+                          <span className="text-sm font-medium text-gray-900 truncate">
+                            {collection.name}
+                          </span>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Featured & Sale Options */}
             <div className="space-y-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg border-2 border-amber-200 shadow-sm">

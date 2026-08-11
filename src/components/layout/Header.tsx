@@ -236,6 +236,7 @@ const Header = () => {
   const { data: dbSupportLinks = [] } = useNavigationLinks('support');
 
   const [hideOnScroll, setHideOnScroll] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const lastScrollYRef = useRef(0);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
   const mobileAccountDropdownRef = useRef<HTMLDivElement>(null);
@@ -292,6 +293,9 @@ const Header = () => {
       // ignore tiny scroll jitter
       if (Math.abs(delta) < 8) return;
 
+      // Transparent while sitting over the hero, solid once scrolled past it
+      setIsScrolled(current > 60);
+
       if (current <= 0) {
         setHideOnScroll(false);
       } else if (delta > 0) {
@@ -323,7 +327,15 @@ const Header = () => {
   }, [mobileMenuOpen]);
 
   return (
-    <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md shadow-sm transition-transform duration-300 will-change-transform ${hideOnScroll ? '-translate-y-full' : 'translate-y-0'}`}>
+    <header
+      className={`sticky top-0 z-50 will-change-transform transition-all duration-300 ${
+        hideOnScroll ? '-translate-y-full' : 'translate-y-0'
+      } ${
+        isScrolled
+          ? 'bg-background/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.35)] border-b border-border/50'
+          : 'bg-background/80 backdrop-blur-md shadow-none border-b border-transparent'
+      }`}
+    >
       {/* Top bar */}
       <div className="py-5 sm:py-6 border-b border-border/50">
         <div className="container mx-auto px-3 sm:px-4">

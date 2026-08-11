@@ -5,15 +5,17 @@ import SEOHead from "@/components/SEOHead";
 import HeroSlider from "@/components/HeroSlider";
 import CategoryGrid from "@/components/CategoryGrid";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import MaintenanceBanner from "@/components/MaintenanceBanner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load below-the-fold sections
 const FeaturedPromo = lazy(() => import("@/components/FeaturedPromo"));
 const InstagramFeed = lazy(() => import("@/components/InstagramFeed"));
-const OffersCarousel = lazy(() => import("@/components/OffersCarousel"));
 const BrandShowcase = lazy(() => import("@/components/BrandShowcase"));
 const WhyHelmetHub = lazy(() => import("@/components/WhyHelmetHub"));
+const ExclusiveCollections = lazy(() => import("@/components/ExclusiveCollections"));
+const SafetyMarquee = lazy(() => import("@/components/SafetyMarquee"));
 
 const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
   <div className={`${height} w-full`}>
@@ -31,9 +33,14 @@ const Index = () => {
       {/* Hero Slider - loads immediately */}
       <HeroSlider />
 
-      {/* Offers Carousel */}
-      <Suspense fallback={<SectionSkeleton height="h-48" />}>
-        <OffersCarousel />
+      {/* Exclusive Collections — circular category cards */}
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <ExclusiveCollections />
+      </Suspense>
+
+      {/* Scrolling road-safety quotes */}
+      <Suspense fallback={<div className="h-16" />}>
+        <SafetyMarquee />
       </Suspense>
 
       {/* Category Grid - loads immediately (important for navigation) */}
@@ -63,6 +70,9 @@ const Index = () => {
       <WhatsAppButton />
 
       <Footer />
+
+      {/* Mobile bottom navigation */}
+      <MobileBottomNav />
     </div>
   );
 };

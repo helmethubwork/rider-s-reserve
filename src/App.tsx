@@ -37,6 +37,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load all non-homepage routes
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
+const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 const CartPage = lazy(() => import("./pages/CartPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const OrderConfirmationPage = lazy(() => import("./pages/OrderConfirmationPage"));
@@ -70,6 +71,7 @@ const AdminMessages = lazy(() => import("./pages/admin/AdminMessages"));
 const AdminReturnRequests = lazy(() => import("./pages/admin/AdminReturnRequests"));
 const AdminBrands = lazy(() => import("./pages/admin/AdminBrands"));
 const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminCollections = lazy(() => import("./pages/admin/AdminCollections"));
 const AdminHeroSlider = lazy(() => import("./pages/admin/AdminHeroSlider"));
 const AdminFeaturedPromos = lazy(() => import("./pages/admin/AdminFeaturedPromos"));
 const AdminSiteSettings = lazy(() => import("./pages/admin/AdminSiteSettings"));
@@ -119,6 +121,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/category/:slug" element={<CategoryPage />} />
+                <Route path="/collection/:slug" element={<CollectionPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
@@ -157,6 +160,7 @@ const App = () => (
                 <Route path="/admin/return-requests" element={<ProtectedRoute requireAdmin><AdminReturnRequests /></ProtectedRoute>} />
                 <Route path="/admin/brands" element={<ProtectedRoute requireAdmin><AdminBrands /></ProtectedRoute>} />
                 <Route path="/admin/categories" element={<ProtectedRoute requireAdmin><AdminCategories /></ProtectedRoute>} />
+                <Route path="/admin/collections" element={<ProtectedRoute requireAdmin><AdminCollections /></ProtectedRoute>} />
                 <Route path="/admin/hero-slider" element={<ProtectedRoute requireAdmin><AdminHeroSlider /></ProtectedRoute>} />
                 <Route path="/admin/featured-promos" element={<ProtectedRoute requireAdmin><AdminFeaturedPromos /></ProtectedRoute>} />
                 <Route path="/admin/site-settings" element={<ProtectedRoute requireAdmin><AdminSiteSettings /></ProtectedRoute>} />

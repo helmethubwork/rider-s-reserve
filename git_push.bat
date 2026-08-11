@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: professional UI pass - load Inter font, refined type scale, upgraded buttons + product cards
+set MSG=feat: exclusive collections, safety marquee, mobile bottom nav, sticky header + UI polish
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
