@@ -345,7 +345,11 @@ const Header = ({ overlay = false }: HeaderProps) => {
       }`}
     >
       {/* Top bar */}
-      <div className="py-5 sm:py-6 border-b border-border/50">
+      <div
+        className={`py-5 sm:py-6 transition-colors duration-500 ${
+          isScrolled || !overlay ? 'border-b border-border/50' : 'border-b border-white/10'
+        }`}
+      >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between gap-2">
             {/* Left - Menu & Search */}
@@ -535,7 +539,11 @@ const Header = ({ overlay = false }: HeaderProps) => {
       </div>
 
       {/* Navigation Bar - Desktop */}
-      <nav className="hidden md:block bg-background border-b border-border/30">
+      <nav
+        className={`hidden md:block transition-colors duration-500 ${
+          isScrolled || !overlay ? 'bg-background/60 border-b border-border/30' : 'bg-transparent border-b border-white/10'
+        }`}
+      >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-8 lg:gap-10">
             {navigationData.map((item) => (

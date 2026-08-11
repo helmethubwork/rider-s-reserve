@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: admin dialog readability, full-height hero, swipe hints, section rename
+set MSG=fix: collections in edit product, fully transparent header, New Arrivals replaces marquee
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

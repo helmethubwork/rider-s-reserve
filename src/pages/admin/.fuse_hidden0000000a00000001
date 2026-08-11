@@ -345,7 +345,6 @@ const AdminProducts = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setIsDialogOpen(false);
       setEditingProduct(null);
-      setSelectedCollections([]);
       setFormData(emptyFormData);
       setHeroSliderData(emptyHeroSliderData);
       setExistingStorageImages([]);
@@ -391,7 +390,6 @@ const AdminProducts = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setIsDialogOpen(false);
       setEditingProduct(null);
-      setSelectedCollections([]);
       setFormData(emptyFormData);
     },
     onError: (error) => {
@@ -646,7 +644,6 @@ const AdminProducts = () => {
   // Open add dialog
   const handleAdd = () => {
     setEditingProduct(null);
-      setSelectedCollections([]);
     setFormData(emptyFormData);
     setHeroSliderData(emptyHeroSliderData);
     setIsDialogOpen(true);
