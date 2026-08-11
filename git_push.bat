@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: Continue Shopping now goes to All Products instead of Sale page
+set MSG=feat: refund webhook + auto-cancel unshipped refunded orders (prevents shipping loss)
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

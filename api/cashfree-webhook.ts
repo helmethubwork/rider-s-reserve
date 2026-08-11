@@ -103,15 +103,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const eventType: string | undefined = body?.type;
   const orderData  = body?.data?.order;
   const paymentData = body?.data?.payment;
+  const refundData  = body?.data?.refund;
   const cashfreePaymentStatus = String(paymentData?.payment_status ?? '').toUpperCase();
+  const cashfreeRefundStatus  = String(refundData?.refund_status ?? '').toUpperCase();
 
-  if (!orderData?.order_id) {
-    console.warn(`[${istNow()}] Webhook payload missing order data`);
+  // Refund events carry the order id on the refund object, not data.order
+  const resolvedOrderId: string | undefined =
+    orderData?.order_id ?? refundData?.order_id;
+
+  if (!resolvedOrderId) {
+    console.warn(`[${istNow()}] Webhook payload missing order id`);
     return res.status(200).json({ received: true });
   }
 
-  const orderId: string       = orderData.order_id;
-  const paymentAmount: number | null = paymentData?.payment_amount ?? orderData.order_amount ?? null;
+  const orderId: string = resolvedOrderId;
+  const paymentAmount: number | null =
+    paymentData?.payment_amount ?? orderData?.order_amount ?? null;
 
   console.log(`[${istNow()}] Event: ${eventType ?? 'unknown'} for order ${orderId}`);
 
@@ -122,6 +129,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     paymentStatus = 'paid';
   } else if (eventType === 'PAYMENT_FAILED_WEBHOOK' || cashfreePaymentStatus === 'FAILED') {
     paymentStatus = 'failed';
+  } else if (
+    eventType === 'REFUND_STATUS_WEBHOOK' ||
+    eventType === 'AUTO_REFUND_STATUS_WEBHOOK' ||
+    cashfreeRefundStatus
+  ) {
+    // Helmet Hub is exchange-only; refunds are issued for genuine payment
+    // failures under the 48-hour Payment Failure Exception. Only mark the
+    // order refunded once Cashfree confirms the money actually went back.
+    if (cashfreeRefundStatus === 'SUCCESS') {
+      paymentStatus = 'refunded';
+      const refundAmount = refundData?.refund_amount ?? 'unknown';
+      const refundId     = refundData?.refund_id ?? 'unknown';
+      console.log(
+        `[${istNow()}] Refund SUCCESS for order ${orderId} — amount ${refundAmount}, refund_id ${refundId}`
+      );
+    } else {
+      // PENDING / ONHOLD / CANCELLED / FAILED — log for the audit trail but
+      // leave the order status alone so it isn't prematurely marked refunded.
+      console.log(
+        `[${istNow()}] Refund status "${cashfreeRefundStatus}" for order ${orderId} — no status change`
+      );
+      return res.status(200).json({ received: true });
+    }
   } else {
     console.log(`[${istNow()}] Ignoring unhandled event type: ${eventType}`);
     return res.status(200).json({ received: true });
@@ -147,15 +177,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[${istNow()}] Updating order ${orderId} to ${paymentStatus}`);
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+  // Only write customer fields when the payload actually contained them.
+  // Refund webhooks carry no customer_details, so blindly writing would
+  // overwrite a real name with "Guest" and blank out email/phone.
+  const updatePayload: Record<string, unknown> = { payment_status: paymentStatus };
+  if (rawName)       updatePayload.customer_name  = customerName;
+  if (customerEmail) updatePayload.customer_email = customerEmail;
+  if (customerPhone) updatePayload.customer_phone = customerPhone;
+
+  // Safety guard: a refunded order must not stay in the fulfilment queue,
+  // or staff could dispatch goods for money that has already gone back.
+  // Only applied when the order has NOT shipped yet — if it already shipped,
+  // leave the history intact for the admin to handle manually.
+  let cancelIfUnshipped = false;
+  if (paymentStatus === 'refunded' || paymentStatus === 'failed') {
+    const { data: existing } = await supabase
+      .from('orders')
+      .select('order_status')
+      .eq('order_number', orderId)
+      .maybeSingle();
+
+    if (existing?.order_status === 'placed') {
+      updatePayload.order_status = 'cancelled';
+      cancelIfUnshipped = true;
+      console.log(
+        `[${istNow()}] Order ${orderId} not yet shipped — auto-cancelling so it leaves the fulfilment queue`
+      );
+    } else if (existing?.order_status) {
+      console.warn(
+        `[${istNow()}] ⚠ Order ${orderId} is "${existing.order_status}" but payment is now "${paymentStatus}" — needs manual review`
+      );
+    }
+  }
+
   try {
     const { error } = await supabase
       .from('orders')
-      .update({
-        payment_status: paymentStatus,
-        customer_name:  customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-      })
+      .update(updatePayload)
       .eq('order_number', orderId);
 
     if (error) {
