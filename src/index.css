@@ -183,6 +183,11 @@
     body { padding-bottom: 0; }
   }
 
+  /* Admin panel has no bottom nav at any size */
+  body:has(.admin-theme) {
+    padding-bottom: 0;
+  }
+
   /* Improve touch responsiveness */
   button, a, [role="button"] {
     touch-action: manipulation;
@@ -413,6 +418,71 @@
     @apply border-primary bg-secondary;
     box-shadow: 0 0 40px hsl(50 100% 50% / 0.3);
     transform: scale(1.05);
+  }
+
+  /* ---------- Admin panel refinements ---------- */
+
+  /* Headings in the admin are lighter than the storefront's black weights */
+  .admin-theme h1 {
+    @apply text-xl sm:text-2xl font-bold text-gray-900;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .admin-theme h2 {
+    @apply text-base sm:text-lg font-semibold text-gray-900;
+    letter-spacing: -0.015em;
+  }
+
+  .admin-theme h3 {
+    @apply text-sm font-semibold text-gray-900;
+    letter-spacing: -0.01em;
+  }
+
+  /* Body copy + labels */
+  .admin-theme label {
+    @apply text-[13px] font-medium text-gray-700;
+  }
+
+  .admin-theme p {
+    line-height: 1.6;
+  }
+
+  /* Inputs — consistent height and focus ring across every admin form */
+  .admin-theme input:not([type="checkbox"]):not([type="radio"]),
+  .admin-theme select,
+  .admin-theme textarea {
+    @apply text-sm bg-white border-gray-200 text-gray-900 rounded-lg;
+  }
+
+  .admin-theme input:focus-visible,
+  .admin-theme select:focus-visible,
+  .admin-theme textarea:focus-visible {
+    @apply border-amber-400 ring-2 ring-amber-100 outline-none;
+  }
+
+  .admin-theme input::placeholder,
+  .admin-theme textarea::placeholder {
+    @apply text-gray-400;
+  }
+
+  /* Tables read better with tabular figures and lighter dividers */
+  .admin-theme table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-theme th {
+    @apply text-[11px] font-semibold uppercase text-gray-500;
+    letter-spacing: 0.06em;
+  }
+
+  .admin-theme td {
+    @apply text-[13px] text-gray-700;
+  }
+
+  /* Reusable admin surface */
+  .admin-card {
+    @apply bg-white rounded-xl border border-gray-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)];
   }
 
   /* Scrollbar hiding */

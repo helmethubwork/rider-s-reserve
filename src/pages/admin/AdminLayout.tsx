@@ -91,26 +91,30 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             to={item.href}
             onClick={onItemClick}
             className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium relative',
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-[13px] relative',
               collapsed && 'justify-center px-2',
               isActive
-                ? 'bg-amber-500 text-gray-900 shadow-md font-semibold'
+                ? 'bg-amber-50 text-amber-900 font-semibold ring-1 ring-amber-200'
                 : hasUnread
-                  ? 'text-gray-800 bg-red-50 hover:bg-red-100 border border-red-200'
-                  : 'text-gray-700 hover:bg-amber-50 hover:text-amber-700'
+                  ? 'text-gray-800 bg-red-50/70 hover:bg-red-50 font-medium'
+                  : 'text-gray-600 font-medium hover:bg-gray-100 hover:text-gray-900'
             )}
           >
+            {/* Active indicator bar */}
+            {isActive && !collapsed && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-amber-500 rounded-r-full" />
+            )}
             <div className="relative">
-              <item.icon size={18} className={cn('flex-shrink-0', isActive ? 'text-gray-900' : hasUnread ? 'text-red-600' : 'text-gray-500')} />
+              <item.icon size={17} strokeWidth={isActive ? 2.4 : 2} className={cn('flex-shrink-0', isActive ? 'text-amber-600' : hasUnread ? 'text-red-500' : 'text-gray-400')} />
               {hasUnread && collapsed && (
                 <Circle size={8} className="absolute -top-1 -right-1 text-red-500 fill-red-500" />
               )}
             </div>
             {!collapsed && (
               <>
-                <span className={hasUnread && !isActive ? 'text-red-700 font-semibold' : ''}>{item.label}</span>
+                <span className={hasUnread && !isActive ? 'text-red-600 font-semibold' : ''}>{item.label}</span>
                 {hasUnread && (
-                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center tabular-nums">
                     {unreadCount}
                   </span>
                 )}
@@ -123,7 +127,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   );
 
   return (
-    <div className="admin-theme min-h-screen bg-gray-100 flex">
+    <div className="admin-theme min-h-screen bg-gray-50/80 flex">
       {/* Desktop Sidebar */}
       <aside 
         className={cn(
@@ -192,7 +196,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'
       )}>
         {/* Top Header */}
-        <header className="sticky top-0 z-40 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
+        <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-sm border-b border-gray-200/80 flex items-center justify-between px-4">
           {/* Left side */}
           <div className="flex items-center gap-3">
             {/* Mobile Menu */}

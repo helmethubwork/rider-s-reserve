@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
+import { Instagram, Facebook, Mail, Phone, MapPin } from "lucide-react";
 import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
 import { useNavigationLinks } from "@/hooks/useNavigationLinks";
 
@@ -11,156 +11,145 @@ const staticCustomerServiceLinks = [
   { name: "Returns", href: "/exchange-returns" },
 ];
 
+const quickLinks = [
+  { name: "Helmets", href: "/category/helmets" },
+  { name: "Riding Gears", href: "/category/riding-gears" },
+  { name: "Accessories", href: "/category/helmet-accessories" },
+  { name: "Sale", href: "/sale" },
+];
+
 const Footer = () => {
-  const { data: contactSettings } = useSiteSettings('contact');
-  const { data: socialSettings } = useSiteSettings('social');
-  const { data: dbLinks = [] } = useNavigationLinks('customer_service');
+  const { data: contactSettings } = useSiteSettings("contact");
+  const { data: socialSettings } = useSiteSettings("social");
+  const { data: dbLinks = [] } = useNavigationLinks("customer_service");
 
-  // Use database links if available, otherwise static fallback
-  const customerServiceLinks = dbLinks.length > 0
-    ? dbLinks.map(link => ({ name: link.name, href: link.href }))
-    : staticCustomerServiceLinks;
+  const customerServiceLinks =
+    dbLinks.length > 0 ? dbLinks.map((l) => ({ name: l.name, href: l.href })) : staticCustomerServiceLinks;
 
-  // Contact settings with fallbacks
-  const primaryPhone = getSettingValue(contactSettings, 'primary_phone', '+91 7842646888');
-  const secondaryPhone = getSettingValue(contactSettings, 'secondary_phone', '+91 9063880550');
-  const supportEmail = getSettingValue(contactSettings, 'support_email', 'support@helmethub.in');
-  const storeAddress = getSettingValue(contactSettings, 'store_address', 'HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Gachibowli, Hyd-500033');
-  const storeMapUrl = getSettingValue(contactSettings, 'store_map_url', 'https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6');
+  const primaryPhone = getSettingValue(contactSettings, "primary_phone", "+91 7842646888");
+  const secondaryPhone = getSettingValue(contactSettings, "secondary_phone", "+91 9063880550");
+  const supportEmail = getSettingValue(contactSettings, "support_email", "support@helmethub.in");
+  const storeAddress = getSettingValue(
+    contactSettings,
+    "store_address",
+    "HELMET HUB, 1st Floor, Besides Little Goa, Opp. Omega Hospital, Gachibowli, Hyd-500033"
+  );
+  const storeMapUrl = getSettingValue(contactSettings, "store_map_url", "https://maps.app.goo.gl/VWFZsQQupJ1oxvVy6");
 
-  // Social settings with fallbacks
-  const instagramUrl = getSettingValue(socialSettings, 'instagram_url', 'https://www.instagram.com/helmethub46');
-  const facebookUrl = getSettingValue(socialSettings, 'facebook_url', '#');
+  const instagramUrl = getSettingValue(socialSettings, "instagram_url", "https://www.instagram.com/helmethub46");
+  const facebookUrl = getSettingValue(socialSettings, "facebook_url", "#");
+
+  const linkClass =
+    "text-muted-foreground/80 hover:text-primary transition-colors duration-200 text-[13px] leading-relaxed";
+
+  const headingClass =
+    "text-[11px] font-semibold text-foreground/50 uppercase tracking-[0.14em] mb-3";
 
   return (
-    <footer className="bg-background border-t border-border">
-      {/* Main Footer */}
-      <div className="container mx-auto px-3 sm:px-4 py-10 sm:py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1 space-y-4 sm:space-y-6">
-            <Link to="/" className="inline-flex items-center gap-1">
-              {/* Racing stripes accent */}
+    <footer className="bg-background border-t border-border/50">
+      <div className="container mx-auto px-4 py-9 sm:py-12 md:py-14">
+        {/* Brand — full width on mobile, first column on desktop */}
+        <div className="lg:grid lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:gap-10">
+          <div className="mb-8 lg:mb-0">
+            <Link to="/" className="inline-flex items-center gap-0.5 mb-3">
               <div className="flex items-center gap-0.5 mr-1">
-                <div className="w-1 h-5 sm:h-6 bg-white transform -skew-x-12" />
-                <div className="w-1 h-5 sm:h-6 bg-primary transform -skew-x-12" />
+                <div className="w-[3px] h-5 bg-white/90 -skew-x-12" />
+                <div className="w-[3px] h-5 bg-primary -skew-x-12" />
               </div>
-              <span 
-                className="text-xl sm:text-2xl font-black text-primary tracking-tight" 
-                style={{ fontStyle: 'italic' }}
-              >
-                HELMET
-              </span>
-              <span 
-                className="text-xl sm:text-2xl font-black text-foreground tracking-tight" 
-                style={{ fontStyle: 'italic' }}
-              >
-                HUB
-              </span>
-              {/* Racing stripes accent */}
+              <span className="text-lg font-black text-primary tracking-tight italic">HELMET</span>
+              <span className="text-lg font-black text-foreground tracking-tight italic ml-0.5">HUB</span>
               <div className="flex items-center gap-0.5 ml-1">
-                <div className="w-1 h-5 sm:h-6 bg-primary transform -skew-x-12" />
-                <div className="w-1 h-5 sm:h-6 bg-white transform -skew-x-12" />
+                <div className="w-[3px] h-5 bg-primary -skew-x-12" />
+                <div className="w-[3px] h-5 bg-white/90 -skew-x-12" />
               </div>
             </Link>
-            <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-              Your trusted destination for premium motorcycle helmets and riding gear.
-              Quality protection for every ride.
+
+            <p className="text-muted-foreground/70 text-[13px] leading-relaxed max-w-xs mb-4">
+              Premium motorcycle helmets and riding gear. Quality protection for every ride.
             </p>
-            <div className="flex gap-2 sm:gap-3">
-              <a 
-                href={instagramUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="p-2 sm:p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded active:scale-95"
-                aria-label="Instagram"
-              >
-                <Instagram size={16} className="sm:w-[18px] sm:h-[18px]" />
-              </a>
-              <a 
-                href={facebookUrl} 
+
+            <div className="flex gap-2">
+              <a
+                href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 sm:p-2.5 bg-secondary text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 rounded active:scale-95"
+                className="w-9 h-9 rounded-lg bg-secondary/70 text-muted-foreground hover:text-primary hover:bg-secondary flex items-center justify-center transition-all duration-200 active:scale-90"
+                aria-label="Instagram"
+              >
+                <Instagram size={16} />
+              </a>
+              <a
+                href={facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-secondary/70 text-muted-foreground hover:text-primary hover:bg-secondary flex items-center justify-center transition-all duration-200 active:scale-90"
                 aria-label="Facebook"
               >
-                <Facebook size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <Facebook size={16} />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4 sm:space-y-5">
-            <h4 className="text-xs sm:text-sm font-bold text-primary tracking-wider uppercase">Quick Links</h4>
-            <ul className="space-y-2 sm:space-y-3">
-              {[
-                { name: "Helmets", href: "/category/helmets" },
-                { name: "Riding Gears", href: "/category/riding-gears" },
-                { name: "Accessories", href: "/category/helmet-accessories" },
-                { name: "Sale", href: "/sale" },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link 
-                    to={link.href} 
-                    className="text-muted-foreground hover:text-primary active:text-primary transition-colors text-xs sm:text-sm flex items-center gap-1 group"
-                  >
-                    <ChevronRight size={12} className="sm:w-3.5 sm:h-3.5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Link columns — side by side on mobile */}
+          <div className="grid grid-cols-2 gap-6 mb-8 lg:mb-0 lg:contents">
+            <div>
+              <h4 className={headingClass}>Shop</h4>
+              <ul className="space-y-2">
+                {quickLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link to={link.href} className={linkClass}>
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Customer Service */}
-          <div className="space-y-4 sm:space-y-5">
-            <h4 className="text-xs sm:text-sm font-bold text-primary tracking-wider uppercase">Customer Service</h4>
-            <ul className="space-y-2 sm:space-y-3">
-              {customerServiceLinks.map((link) => (
-                <li key={link.name}>
-                  <Link 
-                    to={link.href} 
-                    className="text-muted-foreground hover:text-primary active:text-primary transition-colors text-xs sm:text-sm flex items-center gap-1 group"
-                  >
-                    <ChevronRight size={12} className="sm:w-3.5 sm:h-3.5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div>
+              <h4 className={headingClass}>Support</h4>
+              <ul className="space-y-2">
+                {customerServiceLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link to={link.href} className={linkClass}>
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Contact */}
-          <div className="col-span-2 sm:col-span-1 space-y-4 sm:space-y-5">
-            <h4 className="text-xs sm:text-sm font-bold text-primary tracking-wider uppercase">Contact Us</h4>
-            <ul className="space-y-3 sm:space-y-4">
-              <li className="flex items-start gap-2 sm:gap-3 text-muted-foreground text-xs sm:text-sm">
-                <MapPin size={16} className="sm:w-[18px] sm:h-[18px] text-primary mt-0.5 flex-shrink-0" />
-                <a 
-                  href={storeMapUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover:text-primary active:text-primary transition-colors leading-relaxed"
+          <div>
+            <h4 className={headingClass}>Get In Touch</h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2.5">
+                <MapPin size={15} className="text-primary/70 mt-[3px] flex-shrink-0" />
+                <a
+                  href={storeMapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
                 >
                   {storeAddress}
                 </a>
               </li>
-              <li className="flex items-start gap-2 sm:gap-3 text-muted-foreground text-xs sm:text-sm">
-                <Phone size={16} className="sm:w-[18px] sm:h-[18px] text-primary flex-shrink-0 mt-0.5" />
-                <div className="flex flex-col gap-1">
-                  <a className="hover:text-primary active:text-primary transition-colors" href={`tel:${primaryPhone.replace(/\s/g, '')}`}>
+              <li className="flex items-start gap-2.5">
+                <Phone size={15} className="text-primary/70 mt-[3px] flex-shrink-0" />
+                <div className="flex flex-col">
+                  <a href={`tel:${primaryPhone.replace(/\s/g, "")}`} className={linkClass}>
                     {primaryPhone}
                   </a>
                   {secondaryPhone && (
-                    <a className="hover:text-primary active:text-primary transition-colors" href={`tel:${secondaryPhone.replace(/\s/g, '')}`}>
+                    <a href={`tel:${secondaryPhone.replace(/\s/g, "")}`} className={linkClass}>
                       {secondaryPhone}
                     </a>
                   )}
                 </div>
               </li>
-              <li className="flex items-center gap-2 sm:gap-3 text-muted-foreground text-xs sm:text-sm">
-                <Mail size={16} className="sm:w-[18px] sm:h-[18px] text-primary flex-shrink-0" />
-                <a href={`mailto:${supportEmail}`} className="hover:text-primary active:text-primary transition-colors">
+              <li className="flex items-start gap-2.5">
+                <Mail size={15} className="text-primary/70 mt-[3px] flex-shrink-0" />
+                <a href={`mailto:${supportEmail}`} className={`${linkClass} break-all`}>
                   {supportEmail}
                 </a>
               </li>
@@ -169,19 +158,23 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-border">
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-            <p className="text-muted-foreground text-[10px] sm:text-xs text-center sm:text-left">
+      {/* Bottom bar */}
+      <div className="border-t border-border/40">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5">
+            <p className="text-muted-foreground/60 text-[11px] order-2 sm:order-1">
               © {new Date().getFullYear()} Helmet Hub. All rights reserved.
             </p>
-            <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">🔒 Secure Payments</span>
-              <span className="hidden sm:inline text-border">|</span>
-              <Link to="/shipping-policy" className="hover:text-primary transition-colors">Shipping Policy</Link>
-              <span className="text-border">|</span>
-              <Link to="/exchange-returns" className="hover:text-primary transition-colors">Returns</Link>
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60 order-1 sm:order-2">
+              <span>Secure Payments</span>
+              <span className="w-px h-3 bg-border" />
+              <Link to="/shipping-policy" className="hover:text-primary transition-colors">
+                Shipping
+              </Link>
+              <span className="w-px h-3 bg-border" />
+              <Link to="/exchange-returns" className="hover:text-primary transition-colors">
+                Returns
+              </Link>
             </div>
           </div>
         </div>
