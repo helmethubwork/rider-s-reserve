@@ -138,6 +138,7 @@ const ProductDetailPage = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
+        <MobileBottomNav />
       </div>
     );
   }
@@ -171,6 +172,7 @@ const ProductDetailPage = () => {
           </div>
         </main>
         <Footer />
+        <MobileBottomNav />
       </div>
     );
   }
@@ -452,6 +454,7 @@ const ProductDetailPage = () => {
       </main>
 
       <Footer />
+      <MobileBottomNav />
     </div>;
 };
 export default ProductDetailPage;

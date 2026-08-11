@@ -31,6 +31,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./components/ScrollToTop";
+import GlobalOverlays from "./components/layout/GlobalOverlays";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -173,6 +174,9 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+
+            {/* Mobile bottom nav + WhatsApp button — present on every storefront page */}
+            <GlobalOverlays />
           </BrowserRouter>
         </TooltipProvider>
       </CartProvider>

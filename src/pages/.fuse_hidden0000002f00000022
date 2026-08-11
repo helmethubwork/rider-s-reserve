@@ -4,6 +4,8 @@ import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/SEOHead";
 import HeroSlider from "@/components/HeroSlider";
 import CategoryGrid from "@/components/CategoryGrid";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import MaintenanceBanner from "@/components/MaintenanceBanner";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -67,9 +69,13 @@ const Index = () => {
         <WhyHelmetHub />
       </Suspense>
 
+      {/* WhatsApp Button */}
+      <WhatsAppButton />
 
       <Footer />
 
+      {/* Mobile bottom navigation */}
+      <MobileBottomNav />
     </div>
   );
 };

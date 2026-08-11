@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: pinned header, taller hero, Unbelievable Offers carousel, pinned mobile nav
+set MSG=fix: featured filter, /category/all route, global mobile nav + WhatsApp, transparent header
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

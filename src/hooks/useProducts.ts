@@ -56,6 +56,21 @@ export const useProductsByCategory = (categorySlug: string) => {
   return useQuery({
     queryKey: ['products', 'category', categorySlug],
     queryFn: async () => {
+      // "all" is a virtual category — return the entire active catalogue
+      if (categorySlug === 'all') {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching all products:', error);
+          return [] as SupabaseProduct[];
+        }
+        return (data ?? []) as SupabaseProduct[];
+      }
+
       // First, get the category UUID from the slug
       const { data: category, error: categoryError } = await supabase
         .from('categories')
@@ -144,10 +159,12 @@ export const useFeaturedProducts = (limit = 8) => {
   return useQuery({
     queryKey: ['products', 'featured', limit],
     queryFn: async () => {
+      // Only products the admin has explicitly ticked as "Unbelievable Offers"
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('is_active', true)
+        .eq('is_featured', true)
         .order('display_order', { ascending: true })
         .limit(limit);
 

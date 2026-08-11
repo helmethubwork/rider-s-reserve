@@ -47,6 +47,7 @@ const CategoryPage = () => {
           </p>
         </div>
         <Footer />
+        <MobileBottomNav />
       </div>
     );
   }
@@ -127,6 +128,7 @@ const CategoryPage = () => {
       </section>
 
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 };

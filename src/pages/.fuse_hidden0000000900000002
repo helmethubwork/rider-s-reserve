@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import ProductCard from "@/components/ProductCard";
 import { useProductsByCategory } from "@/hooks/useProducts";
 import { categories } from "@/data/products";
@@ -13,13 +14,8 @@ import { Loader2 } from "lucide-react";
 const CategoryPage = () => {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
-
-  // "/category/all" is a virtual catch-all category showing the whole catalogue
-  const isAll = slug === "all";
-  const category = isAll
-    ? { slug: "all", name: "All Products", description: "Browse our complete range of helmets, riding gear and accessories." }
-    : categories.find((c) => c.slug === slug);
-
+  const category = categories.find(c => c.slug === slug);
+  
   // Fetch products from Supabase database
   const { data: products = [], isLoading, error } = useProductsByCategory(slug || "");
 
@@ -127,6 +123,7 @@ const CategoryPage = () => {
       </section>
 
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 };

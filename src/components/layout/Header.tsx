@@ -315,15 +315,15 @@ const Header = ({ overlay = false }: HeaderProps) => {
         isScrolled
           ? 'bg-background/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] border-b border-border/50'
           : overlay
-            // Fully transparent over the hero, with a soft top gradient for text legibility
-            ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent border-b border-transparent shadow-none'
+            // Transparent over the hero — just enough scrim at the very top for legibility
+            ? 'bg-gradient-to-b from-black/55 via-black/20 to-transparent border-b border-transparent shadow-none'
             : 'bg-background/85 backdrop-blur-md border-b border-transparent shadow-none'
       }`}
     >
       {/* Top bar */}
       <div
         className={`py-5 sm:py-6 transition-colors duration-500 ${
-          isScrolled || !overlay ? 'border-b border-border/50' : 'border-b border-white/10'
+          isScrolled || !overlay ? 'border-b border-border/50' : 'border-b border-transparent'
         }`}
       >
         <div className="container mx-auto px-3 sm:px-4">
@@ -517,7 +517,9 @@ const Header = ({ overlay = false }: HeaderProps) => {
       {/* Navigation Bar - Desktop */}
       <nav
         className={`hidden md:block transition-colors duration-500 ${
-          isScrolled || !overlay ? 'bg-background/60 border-b border-border/30' : 'bg-transparent border-b border-white/10'
+          isScrolled || !overlay
+            ? 'bg-background/60 border-b border-border/30'
+            : 'bg-transparent border-b border-transparent'
         }`}
       >
         <div className="container mx-auto px-4">

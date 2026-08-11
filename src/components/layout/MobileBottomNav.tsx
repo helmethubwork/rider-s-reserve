@@ -99,9 +99,6 @@ const MobileBottomNav = () => {
         </div>
       </nav>
 
-      {/* Spacer so page content is never hidden behind the bar */}
-      <div className="md:hidden h-[68px]" aria-hidden="true" />
-
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
