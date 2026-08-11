@@ -323,7 +323,6 @@ const AccountPage = () => {
       </main>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

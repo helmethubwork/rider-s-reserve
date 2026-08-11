@@ -122,7 +122,6 @@ const BrandsPage = () => {
       </main>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

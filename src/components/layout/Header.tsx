@@ -224,7 +224,12 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
   );
 };
 
-const Header = () => {
+interface HeaderProps {
+  /** When true the header floats transparently over the hero until the user scrolls. */
+  overlay?: boolean;
+}
+
+const Header = ({ overlay = false }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
@@ -328,12 +333,15 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 will-change-transform transition-all duration-300 ${
+      className={`sticky top-0 z-50 will-change-transform transition-all duration-500 ${
         hideOnScroll ? '-translate-y-full' : 'translate-y-0'
       } ${
         isScrolled
-          ? 'bg-background/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.35)] border-b border-border/50'
-          : 'bg-background/80 backdrop-blur-md shadow-none border-b border-transparent'
+          ? 'bg-background/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] border-b border-border/50'
+          : overlay
+            // Fully transparent over the hero, with a soft top gradient for text legibility
+            ? 'bg-gradient-to-b from-black/70 via-black/30 to-transparent border-b border-transparent shadow-none'
+            : 'bg-background/85 backdrop-blur-md border-b border-transparent shadow-none'
       }`}
     >
       {/* Top bar */}

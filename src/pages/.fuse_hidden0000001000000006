@@ -176,7 +176,6 @@ const CartPage = () => {
       </section>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

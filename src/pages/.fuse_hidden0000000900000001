@@ -5,7 +5,6 @@ import Header from "@/components/layout/Header";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
-import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import ProductCard from "@/components/ProductCard";
 import { useProductsByCategory } from "@/hooks/useProducts";
 import { categories } from "@/data/products";
@@ -123,7 +122,6 @@ const CategoryPage = () => {
       </section>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

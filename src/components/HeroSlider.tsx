@@ -139,7 +139,7 @@ const HeroSlider = () => {
 
   return (
     <section 
-      className="relative h-[60vh] sm:h-[70vh] md:h-[85vh] lg:h-screen overflow-hidden bg-background"
+      className="relative h-[85vh] sm:h-[90vh] md:h-screen min-h-[540px] overflow-hidden bg-background"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -152,10 +152,11 @@ const HeroSlider = () => {
           transform: isAnimating ? 'scale(1.1)' : 'scale(1.05)'
         }}
       >
-        {/* Multi-layer gradient overlays */}
-        <div className="absolute inset-0 bg-background/50" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
+        {/* Gradient overlays — lighter so the helmet image stays visible,
+            with a left-side scrim just dark enough to keep the text readable */}
+        <div className="absolute inset-0 bg-background/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/45 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
       </div>
 
@@ -164,7 +165,7 @@ const HeroSlider = () => {
       <div className="absolute bottom-40 left-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl hidden lg:block" />
 
       {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center relative z-10 pt-[132px] sm:pt-[150px] md:pt-[168px]">
         <div className={`max-w-4xl ${slide.align === "center" ? "mx-auto text-center" : ""}`}>
           {/* Animated content */}
           <div key={slide.id} className="space-y-4 sm:space-y-6">

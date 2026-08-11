@@ -563,7 +563,6 @@ const SalePage = () => {
       </main>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

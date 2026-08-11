@@ -28,10 +28,13 @@ const Index = () => {
     <div className="min-h-screen bg-background page-transition">
       <SEOHead path="/" />
       <MaintenanceBanner />
-      <Header />
-      
-      {/* Hero Slider - loads immediately */}
-      <HeroSlider />
+      {/* Header floats transparently over the hero, turns solid on scroll */}
+      <Header overlay />
+
+      {/* Hero pulled up so it sits behind the transparent header (Vega-style overlay) */}
+      <div className="-mt-[132px] sm:-mt-[150px] md:-mt-[168px]">
+        <HeroSlider />
+      </div>
 
       {/* Exclusive Collections — circular category cards */}
       <Suspense fallback={<SectionSkeleton height="h-64" />}>

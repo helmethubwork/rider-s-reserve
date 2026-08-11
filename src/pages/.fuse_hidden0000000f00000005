@@ -2,7 +2,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { goBack } from "@/lib/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -176,7 +175,6 @@ const CartPage = () => {
       </section>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

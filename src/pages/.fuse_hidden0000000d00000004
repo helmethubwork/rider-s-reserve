@@ -453,7 +453,6 @@ const ProductDetailPage = () => {
       </main>
 
       <Footer />
-      <MobileBottomNav />
     </div>;
 };
 export default ProductDetailPage;

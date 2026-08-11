@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { goBack } from "@/lib/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { products, Product } from "@/data/products";
 import { ChevronDown, Star, Filter, X, ArrowLeft } from "lucide-react";
 import { getSwatchBackground } from "@/lib/colorUtils";
@@ -563,7 +562,6 @@ const SalePage = () => {
       </main>
 
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 };

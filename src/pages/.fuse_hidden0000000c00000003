@@ -5,7 +5,6 @@ import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import { trackProductView, trackAddToCart } from "@/lib/analytics";
 import Footer from "@/components/layout/Footer";
-import MobileBottomNav from '@/components/layout/MobileBottomNav';
 import { categories } from "@/data/products";
 import { useProduct } from "@/hooks/useProducts";
 import { Star, Truck, Minus, Plus, Check, Loader2, ArrowLeft } from "lucide-react";
@@ -453,7 +452,6 @@ const ProductDetailPage = () => {
       </main>
 
       <Footer />
-      <MobileBottomNav />
     </div>;
 };
 export default ProductDetailPage;
