@@ -240,7 +240,6 @@ const Header = ({ overlay = false }: HeaderProps) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const { data: dbSupportLinks = [] } = useNavigationLinks('support');
 
-  const [hideOnScroll, setHideOnScroll] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const lastScrollYRef = useRef(0);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
@@ -281,35 +280,14 @@ const Header = ({ overlay = false }: HeaderProps) => {
     setExpandedMobileCategory(expandedMobileCategory === name ? null : name);
   };
 
-  // Hide header when scrolling down, show when scrolling up
+  // Header stays pinned at all times; only its background changes on scroll
   useEffect(() => {
     const onScroll = () => {
-      // Keep header visible while the mobile drawer is open
-      if (mobileMenuOpen) {
-        lastScrollYRef.current = window.scrollY;
-        setHideOnScroll(false);
-        return;
-      }
-
       const current = window.scrollY;
-      const last = lastScrollYRef.current;
-      const delta = current - last;
 
-      // ignore tiny scroll jitter
-      if (Math.abs(delta) < 8) return;
-
-      // Transparent while sitting over the hero, solid once scrolled past it
+      // Transparent while sitting over the hero, solid once scrolled past it.
+      // The header itself always stays pinned to the top — it never hides.
       setIsScrolled(current > 60);
-
-      if (current <= 0) {
-        setHideOnScroll(false);
-      } else if (delta > 0) {
-        // scrolling down
-        setHideOnScroll(true);
-      } else {
-        // scrolling up
-        setHideOnScroll(false);
-      }
 
       lastScrollYRef.current = current;
     };
@@ -334,8 +312,6 @@ const Header = ({ overlay = false }: HeaderProps) => {
   return (
     <header
       className={`sticky top-0 z-50 will-change-transform transition-all duration-500 ${
-        hideOnScroll ? '-translate-y-full' : 'translate-y-0'
-      } ${
         isScrolled
           ? 'bg-background/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] border-b border-border/50'
           : overlay

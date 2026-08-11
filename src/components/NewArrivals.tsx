@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flame, ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import SwipeHint from "./SwipeHint";
 import { useFeaturedProducts } from "@/hooks/useProducts";
@@ -23,7 +23,7 @@ const LoadingSkeleton = () => (
   </section>
 );
 
-const NewArrivals = () => {
+const UnbelievableOffers = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: products = [], isLoading } = useFeaturedProducts(8);
 
@@ -45,13 +45,13 @@ const NewArrivals = () => {
         {/* Eyebrow */}
         <div className="flex justify-center mb-3">
           <span className="inline-flex items-center gap-2 text-primary text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.18em] bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-full">
-            <Sparkles size={13} />
-            Just Landed
+            <Flame size={13} />
+            Hot Deals
           </span>
         </div>
 
         {/* Heading with arrows */}
-        <div className="flex items-center justify-center gap-3 sm:gap-5 mb-2">
+        <div className="flex items-center justify-center gap-3 sm:gap-5 mb-9 sm:mb-12">
           <button
             onClick={() => scroll("left")}
             aria-label="Scroll left"
@@ -60,8 +60,8 @@ const NewArrivals = () => {
             <ChevronLeft size={20} />
           </button>
 
-          <h2 className="text-xl sm:text-3xl md:text-[2.4rem] font-black text-foreground text-center leading-none tracking-tightest whitespace-nowrap">
-            New <span className="text-gradient">Arrivals</span>
+          <h2 className="text-lg sm:text-3xl md:text-[2.4rem] font-black text-foreground text-center leading-none tracking-tightest whitespace-nowrap">
+            Unbelievable <span className="text-gradient">Offers</span>
           </h2>
 
           <button
@@ -73,25 +73,15 @@ const NewArrivals = () => {
           </button>
         </div>
 
-        {/* View all */}
-        <div className="text-center mb-8 sm:mb-11">
-          <Link
-            to="/category/all"
-            className="text-primary hover:text-accent text-[11px] sm:text-xs font-bold uppercase tracking-[0.15em] underline underline-offset-4 transition-colors"
-          >
-            View All
-          </Link>
-        </div>
-
-        {/* Products — horizontal scroll on mobile, grid on desktop */}
+        {/* Products — horizontal swipe carousel at every breakpoint */}
         <div
           ref={scrollRef}
-          className="flex lg:grid lg:grid-cols-4 gap-3 sm:gap-5 overflow-x-auto lg:overflow-visible scrollbar-hide scroll-smooth pb-2 -mx-4 px-4 lg:mx-0 lg:px-0"
+          className="flex gap-3 sm:gap-5 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-2 -mx-4 px-4"
         >
-          {products.slice(0, 8).map((product) => (
+          {products.map((product) => (
             <div
               key={product.id}
-              className="w-[46vw] sm:w-[38vw] md:w-[30vw] lg:w-auto flex-shrink-0 lg:flex-shrink"
+              className="w-[46vw] sm:w-[31vw] md:w-[23vw] lg:w-[calc(25%-15px)] flex-shrink-0 snap-start"
             >
               <ProductCard
                 id={product.id}
@@ -107,9 +97,20 @@ const NewArrivals = () => {
         </div>
 
         <SwipeHint hideAbove="lg" />
+
+        {/* View all — sits below the carousel */}
+        <div className="flex justify-center mt-8 sm:mt-11">
+          <Link
+            to="/sale"
+            className="group inline-flex items-center gap-2.5 border-2 border-border hover:border-primary text-foreground hover:text-primary font-bold px-7 sm:px-9 py-3 sm:py-3.5 text-[11px] sm:text-xs tracking-[0.15em] uppercase rounded-lg transition-all duration-300 active:scale-95"
+          >
+            View All Offers
+            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </div>
     </section>
   );
 };
 
-export default NewArrivals;
+export default UnbelievableOffers;

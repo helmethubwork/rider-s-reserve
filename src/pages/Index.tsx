@@ -15,7 +15,7 @@ const InstagramFeed = lazy(() => import("@/components/InstagramFeed"));
 const BrandShowcase = lazy(() => import("@/components/BrandShowcase"));
 const WhyHelmetHub = lazy(() => import("@/components/WhyHelmetHub"));
 const ExclusiveCollections = lazy(() => import("@/components/ExclusiveCollections"));
-const NewArrivals = lazy(() => import("@/components/NewArrivals"));
+const UnbelievableOffers = lazy(() => import("@/components/NewArrivals"));
 
 const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
   <div className={`${height} w-full`}>
@@ -41,9 +41,9 @@ const Index = () => {
         <ExclusiveCollections />
       </Suspense>
 
-      {/* New Arrivals — compact product cards */}
+      {/* Unbelievable Offers — swipeable product carousel */}
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
-        <NewArrivals />
+        <UnbelievableOffers />
       </Suspense>
 
       {/* Category Grid - loads immediately (important for navigation) */}

@@ -109,15 +109,13 @@ const ExclusiveCollections = () => {
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                       />
                     ) : (
-                      /* Branded placeholder instead of a plain grey circle */
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-secondary via-card to-background">
+                      /* Clean icon-only placeholder until an image is uploaded */
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary via-card to-background">
                         <ShieldCheck
-                          size={30}
-                          className="text-primary/35 mb-1 transition-transform duration-500 group-hover:scale-110"
+                          size={34}
+                          strokeWidth={1.5}
+                          className="text-primary/30 transition-transform duration-500 group-hover:scale-110"
                         />
-                        <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50">
-                          Helmet Hub
-                        </span>
                       </div>
                     )}
 

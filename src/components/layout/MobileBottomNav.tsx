@@ -5,7 +5,7 @@
  * user scrolls down (to free up screen) and slides back in on scroll up.
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Store, Search, ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -19,26 +19,6 @@ const MobileBottomNav = () => {
   const { user } = useAuth();
 
   const [searchOpen, setSearchOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
-
-  // Hide on scroll down, reveal on scroll up
-  useEffect(() => {
-    let lastY = window.scrollY;
-
-    const onScroll = () => {
-      const y = window.scrollY;
-      // Ignore tiny jitters and always show near the top of the page
-      if (y < 80) {
-        setVisible(true);
-      } else if (Math.abs(y - lastY) > 8) {
-        setVisible(y < lastY);
-      }
-      lastY = y;
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -64,10 +44,9 @@ const MobileBottomNav = () => {
 
   return (
     <>
+      {/* Always pinned to the bottom — never hides on scroll */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out ${
-          visible ? "translate-y-0" : "translate-y-full"
-        }`}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50"
         aria-label="Mobile navigation"
       >
         <div className="bg-card/95 backdrop-blur-xl border-t border-border/60 shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
