@@ -74,7 +74,7 @@ const OrderConfirmationPage = () => {
               </Button>
 
               <Button asChild variant="outline" className="w-full" size="lg">
-                <Link to="/sale">Continue Shopping</Link>
+                <Link to="/category/all">Continue Shopping</Link>
               </Button>
             </div>
           </div>

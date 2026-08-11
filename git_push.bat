@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: EMI button, back navigation hierarchy, clearer Cashfree auth error
+set MSG=fix: Continue Shopping now goes to All Products instead of Sale page
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

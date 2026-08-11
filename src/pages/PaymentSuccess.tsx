@@ -28,7 +28,7 @@ const PaymentSuccess = () => {
           )}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>
-              <Link to="/sale">
+              <Link to="/">
                 <ShoppingBag className="mr-2" size={18} />
                 Continue Shopping
               </Link>

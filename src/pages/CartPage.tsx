@@ -27,7 +27,7 @@ const CartPage = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/category/all")}
           className="flex items-center gap-1.5 text-foreground hover:text-primary"
         >
           <ArrowLeft size={16} />

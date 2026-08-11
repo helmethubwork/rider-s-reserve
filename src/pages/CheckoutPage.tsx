@@ -260,7 +260,7 @@ const CheckoutPage = () => {
           <div className="container mx-auto px-4 text-center">
             <ShoppingBag size={64} className="mx-auto text-muted-foreground mb-4" />
             <h1 className="text-2xl font-bold text-foreground mb-4">Your cart is empty</h1>
-            <Button onClick={() => navigate('/sale')}>Continue Shopping</Button>
+            <Button onClick={() => navigate('/category/all')}>Continue Shopping</Button>
           </div>
         </section>
         <Footer />
