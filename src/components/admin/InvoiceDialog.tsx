@@ -78,9 +78,16 @@ const InvoiceDialog = ({ open, onOpenChange, order, items }: InvoiceDialogProps)
       address: order.shipping_address || '',
     });
 
+    // Order numbers already carry the prefix (e.g. "HH-01011"), so only add it
+    // when it is genuinely missing — otherwise you get "HHHH-01011".
     const prefix = getSettingValue(invoiceSettings, 'invoice_prefix', 'HH');
+    const num = order.order_number || '';
+    const refNo = prefix && !num.toUpperCase().startsWith(prefix.toUpperCase())
+      ? `${prefix}-${num}`
+      : num;
+
     setMeta({
-      refNo: `${prefix}${order.order_number}`,
+      refNo,
       date: new Date(order.created_at).toLocaleDateString('en-IN', {
         day: '2-digit', month: '2-digit', year: 'numeric',
       }),
@@ -422,13 +429,34 @@ const InvoiceDialog = ({ open, onOpenChange, order, items }: InvoiceDialogProps)
                       <td style={{ padding: '9px 6px', textAlign: 'right', fontWeight: 700, fontSize: 15, borderTop: '1.5px solid #D8DDE2' }}>{money(grandTotal)}</td>
                     </tr>
                     <tr>
-                      <td colSpan={4} style={{ padding: '3px 6px', textAlign: 'right', color: '#667' }}>
+                      <td colSpan={4} style={{
+                        padding: '3px 6px', textAlign: 'right',
+                        color: order.payment_status === 'paid' ? '#667' : '#C0392B',
+                        fontWeight: order.payment_status === 'paid' ? 400 : 600,
+                      }}>
                         {order.payment_status === 'paid' ? 'Received' : 'Amount Due'}
                       </td>
-                      <td style={{ padding: '3px 6px', textAlign: 'right' }}>
-                        {order.payment_status === 'paid' ? money(grandTotal) : money(0)}
+                      <td style={{
+                        padding: '3px 6px', textAlign: 'right',
+                        color: order.payment_status === 'paid' ? '#1a1a1a' : '#C0392B',
+                        fontWeight: order.payment_status === 'paid' ? 400 : 600,
+                      }}>
+                        {/* Unpaid orders owe the full amount — showing 0.00 here
+                            made every pending invoice look already settled. */}
+                        {money(grandTotal)}
                       </td>
                     </tr>
+
+                    {/* Dispatch details appear once the order has shipped */}
+                    {(order.tracking_id || order.courier_name) && (
+                      <tr>
+                        <td colSpan={5} style={{ padding: '10px 6px 0', color: '#667', fontSize: 12 }}>
+                          <strong style={{ color: '#1a1a1a' }}>Dispatch:</strong>{' '}
+                          {order.courier_name || 'Courier'}
+                          {order.tracking_id && <> — Tracking <strong>{order.tracking_id}</strong></>}
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
 

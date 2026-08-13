@@ -17,7 +17,33 @@ const escapeHtml = (v: unknown): string =>
 // UUID format guard — prevents arbitrary strings reaching the DB query (M2)
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function generateInvoicePDF(order: any, items: any[]): Promise<Buffer> {
+/**
+ * PDFKit's built-in Helvetica is WinAnsi-encoded. It has no rupee glyph (which
+ * printed as "¹") and no Cyrillic or Devanagari, which turned foreign addresses
+ * into mojibake. Anything outside the supported range is replaced here so the
+ * invoice stays readable instead of rendering garbage.
+ */
+const pdfSafe = (value: unknown): string =>
+  String(value ?? '')
+    .replace(/₹/g, 'Rs.')      // ₹ has no glyph in Helvetica
+    .replace(/[‘’]/g, "'") // curly quotes
+    .replace(/[“”]/g, '"')
+    .replace(/[–—]/g, '-') // en/em dash
+    .replace(/[^\x20-\x7E\n]/g, ''); // drop anything else non-ASCII
+
+const rs = (n: number) =>
+  'Rs. ' + Number(n || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+interface InvoiceBiz {
+  name: string; address: string; state: string;
+  phone: string; email: string; gstin: string;
+  terms: string; footer: string;
+}
+
+function generateInvoicePDF(order: any, items: any[], biz: InvoiceBiz): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     const chunks: Buffer[] = [];
@@ -26,79 +52,122 @@ function generateInvoicePDF(order: any, items: any[]): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    doc.fontSize(24).font('Helvetica-Bold').text('HELMET HUB', { align: 'center' });
-    doc.fontSize(10).font('Helvetica').text('www.helmethub.in', { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(16).font('Helvetica-Bold').text('TAX INVOICE', { align: 'center' });
-    doc.moveDown(1);
+    // --- Header band ---
+    doc.rect(0, 0, 595, 8).fill('#4FC3E8');
+    doc.fillColor('#1a1a1a');
+    doc.y = 40;
 
-    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-    doc.moveDown(0.5);
+    doc.fontSize(20).font('Helvetica-Bold').text(pdfSafe(biz.name), 50, doc.y);
+    doc.fontSize(9).font('Helvetica').fillColor('#555');
+    if (biz.address) doc.text(pdfSafe(biz.address), { width: 400 });
+    if (biz.phone)   doc.text(pdfSafe(biz.phone));
+    if (biz.email)   doc.text(pdfSafe(biz.email));
+    if (biz.gstin)   doc.font('Helvetica-Bold').text(`Company GST: ${pdfSafe(biz.gstin)}`).font('Helvetica');
+    if (biz.state)   doc.text(pdfSafe(biz.state));
 
-    doc.fontSize(10).font('Helvetica-Bold').text('Order Details');
-    doc.fontSize(9).font('Helvetica');
-    doc.text(`Order ID: ${order.order_number}`);
-    doc.text(`Date: ${new Date(order.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
-    doc.text(`Payment Status: ${order.payment_status?.toUpperCase()}`);
-    if (order.courier_name)  doc.text(`Courier: ${order.courier_name}`);
-    if (order.tracking_id)   doc.text(`Tracking ID: ${order.tracking_id}`);
-    doc.moveDown(1);
+    doc.moveDown(0.6);
+    doc.fillColor('#1a1a1a').fontSize(14).font('Helvetica-Bold').text('TAX INVOICE', { align: 'right' });
+    doc.moveDown(0.4);
+    doc.strokeColor('#D8DDE2').moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    doc.moveDown(0.7);
 
-    doc.fontSize(10).font('Helvetica-Bold').text('Bill To');
-    doc.fontSize(9).font('Helvetica');
-    doc.text(order.customer_name || 'Guest');
-    if (order.customer_email) doc.text(order.customer_email);
-    if (order.customer_phone) doc.text(order.customer_phone);
-    doc.moveDown(0.5);
+    // --- Bill To (left) / Invoice meta (right) ---
+    const blockTop = doc.y;
+    doc.fontSize(9).font('Helvetica-Bold').fillColor('#4FC3E8').text('Bill To:', 50, blockTop);
+    doc.fillColor('#1a1a1a').font('Helvetica-Bold').text(pdfSafe(order.customer_name || 'Guest'), 50, doc.y, { width: 250 });
+    doc.font('Helvetica').fillColor('#555');
+    if (order.customer_phone) doc.text(pdfSafe(order.customer_phone), 50, doc.y, { width: 250 });
+    if (order.customer_email) doc.text(pdfSafe(order.customer_email), 50, doc.y, { width: 250 });
 
     const shippingAddr = order.shipping_address || [
-      order.delivery_address,
-      order.delivery_city,
-      order.delivery_state,
-      order.delivery_pincode,
+      order.delivery_address, order.delivery_city,
+      order.delivery_state, order.delivery_pincode,
     ].filter(Boolean).join(', ');
-    doc.fontSize(10).font('Helvetica-Bold').text('Ship To');
-    doc.fontSize(9).font('Helvetica').text(shippingAddr || 'N/A');
-    doc.moveDown(1);
+    if (shippingAddr) doc.text(pdfSafe(shippingAddr), 50, doc.y, { width: 250 });
 
-    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-    doc.moveDown(0.3);
+    const leftEnd = doc.y;
+
+    doc.fontSize(9).font('Helvetica-Bold').fillColor('#4FC3E8').text('Ref No:', 380, blockTop, { width: 165, align: 'right' });
+    doc.fillColor('#1a1a1a').font('Helvetica-Bold').text(pdfSafe(order.order_number), 380, doc.y, { width: 165, align: 'right' });
+    doc.font('Helvetica-Bold').fillColor('#4FC3E8').text('Date of Issue', 380, doc.y + 4, { width: 165, align: 'right' });
+    doc.fillColor('#1a1a1a').font('Helvetica').text(
+      new Date(order.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }),
+      380, doc.y, { width: 165, align: 'right' }
+    );
+
+    doc.y = Math.max(leftEnd, doc.y) + 14;
+
+    // --- Items table ---
     const tableTop = doc.y;
-    doc.fontSize(9).font('Helvetica-Bold');
-    doc.text('Product', 50, tableTop, { width: 220 });
-    doc.text('Variant', 270, tableTop, { width: 80 });
-    doc.text('Qty',   350, tableTop, { width: 40,  align: 'center' });
-    doc.text('Price', 390, tableTop, { width: 70,  align: 'right' });
-    doc.text('Total', 470, tableTop, { width: 75,  align: 'right' });
-    doc.moveDown(0.5);
-    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-    doc.moveDown(0.3);
+    doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#667');
+    doc.text('SR',     50,  tableTop, { width: 25 });
+    doc.text('NAME',   75,  tableTop, { width: 250 });
+    doc.text('QTY',    325, tableTop, { width: 40, align: 'right' });
+    doc.text('PRICE',  370, tableTop, { width: 80, align: 'right' });
+    doc.text('AMOUNT', 455, tableTop, { width: 90, align: 'right' });
+    doc.moveDown(0.4);
+    doc.strokeColor('#D8DDE2').moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    doc.moveDown(0.4);
 
-    doc.font('Helvetica').fontSize(9);
+    doc.font('Helvetica').fontSize(9).fillColor('#1a1a1a');
     let subtotal = 0;
-    for (const item of items) {
+    items.forEach((item, i) => {
       const y = doc.y;
       const lineTotal = item.price * item.quantity;
       subtotal += lineTotal;
-      const variant = [item.color, item.size].filter(Boolean).join(' / ') || '-';
-      doc.text(item.product_name, 50, y, { width: 220 });
-      doc.text(variant,           270, y, { width: 80 });
-      doc.text(String(item.quantity), 350, y, { width: 40, align: 'center' });
-      doc.text(`₹${item.price.toFixed(2)}`,    390, y, { width: 70, align: 'right' });
-      doc.text(`₹${lineTotal.toFixed(2)}`,     470, y, { width: 75, align: 'right' });
-      doc.moveDown(0.5);
+      const name = [item.product_name, item.color, item.size].filter(Boolean).join(' - ');
+      doc.text(String(i + 1),          50,  y, { width: 25 });
+      doc.text(pdfSafe(name),          75,  y, { width: 250 });
+      doc.text(String(item.quantity),  325, y, { width: 40, align: 'right' });
+      doc.text(rs(item.price),         370, y, { width: 80, align: 'right' });
+      doc.text(rs(lineTotal),          455, y, { width: 90, align: 'right' });
+      doc.moveDown(0.55);
+    });
+
+    doc.moveDown(0.2);
+    doc.strokeColor('#D8DDE2').moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    doc.moveDown(0.5);
+
+    const grandTotal = Number(order.total_amount ?? subtotal);
+    const shipping = Math.max(0, grandTotal - subtotal);
+
+    if (shipping > 0) {
+      doc.fontSize(9).font('Helvetica').fillColor('#555');
+      doc.text('Shipping', 325, doc.y, { width: 125, align: 'right' });
+      doc.text(rs(shipping), 455, doc.y - 11, { width: 90, align: 'right' });
+      doc.moveDown(0.3);
     }
 
-    doc.moveDown(0.3);
-    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-    doc.moveDown(0.5);
-    doc.fontSize(11).font('Helvetica-Bold');
-    doc.text(`Total: ₹${(order.total_amount ?? subtotal).toFixed(2)}`, 390, doc.y, { width: 155, align: 'right' });
-    doc.moveDown(2);
+    doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a1a1a');
+    doc.text('Total', 325, doc.y, { width: 125, align: 'right' });
+    doc.text(rs(grandTotal), 455, doc.y - 14, { width: 90, align: 'right' });
+    doc.moveDown(0.35);
 
-    doc.fontSize(8).font('Helvetica').fillColor('#666');
-    doc.text('Thank you for shopping with Helmet Hub!', { align: 'center' });
-    doc.text('For queries, contact us at support@helmethub.in', { align: 'center' });
+    const isPaid = order.payment_status === 'paid';
+    doc.fontSize(9).font(isPaid ? 'Helvetica' : 'Helvetica-Bold')
+       .fillColor(isPaid ? '#3E9142' : '#C0392B');
+    doc.text(isPaid ? 'Received' : 'Amount Due', 325, doc.y, { width: 125, align: 'right' });
+    doc.text(rs(grandTotal), 455, doc.y - 11, { width: 90, align: 'right' });
+    doc.moveDown(1.2);
+
+    // --- Dispatch details ---
+    if (order.courier_name || order.tracking_id) {
+      doc.fontSize(9).font('Helvetica-Bold').fillColor('#1a1a1a').text('Dispatch Details', 50, doc.y);
+      doc.font('Helvetica').fillColor('#555');
+      if (order.courier_name) doc.text(`Courier: ${pdfSafe(order.courier_name)}`, 50, doc.y);
+      if (order.tracking_id)  doc.text(`Tracking ID: ${pdfSafe(order.tracking_id)}`, 50, doc.y);
+      doc.moveDown(0.8);
+    }
+
+    // --- Terms & footer ---
+    if (biz.terms) {
+      doc.fontSize(7.5).font('Helvetica').fillColor('#555');
+      doc.text(pdfSafe(biz.terms), 50, doc.y, { width: 495, align: 'left' });
+      doc.moveDown(0.5);
+    }
+    if (biz.footer) {
+      doc.fontSize(8).fillColor('#667').text(pdfSafe(biz.footer), 50, doc.y, { width: 495 });
+    }
 
     doc.end();
   });
@@ -180,9 +249,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   console.log(`[${istNow()}] Sending dispatch email to:`, order.customer_email);
 
+  // Business details for the invoice come from Admin → Settings → Invoice,
+  // so the owner controls them without a code change.
+  const { data: invoiceRows } = await supabase
+    .from('site_settings')
+    .select('setting_key, setting_value')
+    .eq('category', 'invoice');
+
+  const setting = (key: string, fallback = '') =>
+    invoiceRows?.find((r) => r.setting_key === key)?.setting_value || fallback;
+
+  const biz = {
+    name:    setting('invoice_business_name', 'HELMET HUB'),
+    address: setting('invoice_address', ''),
+    state:   setting('invoice_state', ''),
+    phone:   setting('invoice_phone', ''),
+    email:   setting('invoice_email', 'support@helmethub.in'),
+    gstin:   setting('invoice_gstin', ''),
+    terms:   setting('invoice_terms', ''),
+    footer:  setting('invoice_footer_note', ''),
+  };
+
   let pdfBuffer: Buffer;
   try {
-    pdfBuffer = await generateInvoicePDF(order, orderItems);
+    pdfBuffer = await generateInvoicePDF(order, orderItems, biz);
     console.log(`[${istNow()}] Invoice PDF generated (${pdfBuffer.length} bytes)`);
   } catch (pdfErr) {
     console.error(`[${istNow()}] PDF generation failed:`, pdfErr);

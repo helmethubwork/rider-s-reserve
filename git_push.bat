@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=perf: remove Sheets blocking call + preload SDK, password eye toggle, invoice in order list
+set MSG=fix: invoice ref prefix, amount due, PDF encoding + dispatch invoice uses settings
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
