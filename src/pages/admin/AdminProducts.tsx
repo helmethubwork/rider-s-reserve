@@ -109,6 +109,7 @@ const AdminProducts = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [existingStorageImages, setExistingStorageImages] = useState<string[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [deletingImage, setDeletingImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Hero slider state
@@ -439,13 +440,52 @@ const AdminProducts = () => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Remove an existing uploaded image URL
-  const removeExistingImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      image_urls: prev.image_urls.filter((_, i) => i !== index),
-      image_url: index === 0 && prev.image_urls.length === 1 ? '' : prev.image_url
-    }));
+  /**
+   * Delete an already-uploaded product image.
+   *
+   * Removes the file from Supabase Storage and drops it from the grid. If the
+   * deleted image was the main one, the next remaining image is promoted so the
+   * product never ends up with a blank thumbnail on the storefront.
+   */
+  const deleteExistingImage = async (url: string, index: number) => {
+    if (!window.confirm('Delete this image permanently? This cannot be undone.')) return;
+
+    setDeletingImage(url);
+    try {
+      // Derive the storage path from the public URL
+      const marker = '/product-images/';
+      const idx = url.indexOf(marker);
+      const path = idx !== -1 ? url.slice(idx + marker.length).split('?')[0] : null;
+
+      if (path) {
+        const { error } = await supabase.storage.from('product-images').remove([path]);
+        if (error) console.warn('Storage delete warning:', error.message);
+      }
+
+      const remaining = existingStorageImages.filter((_, i) => i !== index);
+      setExistingStorageImages(remaining);
+
+      // Promote a new main image if we just deleted the current one
+      if (formData.image_url === url) {
+        const nextMain = remaining[0] || '';
+        setFormData(prev => ({ ...prev, image_url: nextMain }));
+
+        if (editingProduct) {
+          await supabase
+            .from('products')
+            .update({ image_url: nextMain || null })
+            .eq('id', editingProduct.id);
+        }
+      }
+
+      toast.success('Image deleted');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete image');
+    } finally {
+      setDeletingImage(null);
+    }
   };
 
   // Clear all images
@@ -1135,6 +1175,22 @@ const AdminProducts = () => {
                                     <span className="text-white text-xs font-medium">Set as Main</span>
                                   </div>
                                 )}
+
+                                {/* Delete — stopPropagation so it doesn't also set as main */}
+                                <button
+                                  type="button"
+                                  title="Delete this image"
+                                  disabled={deletingImage === url}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteExistingImage(url, index);
+                                  }}
+                                  className="absolute top-1 right-1 w-6 h-6 rounded-md bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center shadow-sm transition-all active:scale-90 disabled:opacity-50 z-10"
+                                >
+                                  {deletingImage === url
+                                    ? <Loader2 size={12} className="animate-spin" />
+                                    : <X size={13} />}
+                                </button>
                               </div>
                             </div>
                           );

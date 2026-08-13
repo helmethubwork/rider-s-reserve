@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: invoice ref prefix, amount due, PDF encoding + dispatch invoice uses settings
+set MSG=fix: product image delete (was missing), invoice fixes, PDF encoding
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
