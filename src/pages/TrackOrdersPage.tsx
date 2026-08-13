@@ -5,7 +5,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/supabase";
 import { Package, Search, Truck, ArrowLeft, CheckCircle, Clock, XCircle, Loader2 } from "lucide-react";
 
 interface TrackedOrder {
@@ -55,17 +54,23 @@ const TrackOrdersPage = () => {
     setNotFound(false);
 
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('order_number, order_status, payment_status, tracking_id, courier_name, shipped_at, total_amount, created_at')
-        .eq('order_number', orderNumber.trim().toUpperCase())
-        .eq('customer_email', email.trim().toLowerCase())
-        .maybeSingle();
+      // Goes through a server endpoint rather than querying Supabase directly,
+      // so the orders table can stay closed to the public anon key.
+      const res = await fetch('/api/track-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_number: orderNumber.trim(),
+          email: email.trim(),
+        }),
+      });
 
-      if (error || !data) {
+      const payload = await res.json();
+
+      if (!res.ok || !payload?.order) {
         setNotFound(true);
       } else {
-        setResult(data as TrackedOrder);
+        setResult(payload.order as TrackedOrder);
       }
     } catch {
       setNotFound(true);

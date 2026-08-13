@@ -5,9 +5,8 @@
  * Order numbers are generated server-side via next_order_number() Postgres function.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 
 // Order item type
 interface OrderItem {
@@ -17,23 +16,6 @@ interface OrderItem {
   price: number;
   color?: string;
   size?: string;
-}
-
-// Create order input
-interface CreateOrderInput {
-  customer_email: string;
-  customer_name: string;
-  customer_phone?: string;
-  shipping_address: string;
-  delivery_full_name?: string;
-  delivery_phone?: string;
-  delivery_address?: string;
-  delivery_city?: string;
-  delivery_state?: string;
-  delivery_pincode?: string;
-  items: OrderItem[];
-  total_amount: number;
-  user_id?: string;
 }
 
 // Order type matching Supabase
@@ -67,83 +49,16 @@ export interface OrderItemDB {
   size: string | null;
 }
 
-const generateOrderNumber = async (): Promise<string> => {
-  const { data, error } = await supabase.rpc('next_order_number');
-  if (error || !data) {
-    console.error('Error generating order number:', error);
-    throw new Error('Failed to generate order number');
-  }
-  return data as string;
-};
-
-// Create a new order
-export const useCreateOrder = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: CreateOrderInput) => {
-      // Generate order number
-      const orderNumber = await generateOrderNumber();
-
-      // Create the order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          order_number: orderNumber,
-          user_id: input.user_id || null,
-          customer_email: input.customer_email,
-          customer_name: input.customer_name,
-          customer_phone: input.customer_phone || null,
-          shipping_address: input.shipping_address,
-          delivery_full_name: input.delivery_full_name || null,
-          delivery_phone: input.delivery_phone || null,
-          delivery_address: input.delivery_address || null,
-          delivery_city: input.delivery_city || null,
-          delivery_state: input.delivery_state || null,
-          delivery_pincode: input.delivery_pincode || null,
-          total_amount: input.total_amount,
-          order_status: 'placed',
-          payment_status: 'pending',
-        })
-        .select()
-        .single();
-
-      if (orderError) {
-        console.error('Order creation error:', orderError);
-        throw new Error(orderError.message || 'Failed to create order');
-      }
-
-      // Create order items
-      const orderItems = input.items.map((item) => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        product_name: item.product_name,
-        quantity: item.quantity,
-        price: item.price,
-        color: item.color || null,
-        size: item.size || null,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) {
-        console.error('Order items creation error:', itemsError);
-        throw new Error(itemsError.message || 'Failed to create order items');
-      }
-
-      return order as Order;
-    },
-    onSuccess: (order) => {
-      toast.success(`Order ${order.order_number} placed successfully!`);
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to place order');
-    },
-  });
-};
+// NOTE: `useCreateOrder` was removed.
+//
+// It inserted directly into `orders` / `order_items` with the public anon key,
+// which forced the database to keep anonymous INSERT policies open. Anyone
+// holding the anon key (it ships in the JS bundle) could therefore write
+// arbitrary order rows.
+//
+// Checkout now posts to /api/create-order, which runs server-side with the
+// service-role key and bypasses RLS safely. Do not reintroduce client-side
+// order creation.
 
 // Get orders for current user
 export const useUserOrders = (userId?: string) => {
@@ -167,27 +82,13 @@ export const useUserOrders = (userId?: string) => {
   });
 };
 
-// Get order by order number (for tracking)
-export const useOrderByNumber = (orderNumber: string) => {
-  return useQuery({
-    queryKey: ['orders', 'number', orderNumber],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_number', orderNumber)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching order:', error);
-        throw error;
-      }
-
-      return data as Order | null;
-    },
-    enabled: !!orderNumber,
-  });
-};
+// NOTE: a `useOrderByNumber` hook used to live here. It ran `SELECT *` filtered
+// only by order_number using the public anon key. Because order numbers are
+// sequential (HH-01001, HH-01002 …), anything calling it could have been used to
+// walk the whole orders table and harvest customer names, phones and addresses.
+// It was unused, and guest tracking now goes through /api/track-order, which
+// requires the email as well and returns status fields only. Do not reintroduce
+// a public lookup keyed on order number alone.
 
 // Get order items for an order
 export const useOrderItems = (orderId: string) => {
