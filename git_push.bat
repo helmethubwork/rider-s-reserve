@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: refund webhook + auto-cancel unshipped refunded orders (prevents shipping loss)
+set MSG=feat: editable GST invoice with print+email, mandatory PIN code at checkout
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

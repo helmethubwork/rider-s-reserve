@@ -32,6 +32,11 @@ const checkoutSchema = z.object({
   email: z.string().trim().email('Please enter a valid email'),
   phone: z.string().trim().min(10, 'Please enter a valid phone number').max(15, 'Phone number is too long'),
   address: z.string().trim().min(10, 'Please enter a complete address').max(500, 'Address is too long'),
+  // Indian PIN codes are exactly 6 digits and never start with 0
+  pincode: z
+    .string()
+    .trim()
+    .regex(/^[1-9][0-9]{5}$/, 'Enter a valid 6-digit PIN code'),
 });
 
 const CheckoutPage = () => {
@@ -73,6 +78,7 @@ const CheckoutPage = () => {
     email: user?.email || '',
     phone: profile?.phone || '',
     address: '',
+    pincode: '',
   });
 
   // Track begin_checkout on mount
@@ -120,7 +126,7 @@ const CheckoutPage = () => {
     let deliveryAddress = formData.address;
     let deliveryCity = '';
     let deliveryState = '';
-    let deliveryPincode = '';
+    let deliveryPincode = formData.pincode.trim();
 
     if (!useNewAddress && selectedAddressId !== 'new') {
       const addr = savedAddresses.find((a: any) => a.id === selectedAddressId);
@@ -150,6 +156,7 @@ const CheckoutPage = () => {
       email: formData.email,
       phone: customerPhone,
       address: shippingAddress,
+      pincode: deliveryPincode,
     };
 
     // Validate form
@@ -176,6 +183,11 @@ const CheckoutPage = () => {
     if (items.length === 0) {
       navigate('/cart');
       return;
+    }
+
+    // Make sure the PIN code is part of the printed address, not only a column
+    if (deliveryPincode && !shippingAddress.includes(deliveryPincode)) {
+      shippingAddress = `${shippingAddress}, ${deliveryPincode}`;
     }
 
     // Create order server-side (bypasses RLS — works for guests and signed-in users)
@@ -421,6 +433,35 @@ const CheckoutPage = () => {
                       />
                       {errors.address && (
                         <p className="text-sm text-destructive">{errors.address}</p>
+                      )}
+                    </div>
+
+                    {/* PIN Code — separate and mandatory, couriers need it exact */}
+                    <div className="space-y-2">
+                      <Label htmlFor="pincode">
+                        PIN Code <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="pincode"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="postal-code"
+                        maxLength={6}
+                        value={formData.pincode}
+                        onChange={(e) =>
+                          handleInputChange('pincode', e.target.value.replace(/\D/g, '').slice(0, 6))
+                        }
+                        className={`max-w-[190px] tracking-[0.2em] font-semibold ${
+                          errors.pincode ? 'border-destructive' : ''
+                        }`}
+                        placeholder="500033"
+                      />
+                      {errors.pincode ? (
+                        <p className="text-sm text-destructive">{errors.pincode}</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          6-digit PIN code for delivery
+                        </p>
                       )}
                     </div>
                   </>

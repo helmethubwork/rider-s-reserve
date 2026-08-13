@@ -29,7 +29,8 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Order, OrderItemDB } from '@/hooks/useOrders';
-import { Eye, Loader2, Package, Truck, Circle, Download, Hash } from 'lucide-react';
+import InvoiceDialog from '@/components/admin/InvoiceDialog';
+import { Eye, Loader2, Package, Truck, Circle, Download, Hash, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAdminReadItems } from '@/hooks/useAdminReadItems';
 
@@ -45,6 +46,7 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
   // Use Supabase-backed read tracking
   const { isRead, markAsRead } = useAdminReadItems('order');
@@ -561,14 +563,24 @@ const AdminOrders = () => {
                   </span>
                 </div>
 
-                {/* Download Invoice Button */}
-                <Button
-                  onClick={() => handleDownloadInvoice(selectedOrder, orderItems)}
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Invoice (Print / Stick on Box)
-                </Button>
+                {/* Invoice actions */}
+                <div className="space-y-2">
+                  <Button
+                    onClick={() => setIsInvoiceOpen(true)}
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    GST Invoice — Edit, Print or Email
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDownloadInvoice(selectedOrder, orderItems)}
+                    className="w-full"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Packing Slip (Stick on Box)
+                  </Button>
+                </div>
               </div>
             )}
           </DialogContent>
@@ -672,6 +684,14 @@ const AdminOrders = () => {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* GST Invoice — editable, printable, emailable */}
+        <InvoiceDialog
+          open={isInvoiceOpen}
+          onOpenChange={setIsInvoiceOpen}
+          order={selectedOrder}
+          items={orderItems}
+        />
       </div>
     </AdminLayout>
   );

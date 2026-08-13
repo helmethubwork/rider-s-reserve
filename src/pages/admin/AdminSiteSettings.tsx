@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Loader2, Phone, Mail, MapPin, Globe, Clock, MessageCircle, Construction, AlertTriangle } from 'lucide-react';
+import { Save, Loader2, Phone, Mail, MapPin, Globe, Clock, MessageCircle, Construction, AlertTriangle, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -94,7 +94,10 @@ const AdminSiteSettings = () => {
   const renderSettingField = (setting: SiteSetting) => {
     const value = formValues[setting.setting_key] || '';
     const isTextarea = setting.setting_key === 'store_address' ||
-                       setting.setting_key === 'whatsapp_message';
+                       setting.setting_key === 'whatsapp_message' ||
+                       setting.setting_key === 'invoice_address' ||
+                       setting.setting_key === 'invoice_terms' ||
+                       setting.setting_key === 'invoice_footer_note';
 
     const getIcon = () => {
       if (setting.setting_key.includes('phone') || setting.setting_key.includes('whatsapp_number')) return <Phone size={16} className="text-muted-foreground" />;
@@ -154,6 +157,7 @@ const AdminSiteSettings = () => {
   const contactSettings = getSettingsByCategory('contact');
   const socialSettings = getSettingsByCategory('social');
   const businessSettings = getSettingsByCategory('business');
+  const invoiceSettings = getSettingsByCategory('invoice');
   const bannerSettings = getSettingsByCategory('banner');
 
   return (
@@ -206,12 +210,19 @@ const AdminSiteSettings = () => {
                   <Clock size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
                   <span>Business</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="banner" 
+                <TabsTrigger
+                  value="banner"
                   className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 text-xs sm:text-sm min-w-[80px]"
                 >
                   <Construction size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
                   <span>Banner</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="invoice"
+                  className="flex-shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent data-[state=active]:border-yellow-500 data-[state=active]:bg-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 text-xs sm:text-sm min-w-[80px]"
+                >
+                  <FileText size={14} className="mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <span>Invoice</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -240,6 +251,23 @@ const AdminSiteSettings = () => {
               </div>
               {businessSettings.length === 0 && (
                 <p className="text-gray-500 text-center py-8">No business settings found in database.</p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="invoice" className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 mb-2">
+                <p className="text-[13px] text-amber-900">
+                  These details print on every customer invoice. Leave <strong>GSTIN</strong> blank
+                  until your GST registration is approved — it is hidden on the invoice when empty.
+                </p>
+              </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                {invoiceSettings.map(renderSettingField)}
+              </div>
+              {invoiceSettings.length === 0 && (
+                <p className="text-gray-500 text-center py-8">
+                  No invoice settings found. Run SETUP_INVOICE_SETTINGS.sql in Supabase first.
+                </p>
               )}
             </TabsContent>
 
