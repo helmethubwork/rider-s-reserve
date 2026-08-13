@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: product image delete (was missing), invoice fixes, PDF encoding
+set MSG=feat: hero slider option on Add Product + image delete fix + invoice fixes
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

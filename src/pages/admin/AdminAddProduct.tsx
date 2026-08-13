@@ -27,7 +27,7 @@ import { supabase } from '@/lib/supabase';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { SupabaseCategory } from '@/hooks/useCategories';
 import { useAdminCollections } from '@/hooks/useCollections';
-import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, X, HardHat, Shirt, Settings, Wrench, Star, Percent, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -109,6 +109,13 @@ const AdminAddProduct = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
   const { data: allCollections = [] } = useAdminCollections();
+
+  // Hero slider — optionally feature this product on the homepage banner
+  const [heroEnabled, setHeroEnabled] = useState(false);
+  const [heroSubtitle, setHeroSubtitle] = useState('NEW ARRIVAL');
+  const [heroTitle, setHeroTitle] = useState('');
+  const [heroButtonText, setHeroButtonText] = useState('Shop Now');
+  const [heroOrder, setHeroOrder] = useState('1');
   const [isOnSale, setIsOnSale] = useState(false);
   const [salePrice, setSalePrice] = useState('');
   const [saleBadge, setSaleBadge] = useState('');
@@ -308,6 +315,29 @@ const AdminAddProduct = () => {
 
       if (insertError) {
         throw new Error(`Product creation failed: ${insertError.message}`);
+      }
+
+      // Add to the homepage hero slider if requested
+      if (heroEnabled) {
+        const { error: heroError } = await supabase.from('hero_slides').insert({
+          subtitle:      heroSubtitle.trim() || 'NEW ARRIVAL',
+          title:         heroTitle.trim() || name.trim(),
+          description:   null,
+          button_text:   heroButtonText.trim() || 'Shop Now',
+          button_link:   `/product/${productId}`,
+          image_url:     mainImageUrl,
+          align:         'left',
+          display_order: parseInt(heroOrder, 10) || 1,
+          is_active:     true,
+        });
+
+        // Non-fatal — the product exists, only the banner entry failed
+        if (heroError) {
+          console.error('Hero slide creation failed:', heroError);
+          toast.warning('Product saved, but adding it to the hero slider failed.');
+        } else {
+          toast.success('Added to homepage hero slider');
+        }
       }
 
       // Assign the product to any selected Exclusive Collections
@@ -786,6 +816,107 @@ const AdminAddProduct = () => {
                 </div>
               </div>
             )}
+
+            {/* Hero Slider */}
+            <div className="space-y-3 p-4 bg-gradient-to-br from-sky-50 to-indigo-50 rounded-lg border-2 border-sky-200 shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-2.5">
+                  <ImageIcon size={18} className="text-sky-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <Label className="text-gray-900 font-semibold">Homepage Hero Banner</Label>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      Show this product as a full-width banner at the top of the homepage
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={heroEnabled}
+                  onCheckedChange={setHeroEnabled}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {heroEnabled && (
+                <div className="space-y-3 pt-1">
+                  {imagePreviews.length === 0 && (
+                    <div className="rounded-md bg-amber-100 border border-amber-300 px-3 py-2">
+                      <p className="text-xs text-amber-900">
+                        Upload at least one image below — the first image becomes the banner
+                        background. Wide, high-resolution photos work best.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="heroSubtitle" className="text-gray-900 text-[13px]">
+                        Small label above the title
+                      </Label>
+                      <Input
+                        id="heroSubtitle"
+                        value={heroSubtitle}
+                        onChange={(e) => setHeroSubtitle(e.target.value)}
+                        placeholder="NEW ARRIVAL"
+                        disabled={isLoading}
+                        className="bg-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="heroButtonText" className="text-gray-900 text-[13px]">
+                        Button text
+                      </Label>
+                      <Input
+                        id="heroButtonText"
+                        value={heroButtonText}
+                        onChange={(e) => setHeroButtonText(e.target.value)}
+                        placeholder="Shop Now"
+                        disabled={isLoading}
+                        className="bg-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="heroTitle" className="text-gray-900 text-[13px]">
+                        Banner headline
+                      </Label>
+                      <Input
+                        id="heroTitle"
+                        value={heroTitle}
+                        onChange={(e) => setHeroTitle(e.target.value)}
+                        placeholder={name || 'Leave blank to use the product name'}
+                        disabled={isLoading}
+                        className="bg-white"
+                      />
+                      <p className="text-xs text-gray-500">
+                        Keep it short — long names wrap across several lines on the banner.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="heroOrder" className="text-gray-900 text-[13px]">
+                        Slide position
+                      </Label>
+                      <Input
+                        id="heroOrder"
+                        type="number"
+                        min="1"
+                        value={heroOrder}
+                        onChange={(e) => setHeroOrder(e.target.value)}
+                        disabled={isLoading}
+                        className="bg-white"
+                      />
+                      <p className="text-xs text-gray-500">Lower numbers show first.</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-600">
+                    You can edit or remove this slide later from{' '}
+                    <span className="font-semibold">Admin → Hero Slider</span>.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Featured & Sale Options */}
             <div className="space-y-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg border-2 border-amber-200 shadow-sm">
