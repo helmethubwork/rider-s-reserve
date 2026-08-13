@@ -267,6 +267,37 @@ const AdminHeroSlider = () => {
     setIsDialogOpen(true);
   };
 
+  /**
+   * Renumber every slide 1, 2, 3… in the order currently shown.
+   * Useful when several slides share the same display_order — which makes the
+   * homepage pick an arbitrary sequence.
+   */
+  const [isRenumbering, setIsRenumbering] = useState(false);
+
+  const renumberSlides = async () => {
+    setIsRenumbering(true);
+    try {
+      for (let i = 0; i < slides.length; i++) {
+        const { error } = await supabase
+          .from('hero_slides')
+          .update({ display_order: i + 1 })
+          .eq('id', slides[i].id);
+        if (error) throw error;
+      }
+      queryClient.invalidateQueries({ queryKey: ['admin', 'hero-slides'] });
+      queryClient.invalidateQueries({ queryKey: ['hero-slides'] });
+      toast.success('Slides renumbered 1 to ' + slides.length);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to renumber slides');
+    } finally {
+      setIsRenumbering(false);
+    }
+  };
+
+  // True when two or more slides share the same position
+  const hasDuplicateOrders =
+    new Set(slides.map((s) => s.display_order)).size !== slides.length && slides.length > 1;
+
   // Close dialog and reset
   const closeDialog = () => {
     setIsDialogOpen(false);
@@ -285,8 +316,20 @@ const AdminHeroSlider = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Hero Slider</h1>
             <p className="text-gray-600 text-sm sm:text-base">Manage homepage banner slides</p>
           </div>
-          <Button 
-            onClick={() => setIsDialogOpen(true)}
+          <Button
+            onClick={() => {
+              // Start a new slide after the last one instead of defaulting to 0,
+              // otherwise every slide ties on display_order and the homepage
+              // shows them in an arbitrary order.
+              const nextOrder = slides.length
+                ? Math.max(...slides.map((s) => s.display_order ?? 0)) + 1
+                : 1;
+              setEditingSlide(null);
+              setFormData({ ...emptyFormData, display_order: String(nextOrder) });
+              setImageFile(null);
+              setImagePreview(null);
+              setIsDialogOpen(true);
+            }}
             className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold shadow-lg h-11 px-4"
           >
             <Plus className="mr-2" size={18} />
@@ -294,6 +337,33 @@ const AdminHeroSlider = () => {
             <span className="sm:hidden">Add</span>
           </Button>
         </div>
+
+        {/* Duplicate position warning */}
+        {hasDuplicateOrders && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3.5">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-900">
+                Several slides share the same position
+              </p>
+              <p className="text-[13px] text-amber-800 mt-0.5">
+                When slides tie on position number, the homepage shows them in an unpredictable
+                order. Renumber them 1, 2, 3… to fix the sequence.
+              </p>
+            </div>
+            <Button
+              onClick={renumberSlides}
+              disabled={isRenumbering}
+              variant="outline"
+              className="border-amber-400 text-amber-900 hover:bg-amber-100 flex-shrink-0"
+            >
+              {isRenumbering ? (
+                <><Loader2 size={15} className="mr-2 animate-spin" /> Fixing…</>
+              ) : (
+                'Fix Order Automatically'
+              )}
+            </Button>
+          </div>
+        )}
 
         {/* Slides Grid */}
         {isLoading ? (

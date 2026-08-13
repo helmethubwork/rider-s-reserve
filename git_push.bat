@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: hero slider option on Add Product + image delete fix + invoice fixes
+set MSG=fix: hero slider ordering - auto-increment position, tiebreak sort, renumber tool
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

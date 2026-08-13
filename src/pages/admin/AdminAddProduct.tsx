@@ -115,7 +115,7 @@ const AdminAddProduct = () => {
   const [heroSubtitle, setHeroSubtitle] = useState('NEW ARRIVAL');
   const [heroTitle, setHeroTitle] = useState('');
   const [heroButtonText, setHeroButtonText] = useState('Shop Now');
-  const [heroOrder, setHeroOrder] = useState('1');
+  const [heroOrder, setHeroOrder] = useState('');
   const [isOnSale, setIsOnSale] = useState(false);
   const [salePrice, setSalePrice] = useState('');
   const [saleBadge, setSaleBadge] = useState('');
@@ -319,6 +319,19 @@ const AdminAddProduct = () => {
 
       // Add to the homepage hero slider if requested
       if (heroEnabled) {
+        // Place it after the last existing slide unless the admin picked a
+        // specific position — stops every new slide landing on the same number.
+        let resolvedOrder = parseInt(heroOrder, 10);
+        if (!resolvedOrder || resolvedOrder < 1) {
+          const { data: lastSlide } = await supabase
+            .from('hero_slides')
+            .select('display_order')
+            .order('display_order', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          resolvedOrder = (lastSlide?.display_order ?? 0) + 1;
+        }
+
         const { error: heroError } = await supabase.from('hero_slides').insert({
           subtitle:      heroSubtitle.trim() || 'NEW ARRIVAL',
           title:         heroTitle.trim() || name.trim(),
@@ -327,7 +340,7 @@ const AdminAddProduct = () => {
           button_link:   `/product/${productId}`,
           image_url:     mainImageUrl,
           align:         'left',
-          display_order: parseInt(heroOrder, 10) || 1,
+          display_order: resolvedOrder,
           is_active:     true,
         });
 
@@ -903,10 +916,13 @@ const AdminAddProduct = () => {
                         min="1"
                         value={heroOrder}
                         onChange={(e) => setHeroOrder(e.target.value)}
+                        placeholder="Auto"
                         disabled={isLoading}
                         className="bg-white"
                       />
-                      <p className="text-xs text-gray-500">Lower numbers show first.</p>
+                      <p className="text-xs text-gray-500">
+                        Lower numbers show first. Leave blank to add it last.
+                      </p>
                     </div>
                   </div>
 

@@ -32,7 +32,10 @@ export const useHeroSlides = () => {
         .from('hero_slides')
         .select('*')
         .eq('is_active', true)
-        .order('display_order', { ascending: true });
+        // Secondary sort so slides sharing a display_order keep a stable,
+        // predictable order instead of coming back shuffled each request.
+        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching hero slides:', error);
@@ -53,7 +56,8 @@ export const useAdminHeroSlides = () => {
       const { data, error } = await supabase
         .from('hero_slides')
         .select('*')
-        .order('display_order', { ascending: true });
+        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       return data as SupabaseHeroSlide[];
