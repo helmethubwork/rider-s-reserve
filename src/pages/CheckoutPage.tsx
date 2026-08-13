@@ -20,7 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // Order creation is now server-side (see api/create-order.ts) so guests can pay too
 import { ShoppingBag, CreditCard, Truck, AlertCircle, ArrowLeft, MapPin, Plus } from 'lucide-react';
 import { z } from 'zod';
-import { startCashfreePayment } from '@/lib/cashfree';
+import { startCashfreePayment, preloadCashfree } from '@/lib/cashfree';
 import { getShippingCost, SHIPPING_INFO_LINES } from '@/lib/shipping';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
@@ -86,6 +86,9 @@ const CheckoutPage = () => {
     if (items.length > 0) {
       trackBeginCheckout(items, totalPrice);
     }
+    // Start downloading the Cashfree SDK now, while the customer is still
+    // filling the form — by the time they tap Pay Now it is already loaded.
+    preloadCashfree();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [errors, setErrors] = useState<Record<string, string>>({});

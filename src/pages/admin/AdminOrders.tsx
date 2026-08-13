@@ -474,6 +474,19 @@ const AdminOrders = () => {
                             <Button
                               variant="outline"
                               size="icon"
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setIsInvoiceOpen(true);
+                                markAsRead(order.id);
+                              }}
+                              title="GST Invoice — print or email"
+                              className="border-gray-300 hover:bg-gray-100"
+                            >
+                              <FileText size={16} className="text-gray-700" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
                               onClick={() => handleEdit(order)}
                               title="Update Order"
                               className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"

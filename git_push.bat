@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: editable GST invoice with print+email, mandatory PIN code at checkout
+set MSG=perf: remove Sheets blocking call + preload SDK, password eye toggle, invoice in order list
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
