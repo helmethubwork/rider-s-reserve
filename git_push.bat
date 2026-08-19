@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: category links use slug not stale href field
+set MSG=fix: always revalidate product data + client-side is_active guard
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

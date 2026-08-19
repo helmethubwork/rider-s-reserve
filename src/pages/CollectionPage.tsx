@@ -81,7 +81,8 @@ const CollectionPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-              {products.map((product: any) => (
+              {/* Hidden products must never surface through the collection join */}
+              {products.filter((p: any) => p.is_active === true).map((product: any) => (
                 <ProductCard
                   key={product.id}
                   id={product.id}

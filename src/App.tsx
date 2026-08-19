@@ -104,6 +104,12 @@ const queryClient = new QueryClient({
     queries: {
       throwOnError: false,
       retry: 1,
+      // Always revalidate when a page mounts. Without this, a product hidden in
+      // the admin panel could keep appearing on the storefront from a cached
+      // result until the tab was closed.
+      staleTime: 0,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: true,
     },
   },
 });

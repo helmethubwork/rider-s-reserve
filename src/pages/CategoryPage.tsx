@@ -52,7 +52,10 @@ const CategoryPage = () => {
     const effectivePrice = (p: any) =>
       p.is_on_sale && p.sale_price ? p.sale_price : p.price;
 
-    let list = [...products];
+    // Belt-and-braces: the query already filters is_active, but a cached result
+    // from before a product was deactivated could still be held in memory.
+    // Filtering again here means a hidden product can never reach the page.
+    let list = products.filter((p: any) => p.is_active === true);
 
     if (query.trim()) {
       const q = query.trim().toLowerCase();

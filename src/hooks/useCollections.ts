@@ -90,10 +90,10 @@ export const useCollectionProducts = (collectionId?: string) => {
         console.error('Error fetching collection products:', error);
         return [];
       }
-      // Flatten the joined product rows
+      // Flatten the joined product rows, dropping anything hidden in the admin
       return (data ?? [])
         .map((row: any) => row.products)
-        .filter(Boolean);
+        .filter((p: any) => p && p.is_active === true);
     },
     enabled: !!collectionId,
   });
