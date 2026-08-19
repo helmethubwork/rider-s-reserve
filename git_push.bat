@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: dynamic brand+category menus, category upload bucket, active toggle
+set MSG=fix: mega menu shows all categories, category title from DB
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

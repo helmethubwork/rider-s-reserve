@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProductsByCategory } from "@/hooks/useProducts";
+import { useCategory } from "@/hooks/useCategories";
 import { categories } from "@/data/products";
 
 type SortValue = "featured" | "price-asc" | "price-desc" | "name";
@@ -23,11 +24,21 @@ const CategoryPage = () => {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 
-  // "/category/all" is a virtual catch-all category showing the whole catalogue
+  // Category details come from the database so the heading always matches the
+  // products shown. The static list in src/data/products is only a fallback for
+  // slugs that predate the categories table.
+  const { data: dbCategory } = useCategory(slug || "");
+
   const isAll = slug === "all";
   const category = isAll
     ? { slug: "all", name: "All Products", description: "Browse our complete range of helmets, riding gear and accessories." }
-    : categories.find((c) => c.slug === slug);
+    : dbCategory
+      ? {
+          slug: dbCategory.slug,
+          name: dbCategory.name,
+          description: dbCategory.subtitle || `Browse our ${dbCategory.name.toLowerCase()} collection.`,
+        }
+      : categories.find((c) => c.slug === slug);
 
   // Fetch products from Supabase database
   const { data: products = [], isLoading, error } = useProductsByCategory(slug || "");

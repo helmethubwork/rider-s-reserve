@@ -89,40 +89,40 @@ const Logo = () => (
 );
 
 // Mega Menu Component
-const MegaMenu = ({ columns }: { columns: any[] }) => (
-  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-10 z-50 animate-fade-in">
-    <div className="container mx-auto px-8">
-      {/* Columns come from the database, so the count varies */}
-      <div className={`grid gap-12 ${
-        columns.length <= 1 ? 'grid-cols-1 max-w-xs'
-        : columns.length === 2 ? 'grid-cols-2 max-w-2xl'
-        : columns.length === 3 ? 'grid-cols-3'
-        : 'grid-cols-4'
-      }`}>
-        {columns?.map((column, idx) => (
-          <div key={idx}>
-            {/* Only the first column carries a heading; the rest continue the list */}
-            <h3 className="text-primary font-bold text-xs tracking-[0.2em] mb-5 uppercase min-h-[1rem]">
-              {column.title || ' '}
-            </h3>
-            <ul className="space-y-3">
-              {column.items.map((item: { name: string; href: string }) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className="block text-muted-foreground text-sm hover:text-primary transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+const MegaMenu = ({ columns }: { columns: any[] }) => {
+  // Flatten back to one list. Pre-splitting into fixed columns meant the first
+  // column could be clipped out of view — a CSS grid wraps them safely instead.
+  const items: { name: string; href: string }[] = columns.flatMap((c) => c.items || []);
+
+  return (
+    <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-8 z-50 animate-fade-in shadow-2xl">
+      <div className="container mx-auto px-8">
+        <h3 className="text-primary font-bold text-[11px] tracking-[0.2em] mb-5 uppercase">
+          Shop By Category
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-2.5">
+          {items.map((item) => {
+            const isViewAll = item.href === '/category/all';
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={`block text-sm py-1 transition-colors ${
+                  isViewAll
+                    ? 'text-primary font-semibold hover:text-accent'
+                    : 'text-muted-foreground hover:text-primary'
+                }`}
+              >
+                {item.name}
+                {isViewAll && <span className="ml-1">→</span>}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Dropdown Component
 const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: { 
@@ -239,30 +239,15 @@ const Header = ({ overlay = false }: HeaderProps) => {
       if (item.name !== 'Products') return item;
 
       // Build the Products mega menu from real, active categories.
-      // Split into columns of 5 so the menu stays balanced as categories grow.
+      // One column object; MegaMenu lays them out in a responsive grid.
       const links = dbCategories.map((c) => ({
         name: c.name,
         href: c.href || `/category/${c.slug}`,
       }));
 
-      const perColumn = 5;
-      const columns: { title: string; items: { name: string; href: string }[] }[] = [];
-      for (let i = 0; i < links.length; i += perColumn) {
-        columns.push({
-          title: i === 0 ? 'SHOP BY CATEGORY' : '',
-          items: links.slice(i, i + perColumn),
-        });
-      }
+      links.push({ name: 'View All Products', href: '/category/all' });
 
-      // Always give people a way to see everything
-      if (columns.length > 0) {
-        columns[columns.length - 1].items.push({
-          name: 'View All Products',
-          href: '/category/all',
-        });
-      }
-
-      return { ...item, columns };
+      return { ...item, columns: [{ title: 'SHOP BY CATEGORY', items: links }] };
     });
 
     // Insert Support item before Blog
