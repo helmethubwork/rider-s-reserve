@@ -359,12 +359,23 @@ const AdminProducts = () => {
   // Toggle active status (soft delete)
   const toggleActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase
+      // Coerce explicitly: a NULL is_active renders as "Inactive" in the list but
+      // !null evaluates to true, so the toggle and the badge could disagree.
+      const next = !(isActive === true);
+
+      const { data, error } = await supabase
         .from('products')
-        .update({ is_active: !isActive })
-        .eq('id', id);
+        .update({ is_active: next })
+        .eq('id', id)
+        .select('id, is_active');
 
       if (error) throw error;
+
+      // An RLS block returns no error but updates zero rows — surface that
+      // instead of reporting a success that never happened.
+      if (!data || data.length === 0) {
+        throw new Error('Update was blocked — check admin permissions on the products table');
+      }
     },
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? 'Product deactivated' : 'Product activated');

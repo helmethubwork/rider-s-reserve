@@ -5,6 +5,8 @@ import SearchModal from "@/components/SearchModal";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigationLinks } from "@/hooks/useNavigationLinks";
+import { useCategories } from "@/hooks/useCategories";
+import { useBrandsWithProducts } from "@/hooks/useBrands";
 
 // Static fallback for Support subcategories
 const staticSupportSubcategories = [
@@ -18,58 +20,23 @@ const staticSupportSubcategories = [
 const baseNavigationData = [
   { name: "Home", href: "/", subcategories: [] },
   {
+    // Columns are filled from the real categories in the database at render
+    // time. They used to be hardcoded with links like "?type=jackets-urban",
+    // but products have no `type` column, so every one of those led to an
+    // empty page. Driving this from the database means the menu always
+    // matches what the admin actually created.
     name: "Products",
     href: "/category/all",
     megaMenu: true,
-    columns: [
-      {
-        title: "HELMETS",
-        items: [
-          { name: "Full-Face", href: "/category/helmets?type=full-face" },
-          { name: "Open-Face", href: "/category/helmets?type=open-face" },
-          { name: "Modular", href: "/category/helmets?type=modular" },
-          { name: "Dual Sport & Motocross", href: "/category/helmets?type=motocross" },
-        ],
-      },
-      {
-        title: "JACKETS",
-        items: [
-          { name: "Urban", href: "/category/riding-gears?type=jackets-urban" },
-          { name: "Sports", href: "/category/riding-gears?type=jackets-sports" },
-          { name: "Adventure/Touring", href: "/category/riding-gears?type=jackets-touring" },
-        ],
-      },
-      {
-        title: "RIDING GEAR",
-        isPlain: true,
-        items: [
-          { name: "GLOVES", href: "/category/riding-gears?type=gloves" },
-          { name: "PANTS", href: "/category/riding-gears?type=pants" },
-          { name: "BOOTS", href: "/category/riding-gears?type=boots" },
-          { name: "INTERCOM", href: "/category/helmet-accessories?type=intercoms" },
-          { name: "LUGGAGE", href: "/category/motorcycle-accessories?type=luggage" },
-        ],
-      },
-      {
-        title: "ACCESSORIES",
-        items: [
-          { name: "Helmet Accessories", href: "/category/helmet-accessories" },
-          { name: "Riding Accessories", href: "/category/riding-gears" },
-          { name: "Bike Accessories", href: "/category/motorcycle-accessories" },
-        ],
-      },
-    ],
+    columns: [],
   },
   {
+    // Filled from the database at render time. Previously hardcoded, which meant
+    // the menu advertised brands with no products (MT Helmets, for example) and
+    // those pages looked broken when they were merely empty.
     name: "Brands",
     href: "/brands",
-    subcategories: [
-      { name: "Axor", href: "/brands/axor" },
-      { name: "LS2", href: "/brands/ls2" },
-      { name: "Korda", href: "/brands/korda" },
-      { name: "MT Helmets", href: "/brands/mt" },
-      { name: "More Brands", href: "/brands" },
-    ],
+    subcategories: [],
   },
   { name: "Sale", href: "/sale", subcategories: [] },
   {
@@ -122,27 +89,28 @@ const Logo = () => (
 );
 
 // Mega Menu Component
-const MegaMenu = ({ columns }: { columns: typeof baseNavigationData[1]['columns'] }) => (
+const MegaMenu = ({ columns }: { columns: any[] }) => (
   <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-10 z-50 animate-fade-in">
     <div className="container mx-auto px-8">
-      <div className="grid grid-cols-4 gap-16">
+      {/* Columns come from the database, so the count varies */}
+      <div className={`grid gap-12 ${
+        columns.length <= 1 ? 'grid-cols-1 max-w-xs'
+        : columns.length === 2 ? 'grid-cols-2 max-w-2xl'
+        : columns.length === 3 ? 'grid-cols-3'
+        : 'grid-cols-4'
+      }`}>
         {columns?.map((column, idx) => (
           <div key={idx}>
-            {!column.isPlain && (
-              <h3 className="text-primary font-bold text-xs tracking-[0.2em] mb-5 uppercase">
-                {column.title}
-              </h3>
-            )}
-            <ul className={column.isPlain ? "space-y-4" : "space-y-3"}>
-              {column.items.map((item) => (
+            {/* Only the first column carries a heading; the rest continue the list */}
+            <h3 className="text-primary font-bold text-xs tracking-[0.2em] mb-5 uppercase min-h-[1rem]">
+              {column.title || ' '}
+            </h3>
+            <ul className="space-y-3">
+              {column.items.map((item: { name: string; href: string }) => (
                 <li key={item.name}>
                   <Link
                     to={item.href}
-                    className={`block transition-colors ${
-                      column.isPlain 
-                        ? 'text-foreground font-bold text-xs tracking-[0.15em] uppercase hover:text-primary' 
-                        : 'text-muted-foreground text-sm hover:text-primary'
-                    }`}
+                    className="block text-muted-foreground text-sm hover:text-primary transition-colors"
                   >
                     {item.name}
                   </Link>
@@ -239,6 +207,8 @@ const Header = ({ overlay = false }: HeaderProps) => {
   const { user, profile, isAdmin, signOut } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const { data: dbSupportLinks = [] } = useNavigationLinks('support');
+  const { data: dbCategories = [] } = useCategories();
+  const { data: dbBrands = [] } = useBrandsWithProducts();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const lastScrollYRef = useRef(0);
@@ -250,17 +220,60 @@ const Header = ({ overlay = false }: HeaderProps) => {
     const supportSubcategories = dbSupportLinks.length > 0
       ? dbSupportLinks.map(link => ({ name: link.name, href: link.href }))
       : staticSupportSubcategories;
-    
+
+    const navWithSupport = baseNavigationData.map((item) => {
+      // Brands dropdown — only those with products, plus a link to see them all
+      if (item.name === 'Brands') {
+        return {
+          ...item,
+          subcategories: [
+            ...dbBrands.slice(0, 6).map((b) => ({
+              name: b.name,
+              href: `/brands/${b.slug}`,
+            })),
+            { name: 'All Brands', href: '/brands' },
+          ],
+        };
+      }
+
+      if (item.name !== 'Products') return item;
+
+      // Build the Products mega menu from real, active categories.
+      // Split into columns of 5 so the menu stays balanced as categories grow.
+      const links = dbCategories.map((c) => ({
+        name: c.name,
+        href: c.href || `/category/${c.slug}`,
+      }));
+
+      const perColumn = 5;
+      const columns: { title: string; items: { name: string; href: string }[] }[] = [];
+      for (let i = 0; i < links.length; i += perColumn) {
+        columns.push({
+          title: i === 0 ? 'SHOP BY CATEGORY' : '',
+          items: links.slice(i, i + perColumn),
+        });
+      }
+
+      // Always give people a way to see everything
+      if (columns.length > 0) {
+        columns[columns.length - 1].items.push({
+          name: 'View All Products',
+          href: '/category/all',
+        });
+      }
+
+      return { ...item, columns };
+    });
+
     // Insert Support item before Blog
-    const navWithSupport = [...baseNavigationData];
     const blogIndex = navWithSupport.findIndex(item => item.name === 'Blog');
     navWithSupport.splice(blogIndex, 0, {
       name: 'Support',
       href: '/support',
       subcategories: supportSubcategories,
-    });
+    } as any);
     return navWithSupport;
-  }, [dbSupportLinks]);
+  }, [dbSupportLinks, dbCategories, dbBrands]);
 
   // Close account dropdown when clicking outside
   useEffect(() => {

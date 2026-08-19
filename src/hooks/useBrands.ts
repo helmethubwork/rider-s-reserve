@@ -86,6 +86,45 @@ export const useBrand = (slug: string) => {
 };
 
 /**
+ * Brands that actually have at least one active product.
+ *
+ * Used for navigation menus. Listing a brand with no products sends customers
+ * to an empty page that looks broken, so those are filtered out here rather
+ * than being hidden by hand every time the catalogue changes.
+ */
+export const useBrandsWithProducts = () => {
+  return useQuery({
+    queryKey: ['brands', 'with-products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('brands')
+        .select('*, products!inner(id)')
+        .eq('is_active', true)
+        .eq('products.is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching brands with products:', error);
+        return [] as SupabaseBrand[];
+      }
+
+      // The inner join returns one row per product — collapse to unique brands
+      const seen = new Set<string>();
+      const unique: SupabaseBrand[] = [];
+      for (const row of data ?? []) {
+        if (!seen.has(row.id)) {
+          seen.add(row.id);
+          const { products, ...brand } = row as any;
+          unique.push(brand as SupabaseBrand);
+        }
+      }
+      return unique;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
  * Fetch all brands for admin (including inactive)
  */
 export const useAdminBrands = () => {

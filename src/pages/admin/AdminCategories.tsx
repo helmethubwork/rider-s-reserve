@@ -168,7 +168,7 @@ const AdminCategories = () => {
     const filePath = `categories/${fileName}`;
 
     const { error } = await supabase.storage
-      .from('category-images')
+      .from('product-images')
       .upload(filePath, file);
 
     if (error) {
@@ -177,7 +177,7 @@ const AdminCategories = () => {
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('category-images')
+      .from('product-images')
       .getPublicUrl(filePath);
 
     return publicUrl;
