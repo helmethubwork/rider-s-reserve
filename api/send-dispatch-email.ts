@@ -345,9 +345,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       html:    htmlContent,
       attachments: [
         {
-          filename:     `Invoice-${order.order_number}.pdf`,
-          content:      pdfBuffer.toString('base64'),
-          content_type: 'application/pdf',
+          // Resend infers the MIME type from the filename extension.
+          // An explicit content_type field is not part of its Attachment type.
+          filename: `Invoice-${order.order_number}.pdf`,
+          content:  pdfBuffer.toString('base64'),
         },
       ],
     });

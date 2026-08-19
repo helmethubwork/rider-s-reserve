@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=feat: Cloudflare R2 image uploads with Supabase fallback
+set MSG=fix: resend attachment type + R2 uploads
 echo Committing: %MSG%
 git commit -m "%MSG%"
 
