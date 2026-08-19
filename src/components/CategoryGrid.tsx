@@ -24,7 +24,9 @@ const LoadingSkeleton = () => (
 );
 
 const CategoryCard = ({ category, isLarge = false, index = 0 }: { category: SupabaseCategory; isLarge?: boolean; index?: number }) => {
-  const href = category.href || `/category/${category.slug}`;
+  // Link by slug, not the admin's free-text href field. Products are fetched by
+  // slug, so a mismatched href sends customers to an empty page.
+  const href = `/category/${category.slug}`;
   
   // Gradient colors for visual variety - black + yellow theme
   const gradientColors = [

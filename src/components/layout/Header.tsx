@@ -244,9 +244,13 @@ const Header = ({ overlay = false }: HeaderProps) => {
 
       // Build the Products mega menu from real, active categories.
       // One column object; MegaMenu lays them out in a responsive grid.
+      // Always link by slug. The `href` column is a free-text field in the admin
+      // and had stale values left over from the old hardcoded nav — a Jackets
+      // category pointing at /category/riding-gears, for example. Products are
+      // fetched by slug, so the link must use the slug or the page comes back empty.
       const links = dbCategories.map((c) => ({
         name: c.name,
-        href: c.href || `/category/${c.slug}`,
+        href: `/category/${c.slug}`,
       }));
 
       links.push({ name: 'View All Products', href: '/category/all' });

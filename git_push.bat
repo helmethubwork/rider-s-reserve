@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: mega menu clipped first column - anchor to nav not button
+set MSG=fix: category links use slug not stale href field
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

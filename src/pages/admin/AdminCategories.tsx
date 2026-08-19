@@ -73,7 +73,8 @@ const AdminCategories = () => {
         name: data.name.trim(),
         slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
         subtitle: data.subtitle.trim() || null,
-        href: data.href.trim() || null,
+        // Derived from the slug so the link can never point elsewhere
+        href: `/category/${data.slug.trim().toLowerCase().replace(/\s+/g, '-')}`,
         image_url: data.image_url || null,
         is_large: data.is_large,
         display_order: parseInt(data.display_order) || 0,
@@ -102,7 +103,8 @@ const AdminCategories = () => {
           name: data.name.trim(),
           slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
           subtitle: data.subtitle.trim() || null,
-          href: data.href.trim() || null,
+          // Derived from the slug so the link can never point elsewhere
+        href: `/category/${data.slug.trim().toLowerCase().replace(/\s+/g, '-')}`,
           image_url: data.image_url || null,
           is_large: data.is_large,
           display_order: parseInt(data.display_order) || 0,
@@ -444,16 +446,20 @@ const AdminCategories = () => {
                 />
               </div>
 
-              {/* Link/Href */}
+              {/* Page URL — derived from the slug, not editable.
+                  It used to be a free-text field, which let a category's link
+                  drift away from its slug (Jackets pointing at riding-gears),
+                  sending customers to an empty page. */}
               <div className="space-y-2">
-                <Label htmlFor="href">Link URL</Label>
-                <Input
-                  id="href"
-                  value={formData.href}
-                  onChange={(e) => setFormData(prev => ({ ...prev, href: e.target.value }))}
-                  placeholder="e.g. /category/helmets"
-                  className="h-11"
-                />
+                <Label>Page URL</Label>
+                <div className="h-11 flex items-center px-3 rounded-lg bg-gray-100 border border-gray-200">
+                  <span className="text-sm text-gray-600 font-mono">
+                    /category/{formData.slug || 'your-slug'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Set automatically from the slug above so links always work.
+                </p>
               </div>
 
               {/* Display Order & Large Toggle */}
