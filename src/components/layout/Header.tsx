@@ -95,7 +95,7 @@ const MegaMenu = ({ columns }: { columns: any[] }) => {
   const items: { name: string; href: string }[] = columns.flatMap((c) => c.items || []);
 
   return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen bg-secondary border-b border-border py-8 z-50 animate-fade-in shadow-2xl">
+    <div className="absolute top-full left-0 right-0 w-full bg-secondary border-b border-border py-8 z-50 animate-fade-in shadow-2xl">
       <div className="container mx-auto px-8">
         <h3 className="text-primary font-bold text-[11px] tracking-[0.2em] mb-5 uppercase">
           Shop By Category
@@ -145,7 +145,11 @@ const NavDropdown = ({ item, isOpen, onMouseEnter, onMouseLeave, onClick }: {
 
   return (
     <div
-      className="relative"
+      // Small dropdowns anchor to their own item, so they need `relative`.
+      // The mega menu must span the full nav width instead — leaving this
+      // relative made its w-screen box centre on the button, pushing the
+      // first column off the left edge of the viewport.
+      className={hasMegaMenu ? "" : "relative"}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -515,7 +519,9 @@ const Header = ({ overlay = false }: HeaderProps) => {
 
       {/* Navigation Bar - Desktop */}
       <nav
-        className={`hidden md:block transition-colors duration-500 ${
+        // `relative` makes this the anchor for the mega menu, so it spans the
+        // full nav width rather than centring on whichever item was hovered.
+        className={`hidden md:block relative transition-colors duration-500 ${
           isScrolled || !overlay
             ? 'bg-background/60 border-b border-border/30'
             : 'bg-transparent border-b border-transparent'
