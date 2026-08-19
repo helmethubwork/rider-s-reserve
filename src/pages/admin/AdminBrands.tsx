@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { uploadImage } from '@/lib/uploadImage';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, Upload, X, Star } from 'lucide-react';
 import { toast } from 'sonner';
@@ -159,26 +160,7 @@ const AdminBrands = () => {
   };
 
   // Upload image to Supabase Storage
-  const uploadImage = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `brands/${fileName}`;
-
-    const { error } = await supabase.storage
-      .from('brand-logos')
-      .upload(filePath, file);
-
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error('Failed to upload image');
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('brand-logos')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
+  const uploadBrandLogo = (file: File) => uploadImage(file, 'brands');
 
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -200,7 +182,7 @@ const AdminBrands = () => {
     if (imageFile) {
       setIsUploading(true);
       try {
-        const url = await uploadImage(imageFile);
+        const url = await uploadBrandLogo(imageFile);
         if (url) logoUrl = url;
       } catch (error) {
         toast.error('Failed to upload logo');

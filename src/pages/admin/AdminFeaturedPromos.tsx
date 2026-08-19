@@ -8,6 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { uploadImage } from '@/lib/uploadImage';
 import { useAdminFeaturedPromos, FeaturedPromo } from '@/hooks/useFeaturedPromos';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import AdminLayout from './AdminLayout';
@@ -158,14 +159,7 @@ const AdminFeaturedPromos = () => {
     }
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const { error } = await supabase.storage.from('promo-images').upload(fileName, file);
-    if (error) throw error;
-    const { data } = supabase.storage.from('promo-images').getPublicUrl(fileName);
-    return data.publicUrl;
-  };
+  const uploadPromoImage = (file: File) => uploadImage(file, 'promos');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +167,7 @@ const AdminFeaturedPromos = () => {
     try {
       let imageUrl = editingPromo?.image_url;
       if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
+        imageUrl = await uploadPromoImage(imageFile);
       }
       const submitData = { ...formData, image_url: imageUrl || undefined };
       if (editingPromo) {

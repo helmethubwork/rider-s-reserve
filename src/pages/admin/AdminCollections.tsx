@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { uploadImage as uploadToStorage } from '@/lib/uploadImage';
 import {
   useAdminCollections,
   useUpsertCollection,
@@ -105,19 +106,7 @@ const AdminCollections = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `collections/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from('product-images')
-      .upload(path, file, { cacheControl: '3600', upsert: false });
-
-    if (error) throw error;
-
-    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-    return data.publicUrl;
-  };
+  const uploadImage = (file: File) => uploadToStorage(file, 'collections');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

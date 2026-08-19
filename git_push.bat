@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: always revalidate product data + client-side is_active guard
+set MSG=feat: Cloudflare R2 image uploads with Supabase fallback
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

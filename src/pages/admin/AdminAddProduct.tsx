@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
+import { uploadImage } from '@/lib/uploadImage';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { SupabaseCategory } from '@/hooks/useCategories';
 import { useAdminCollections } from '@/hooks/useCollections';
@@ -264,31 +265,23 @@ const AdminAddProduct = () => {
     try {
       productId = crypto.randomUUID();
 
-      // Upload all images
+      // Upload all images.
+      // The filename convention `<productId>-<index>.<ext>` is load-bearing:
+      // ProductCard derives colour-variant image URLs from it, so it must be
+      // preserved whether the file lands in R2 or Supabase Storage.
       const imageUrls: string[] = [];
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i];
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-        const filePath = `products/${productId}-${i}.${fileExt}`;
+        const filename = `${productId}-${i}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('product-images')
-          .upload(filePath, file, {
-            contentType: file.type,
-            upsert: false,
-          });
-
-        if (uploadError) {
-          throw new Error(`Image upload failed: ${uploadError.message}`);
+        try {
+          const url = await uploadImage(file, 'products', filename);
+          uploadedFilePaths.push(`products/${filename}`);
+          imageUrls.push(url);
+        } catch (err: any) {
+          throw new Error(`Image upload failed: ${err?.message || 'unknown error'}`);
         }
-
-        uploadedFilePaths.push(filePath);
-
-        const { data: urlData } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(filePath);
-
-        imageUrls.push(urlData.publicUrl);
       }
 
       // Use first image as main image_url

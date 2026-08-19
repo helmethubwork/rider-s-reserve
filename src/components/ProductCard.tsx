@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ShoppingCart, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getSwatchBackground } from "@/lib/colorUtils";
-import { supabase } from "@/lib/supabase";
+import { publicImageUrl } from "@/lib/uploadImage";
 
 interface ProductCardProps {
   id: string;
@@ -35,12 +35,10 @@ const ProductCard = ({
     }
   };
 
-  const getColorImageUrl = (colorIndex: number) => {
-    const { data } = supabase.storage
-      .from("product-images")
-      .getPublicUrl(`products/${id}-${colorIndex}.${getImageExt()}`);
-    return data.publicUrl;
-  };
+  // Colour variants are addressed by convention: <productId>-<index>.<ext>
+  // publicImageUrl resolves against R2 when configured, Supabase otherwise.
+  const getColorImageUrl = (colorIndex: number) =>
+    publicImageUrl("products", `${id}-${colorIndex}.${getImageExt()}`);
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("en-IN", {

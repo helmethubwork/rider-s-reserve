@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { uploadImage } from '@/lib/uploadImage';
 import { SupabaseCategory } from '@/hooks/useCategories';
 import { Plus, Pencil, Eye, EyeOff, Loader2, Upload, X, Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -164,26 +165,8 @@ const AdminCategories = () => {
   };
 
   // Upload image to Supabase Storage
-  const uploadImage = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `categories/${fileName}`;
-
-    const { error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file);
-
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error('Failed to upload image');
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
+  // Uploads to Cloudflare R2 when configured, Supabase Storage otherwise
+  const uploadCategoryImage = (file: File) => uploadImage(file, 'categories');
 
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -205,7 +188,7 @@ const AdminCategories = () => {
     if (imageFile) {
       setIsUploading(true);
       try {
-        const url = await uploadImage(imageFile);
+        const url = await uploadCategoryImage(imageFile);
         if (url) imageUrl = url;
       } catch (error) {
         toast.error('Failed to upload image');

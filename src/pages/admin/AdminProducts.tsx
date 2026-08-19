@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { uploadImage as uploadToStorage, deleteImage } from '@/lib/uploadImage';
 import { SupabaseProduct } from '@/hooks/useProducts';
 import { useBrands } from '@/hooks/useBrands';
 import { useCategories } from '@/hooks/useCategories';
@@ -464,14 +465,8 @@ const AdminProducts = () => {
     setDeletingImage(url);
     try {
       // Derive the storage path from the public URL
-      const marker = '/product-images/';
-      const idx = url.indexOf(marker);
-      const path = idx !== -1 ? url.slice(idx + marker.length).split('?')[0] : null;
-
-      if (path) {
-        const { error } = await supabase.storage.from('product-images').remove([path]);
-        if (error) console.warn('Storage delete warning:', error.message);
-      }
+      // Handles both R2 and Supabase URLs
+      await deleteImage(url);
 
       const remaining = existingStorageImages.filter((_, i) => i !== index);
       setExistingStorageImages(remaining);
@@ -508,27 +503,8 @@ const AdminProducts = () => {
     }
   };
 
-  // Upload image to Supabase Storage
-  const uploadImage = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `products/${fileName}`;
-
-    const { error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file);
-
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error('Failed to upload image');
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
+  // Uploads to Cloudflare R2 when configured, Supabase Storage otherwise
+  const uploadProductImage = (file: File) => uploadToStorage(file, 'products');
 
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -549,7 +525,7 @@ const AdminProducts = () => {
       setIsUploading(true);
       try {
         for (const file of imageFiles) {
-          const url = await uploadImage(file);
+          const url = await uploadProductImage(file);
           if (url) {
             allImageUrls.push(url);
           }
