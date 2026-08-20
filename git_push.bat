@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: remove aws-sdk dep, sign R2 URLs with node crypto
+set MSG=fix: merge upload endpoints to stay under Vercel 12-function limit
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

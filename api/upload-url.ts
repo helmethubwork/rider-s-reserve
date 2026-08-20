@@ -1,23 +1,28 @@
 /**
- * POST /api/upload-url
+ * /api/upload-url — Cloudflare R2 image handling
  *
- * Returns a short-lived presigned PUT URL so the browser can upload an image
- * straight to Cloudflare R2. The file never passes through this function, so
- * there is no 4.5 MB body limit and no Vercel bandwidth cost.
+ *   POST   → returns a short-lived presigned PUT URL so the browser uploads
+ *            straight to R2. The file never passes through this function, so
+ *            there is no 4.5 MB body limit and no Vercel bandwidth cost.
+ *   DELETE → removes an object from the bucket.
+ *
+ * Both live in one file because Vercel's Hobby plan allows a maximum of 12
+ * serverless functions per deployment, and splitting these across two files
+ * pushed the project over that limit.
  *
  * Admin only. R2 credentials never reach the browser.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { getR2Config, getR2PublicUrl, presignR2Url } from './_r2';
+import { getR2Config, getR2PublicUrl, presignR2Url, deleteR2Object } from './_r2';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 const ALLOWED_FOLDERS = ['products', 'categories', 'brands', 'collections', 'hero', 'promos'];
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'POST' && req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -54,7 +59,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .maybeSingle();
   if (!profile?.is_admin) return res.status(403).json({ error: 'Forbidden' });
 
-  // --- Validate the request ---
+  // ---------------- DELETE ----------------
+  if (req.method === 'DELETE') {
+    const { url } = req.body ?? {};
+    const base = publicUrl.replace(/\/$/, '');
+
+    if (typeof url !== 'string' || !url.startsWith(base)) {
+      return res.status(400).json({ error: 'URL does not belong to this bucket' });
+    }
+
+    const key = url.slice(base.length + 1).split('?')[0];
+    if (!key || key.includes('..')) {
+      return res.status(400).json({ error: 'Invalid object key' });
+    }
+
+    try {
+      await deleteR2Object(r2, key);
+      return res.status(200).json({ success: true });
+    } catch (err: any) {
+      console.error('R2 delete failed:', err);
+      return res.status(500).json({ error: 'Delete failed' });
+    }
+  }
+
+  // ---------------- POST: presign an upload ----------------
   const { folder, filename, contentType, size } = req.body ?? {};
 
   if (!ALLOWED_FOLDERS.includes(String(folder))) {

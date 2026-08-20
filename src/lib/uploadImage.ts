@@ -126,8 +126,10 @@ export async function deleteImage(url: string): Promise<void> {
   try {
     if (isR2Enabled() && url.startsWith(R2_PUBLIC_URL)) {
       const { data: { session } } = await supabase.auth.getSession();
-      await fetch('/api/delete-upload', {
-        method: 'POST',
+      // Same endpoint as uploads — DELETE verb removes the object.
+      // Kept in one function to stay within Vercel's 12-function Hobby limit.
+      await fetch('/api/upload-url', {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token ?? ''}`,
