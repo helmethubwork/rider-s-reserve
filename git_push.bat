@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ========================================
-echo   HELMET HUB — Git Push to GitHub
+echo   HELMET HUB - Git Push to GitHub
 echo ========================================
 echo.
 
@@ -25,10 +25,12 @@ echo.
 echo Adding all changes...
 git add -A
 
-:: Commit with fixed message (no prompt needed)
-set MSG=fix: merge upload endpoints to stay under Vercel 12-function limit
+:: Commit. --allow-empty means we still create a commit when nothing changed,
+:: which gives Vercel a fresh push event to react to. Without it, a run that
+:: finds no changes leaves Vercel sitting on the previous build.
+set MSG=chore: trigger deployment
 echo Committing: %MSG%
-git commit -m "%MSG%"
+git commit --allow-empty -m "%MSG%"
 
 :: Push
 echo.
@@ -37,8 +39,11 @@ git push origin main
 
 echo.
 echo ========================================
-echo   Done! Vercel will auto-deploy in ~1 min
-echo   Check: https://vercel.com/dashboard
+echo   Pushed. Vercel should build in ~1 min
+echo.
+echo   If NO new deployment appears:
+echo     Vercel - Settings - Git - check the
+echo     repository is still connected.
 echo ========================================
 echo.
 pause
