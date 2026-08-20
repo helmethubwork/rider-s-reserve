@@ -26,7 +26,7 @@ echo Adding all changes...
 git add -A
 
 :: Commit with fixed message (no prompt needed)
-set MSG=fix: resend attachment type + R2 uploads
+set MSG=fix: remove aws-sdk dep, sign R2 URLs with node crypto
 echo Committing: %MSG%
 git commit -m "%MSG%"
 

@@ -8,20 +8,17 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getR2Config, getR2PublicUrl, deleteR2Object } from './_r2';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const accessKey = process.env.R2_ACCESS_KEY_ID;
-  const secretKey = process.env.R2_SECRET_ACCESS_KEY;
-  const bucket    = process.env.R2_BUCKET;
-  const publicUrl = process.env.R2_PUBLIC_URL || process.env.VITE_R2_PUBLIC_URL;
+  const r2 = getR2Config();
+  const publicUrl = getR2PublicUrl();
 
-  if (!accountId || !accessKey || !secretKey || !bucket || !publicUrl) {
+  if (!r2 || !publicUrl) {
     return res.status(501).json({ error: 'R2 not configured' });
   }
 
@@ -64,13 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const s3 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
-    });
-
-    await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+    await deleteR2Object(r2, key);
     return res.status(200).json({ success: true });
   } catch (err: any) {
     console.error('R2 delete failed:', err);

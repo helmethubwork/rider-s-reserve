@@ -10,8 +10,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { getR2Config, getR2PublicUrl, presignR2Url } from './_r2';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 const ALLOWED_FOLDERS = ['products', 'categories', 'brands', 'collections', 'hero', 'promos'];
@@ -22,14 +21,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const accessKey = process.env.R2_ACCESS_KEY_ID;
-  const secretKey = process.env.R2_SECRET_ACCESS_KEY;
-  const bucket    = process.env.R2_BUCKET;
-  const publicUrl = process.env.R2_PUBLIC_URL || process.env.VITE_R2_PUBLIC_URL;
+  const r2 = getR2Config();
+  const publicUrl = getR2PublicUrl();
 
   // Not configured yet — the caller falls back to Supabase Storage
-  if (!accountId || !accessKey || !secretKey || !bucket || !publicUrl) {
+  if (!r2 || !publicUrl) {
     return res.status(501).json({ error: 'R2 not configured', fallback: true });
   }
 
@@ -80,23 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const key = `${folder}/${safeName}`;
 
   try {
-    const s3 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
-    });
-
-    const uploadUrl = await getSignedUrl(
-      s3,
-      new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        ContentType: String(contentType),
-        // Images are immutable once uploaded — cache them hard at the edge
-        CacheControl: 'public, max-age=31536000, immutable',
-      }),
-      { expiresIn: 300 } // 5 minutes
-    );
+    // Valid for 5 minutes — long enough to upload, short enough to be safe
+    const uploadUrl = presignR2Url(r2, 'PUT', key, 300);
 
     return res.status(200).json({
       uploadUrl,
