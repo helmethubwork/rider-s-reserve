@@ -10,12 +10,123 @@
  * serverless functions per deployment, and splitting these across two files
  * pushed the project over that limit.
  *
+ * The AWS SigV4 helpers below used to live in a sibling `_r2.ts` module, but
+ * Vercel excludes underscore-prefixed files from the deployed function bundle
+ * entirely (not just from becoming their own route), which crashed every
+ * request with ERR_MODULE_NOT_FOUND. Everything is inlined here instead so
+ * there is no separate module to go missing.
+ *
  * Admin only. R2 credentials never reach the browser.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { getR2Config, getR2PublicUrl, presignR2Url, deleteR2Object } from './_r2';
+import crypto from 'crypto';
+
+const SERVICE = 's3';
+const REGION = 'auto';
+
+interface R2Config {
+  accountId: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket: string;
+}
+
+function getR2Config(): R2Config | null {
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const bucket = process.env.R2_BUCKET;
+
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucket) return null;
+  return { accountId, accessKeyId, secretAccessKey, bucket };
+}
+
+function getR2PublicUrl(): string | null {
+  return process.env.R2_PUBLIC_URL || process.env.VITE_R2_PUBLIC_URL || null;
+}
+
+const sha256Hex = (data: string) =>
+  crypto.createHash('sha256').update(data, 'utf8').digest('hex');
+
+const hmac = (key: crypto.BinaryLike | Buffer, data: string) =>
+  crypto.createHmac('sha256', key).update(data, 'utf8').digest();
+
+const encodeKey = (key: string) =>
+  key
+    .split('/')
+    .map((segment) => encodeURIComponent(segment).replace(/[!'()*]/g,
+      (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase()))
+    .join('/');
+
+function signingKey(secret: string, date: string): Buffer {
+  const kDate = hmac(`AWS4${secret}`, date);
+  const kRegion = hmac(kDate, REGION);
+  const kService = hmac(kRegion, SERVICE);
+  return hmac(kService, 'aws4_request');
+}
+
+function presignR2Url(
+  cfg: R2Config,
+  method: 'PUT' | 'GET' | 'DELETE',
+  key: string,
+  expiresIn = 300
+): string {
+  const host = `${cfg.accountId}.r2.cloudflarestorage.com`;
+  const canonicalUri = `/${cfg.bucket}/${encodeKey(key)}`;
+
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+  const dateStamp = amzDate.slice(0, 8);
+
+  const credentialScope = `${dateStamp}/${REGION}/${SERVICE}/aws4_request`;
+
+  const params: Record<string, string> = {
+    'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+    'X-Amz-Credential': `${cfg.accessKeyId}/${credentialScope}`,
+    'X-Amz-Date': amzDate,
+    'X-Amz-Expires': String(expiresIn),
+    'X-Amz-SignedHeaders': 'host',
+  };
+
+  const canonicalQuery = Object.keys(params)
+    .sort()
+    .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+    .join('&');
+
+  const canonicalHeaders = `host:${host}\n`;
+  const signedHeaders = 'host';
+
+  const canonicalRequest = [
+    method,
+    canonicalUri,
+    canonicalQuery,
+    canonicalHeaders,
+    signedHeaders,
+    'UNSIGNED-PAYLOAD',
+  ].join('\n');
+
+  const stringToSign = [
+    'AWS4-HMAC-SHA256',
+    amzDate,
+    credentialScope,
+    sha256Hex(canonicalRequest),
+  ].join('\n');
+
+  const signature = crypto
+    .createHmac('sha256', signingKey(cfg.secretAccessKey, dateStamp))
+    .update(stringToSign, 'utf8')
+    .digest('hex');
+
+  return `https://${host}${canonicalUri}?${canonicalQuery}&X-Amz-Signature=${signature}`;
+}
+
+async function deleteR2Object(cfg: R2Config, key: string): Promise<boolean> {
+  const url = presignR2Url(cfg, 'DELETE', key, 60);
+  const res = await fetch(url, { method: 'DELETE' });
+  return res.ok || res.status === 404;
+}
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 const ALLOWED_FOLDERS = ['products', 'categories', 'brands', 'collections', 'hero', 'promos'];
