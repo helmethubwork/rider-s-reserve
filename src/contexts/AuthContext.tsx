@@ -42,32 +42,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch user profile from profiles table
+  // Fetch user profile from profiles table.
+  // Throws on error instead of swallowing it to null, so callers can tell
+  // "no profile row exists" apart from "the fetch itself failed" (network
+  // blip, RLS hiccup, etc). Conflating those two cases previously caused an
+  // existing admin's profile to be silently overwritten with is_admin:false
+  // whenever a fetch transiently errored on a SIGNED_IN event — see the
+  // auto-create logic below.
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, phone, is_admin, created_at')
-        .eq('id', userId)
-        .maybeSingle();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, phone, is_admin, created_at')
+      .eq('id', userId)
+      .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return null;
-      }
-
-      return data as Profile | null;
-    } catch (err) {
-      console.error('Profile fetch error:', err);
-      return null;
+    if (error) {
+      throw error;
     }
+
+    return data as Profile | null;
   };
 
   // Refresh profile data
   const refreshProfile = async () => {
     if (user) {
-      const profileData = await fetchProfile(user.id);
-      setProfile(profileData);
+      try {
+        const profileData = await fetchProfile(user.id);
+        setProfile(profileData);
+      } catch (err) {
+        console.error('Error refreshing profile:', err);
+      }
     }
   };
 
@@ -88,12 +92,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (currentSession?.user) {
           setTimeout(async () => {
             if (!isMounted) return;
-            
+
             // Check if profile exists
-            let profileData = await fetchProfile(currentSession.user.id);
-            
-            // If no profile exists (OAuth user), create one
-            if (!profileData && event === 'SIGNED_IN') {
+            let profileData: Profile | null = null;
+            let fetchFailed = false;
+            try {
+              profileData = await fetchProfile(currentSession.user.id);
+            } catch (err) {
+              console.error('Error fetching profile:', err);
+              fetchFailed = true;
+            }
+
+            // Only auto-create a profile when the fetch positively confirmed
+            // none exists (no error, no row). Never do this when the fetch
+            // itself failed — otherwise a transient error (e.g. a bad anon
+            // key, a network blip) silently wipes an existing user's row,
+            // including resetting is_admin back to false.
+            if (!profileData && !fetchFailed && event === 'SIGNED_IN') {
               const fullName = currentSession.user.user_metadata?.full_name || 
                                currentSession.user.user_metadata?.name || 
                                currentSession.user.email?.split('@')[0] || 'User';
@@ -110,7 +125,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 console.error('OAuth profile creation error:', profileError);
               } else {
                 // Fetch the newly created profile
-                profileData = await fetchProfile(currentSession.user.id);
+                try {
+                  profileData = await fetchProfile(currentSession.user.id);
+                } catch (err) {
+                  console.error('Error fetching newly created profile:', err);
+                }
               }
             }
             
@@ -144,9 +163,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(existingSession?.user ?? null);
 
       if (existingSession?.user) {
-        const profileData = await fetchProfile(existingSession.user.id);
-        if (isMounted) {
-          setProfile(profileData);
+        try {
+          const profileData = await fetchProfile(existingSession.user.id);
+          if (isMounted) {
+            setProfile(profileData);
+          }
+        } catch (err) {
+          console.error('Error fetching profile on init:', err);
         }
       }
 
