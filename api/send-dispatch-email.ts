@@ -338,7 +338,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const resend = new Resend(RESEND_API_KEY);
 
-    const data = await resend.emails.send({
+    const { data, error: sendError } = await resend.emails.send({
       from:    'HelmetHub <orders@helmethub.in>',
       to:      [order.customer_email],
       subject: `Your Order ${order.order_number} Has Been Shipped! 🚚`,
@@ -352,6 +352,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
       ],
     });
+
+    // Resend does not throw on API-level failures (bad recipient, domain
+    // issues, rate limits) — it resolves with { data: null, error }. Missing
+    // this check was why orders got marked dispatch_email_sent = true even
+    // when the customer never received anything.
+    if (sendError) {
+      console.error(`[${istNow()}] Resend rejected dispatch email:`, sendError);
+      return res.status(502).json({ error: sendError.message || 'Email service rejected the message' });
+    }
 
     console.log(`[${istNow()}] Dispatch email sent:`, JSON.stringify(data));
 

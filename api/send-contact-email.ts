@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // ── 1. Notification to support team ─────────────────────────────────────
-    await resend.emails.send({
+    const { error: notifyError } = await resend.emails.send({
       from:    `Helmet Hub Website <support@helmethub.in>`,
       to:      [supportEmail],
       replyTo: email,
@@ -74,8 +74,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 </html>`,
     });
 
+    // Resend resolves with { data: null, error } on API-level failures instead
+    // of throwing. The support notification is the important half of this
+    // request — if it was rejected, tell the caller instead of silently
+    // reporting success while the admin never sees the message.
+    if (notifyError) {
+      console.error('[send-contact-email] Resend rejected support notification:', notifyError);
+      return res.status(502).json({ error: 'Email service rejected the message' });
+    }
+
     // ── 2. Auto-reply to customer ────────────────────────────────────────────
-    await resend.emails.send({
+    const { error: replyError } = await resend.emails.send({
       from:    `Helmet Hub Support <support@helmethub.in>`,
       to:      [email],
       subject: `We've received your message — Helmet Hub`,
@@ -113,6 +122,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 </body>
 </html>`,
     });
+
+    // Auto-reply failing is non-fatal — the support team already got the
+    // submission — but it's worth a log line so it doesn't go unnoticed.
+    if (replyError) {
+      console.warn('[send-contact-email] Auto-reply to customer failed:', replyError);
+    }
 
     return res.status(200).json({ success: true });
   } catch (err: any) {

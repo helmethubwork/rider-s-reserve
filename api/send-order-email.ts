@@ -100,7 +100,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       </div>
     `;
 
-    const data = await resend.emails.send({
+    const { data, error: sendError } = await resend.emails.send({
       from:     `Helmet Hub <${EMAIL_FROM}>`,
       to:       [customerEmail],
       replyTo:  SUPPORT_EMAIL,
@@ -108,8 +108,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       html:     htmlContent,
     });
 
+    // Resend resolves with { data: null, error } on API-level failures instead
+    // of throwing, so this must be checked explicitly or the caller never
+    // learns the email was actually rejected.
+    if (sendError) {
+      console.error('Resend rejected order confirmation email:', sendError);
+      return res.status(502).json({ error: sendError.message || 'Email service rejected the message' });
+    }
+
     console.log('Email sent successfully');
-    return res.status(200).json({ success: true, emailId: (data as any)?.data?.id || data });
+    return res.status(200).json({ success: true, emailId: data?.id });
   } catch (error: any) {
     console.error('Email sending failed:', error?.message || 'Unknown error');
     return res.status(500).json({ error: 'Internal server error' });

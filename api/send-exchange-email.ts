@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // ── 1. Detailed notification to support team ─────────────────────────────
-    await resend.emails.send({
+    const { error: notifyError } = await resend.emails.send({
       from:    `Helmet Hub Website <support@helmethub.in>`,
       to:      [supportEmail],
       replyTo: email,
@@ -96,7 +96,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     // ── 2. Auto-reply to customer ────────────────────────────────────────────
-    await resend.emails.send({
+    // Resend resolves with { data: null, error } on API-level failures instead
+    // of throwing. The support notification matters most here — the shop
+    // needs to know an exchange was requested — so fail loudly if it was rejected.
+    if (notifyError) {
+      console.error('[send-exchange-email] Resend rejected support notification:', notifyError);
+      return res.status(502).json({ error: 'Email service rejected the message' });
+    }
+
+    const { error: replyError } = await resend.emails.send({
       from:    `Helmet Hub Support <support@helmethub.in>`,
       to:      [email],
       subject: `Exchange Request Received — Order ${escapeHtml(orderNumber)}`,
@@ -148,6 +156,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 </body>
 </html>`,
     });
+
+    if (replyError) {
+      console.warn('[send-exchange-email] Auto-reply to customer failed:', replyError);
+    }
 
     return res.status(200).json({ success: true });
   } catch (err: any) {
