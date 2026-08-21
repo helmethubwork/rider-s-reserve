@@ -64,16 +64,14 @@ const AdminDashboard = () => {
   const { isRead: isOrderRead, markAsRead: markOrderAsRead, getUnreadCount: getOrderUnreadCount } = useAdminReadItems('order');
   const { isRead: isMessageRead, markAsRead: markMessageAsRead, getUnreadCount: getMessageUnreadCount } = useAdminReadItems('message');
 
-  // Fetch product count
+  // Fetch product count (products now live in Cloudflare D1 — see api/products.ts)
   const { data: productCount = 0, isLoading: loadingProducts } = useQuery({
     queryKey: ['admin', 'products', 'count'],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true);
-      if (error) throw error;
-      return count || 0;
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Failed to fetch product count');
+      const products = await res.json();
+      return Array.isArray(products) ? products.length : 0;
     },
   });
 

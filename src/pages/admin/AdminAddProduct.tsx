@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/uploadImage';
+import { createProductD1 } from '@/lib/productsApi';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { SupabaseCategory } from '@/hooks/useCategories';
 import { useAdminCollections } from '@/hooks/useCollections';
@@ -287,14 +288,14 @@ const AdminAddProduct = () => {
       // Use first image as main image_url
       const mainImageUrl = imageUrls[0];
 
-      const { error: insertError } = await supabase.from('products').insert({
+      // Products now live in Cloudflare D1, not Supabase — see api/products.ts
+      await createProductD1({
         id: productId,
         name: name.trim(),
         description: description.trim() || null,
         price: priceValue,
         stock: stockValue,
         image_url: mainImageUrl,
-        is_active: true,
         brand_id: brandId || null,
         category_id: categoryId || null,
         is_featured: isFeatured,
@@ -302,13 +303,9 @@ const AdminAddProduct = () => {
         sale_price: isOnSale && salePrice ? parseFloat(salePrice) : null,
         sale_badge: isOnSale && saleBadge ? saleBadge : null,
         display_order: parseInt(displayOrder) || 0,
-        sizes: sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
-        colors: colors ? colors.split(',').map(c => c.trim()).filter(Boolean) : null,
+        sizes: sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : [],
+        colors: colors ? colors.split(',').map(c => c.trim()).filter(Boolean) : [],
       });
-
-      if (insertError) {
-        throw new Error(`Product creation failed: ${insertError.message}`);
-      }
 
       // Add to the homepage hero slider if requested
       if (heroEnabled) {

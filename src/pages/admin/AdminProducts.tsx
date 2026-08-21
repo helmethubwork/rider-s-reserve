@@ -34,6 +34,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { uploadImage as uploadToStorage, deleteImage } from '@/lib/uploadImage';
 import { SupabaseProduct } from '@/hooks/useProducts';
+import {
+  createProductD1,
+  updateProductD1,
+  patchProductD1,
+  deleteProductD1,
+  fetchAllProductsD1,
+} from '@/lib/productsApi';
 import { useBrands } from '@/hooks/useBrands';
 import { useCategories } from '@/hooks/useCategories';
 import { useAdminCollections } from '@/hooks/useCollections';
@@ -127,21 +134,22 @@ const AdminProducts = () => {
   const { data: brands = [] } = useBrands();
   const { data: categories = [] } = useCategories();
 
-  // Fetch all products with brand and category joins
+  // Fetch all products from Cloudflare D1, then attach brand/category names
+  // client-side using the brands/categories already fetched above — D1 has
+  // no joins across Supabase tables.
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['admin', 'products'],
+    // brands/categories are included so this recomputes once they load,
+    // instead of permanently caching products with blank brand/category names
+    queryKey: ['admin', 'products', brands.length, categories.length],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          brand:brands(id, name),
-          category_rel:categories(id, name)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as ProductWithRelations[];
+      const rows = await fetchAllProductsD1();
+      return rows
+        .map((p) => ({
+          ...p,
+          brand: brands.find((b) => b.id === p.brand_id) ?? null,
+          category_rel: categories.find((c) => c.id === p.category_id) ?? null,
+        }))
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1)) as ProductWithRelations[];
     },
   });
 
@@ -271,7 +279,8 @@ const AdminProducts = () => {
   // Create product mutation
   const createProduct = useMutation({
     mutationFn: async ({ data, heroSlider }: { data: ProductFormData; heroSlider: HeroSliderFormData }) => {
-      const { data: newProduct, error } = await supabase.from('products').insert({
+      // Products live in Cloudflare D1 now — see api/products.ts
+      const newProduct = await createProductD1({
         name: data.name.trim(),
         price: parseFloat(data.price),
         category_id: data.category_id || null,
@@ -279,19 +288,16 @@ const AdminProducts = () => {
         image_url: data.image_url.trim() || null,
         stock: parseInt(data.stock) || 0,
         description: data.description.trim() || null,
-        is_active: true,
         is_featured: data.is_featured,
-        sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
-        colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
-      }).select().single();
+        sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : [],
+        colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : [],
+      });
 
-      if (error) throw error;
-      
       // Handle hero slider if enabled
       if (heroSlider.enabled && newProduct) {
         await handleHeroSlider(newProduct.id, data.name.trim(), data.image_url.trim(), heroSlider);
       }
-      
+
       return newProduct;
     },
     onSuccess: () => {
@@ -310,23 +316,19 @@ const AdminProducts = () => {
   // Update product mutation
   const updateProduct = useMutation({
     mutationFn: async ({ id, data, heroSlider }: { id: string; data: ProductFormData; heroSlider: HeroSliderFormData }) => {
-      const { error } = await supabase
-        .from('products')
-        .update({
-          name: data.name.trim(),
-          price: parseFloat(data.price),
-          category_id: data.category_id || null,
-          brand_id: data.brand_id || null,
-          image_url: data.image_url.trim() || null,
-          stock: parseInt(data.stock) || 0,
-          description: data.description.trim() || null,
-          is_featured: data.is_featured,
-          sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : null,
-          colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : null,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+      // Products live in Cloudflare D1 now — see api/products.ts
+      await updateProductD1(id, {
+        name: data.name.trim(),
+        price: parseFloat(data.price),
+        category_id: data.category_id || null,
+        brand_id: data.brand_id || null,
+        image_url: data.image_url.trim() || null,
+        stock: parseInt(data.stock) || 0,
+        description: data.description.trim() || null,
+        is_featured: data.is_featured,
+        sizes: data.sizes ? data.sizes.split(',').map(s => s.trim()).filter(Boolean) : [],
+        colors: data.colors ? data.colors.split(',').map(c => c.trim()).filter(Boolean) : [],
+      });
 
       // Replace this product's Exclusive Collection assignments
       await supabase.from('product_collections').delete().eq('product_id', id);
@@ -363,20 +365,7 @@ const AdminProducts = () => {
       // Coerce explicitly: a NULL is_active renders as "Inactive" in the list but
       // !null evaluates to true, so the toggle and the badge could disagree.
       const next = !(isActive === true);
-
-      const { data, error } = await supabase
-        .from('products')
-        .update({ is_active: next })
-        .eq('id', id)
-        .select('id, is_active');
-
-      if (error) throw error;
-
-      // An RLS block returns no error but updates zero rows — surface that
-      // instead of reporting a success that never happened.
-      if (!data || data.length === 0) {
-        throw new Error('Update was blocked — check admin permissions on the products table');
-      }
+      await patchProductD1(id, { is_active: next });
     },
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? 'Product deactivated' : 'Product activated');
@@ -391,12 +380,7 @@ const AdminProducts = () => {
   // Delete product permanently
   const deleteProduct = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await deleteProductD1(id);
     },
     onSuccess: () => {
       toast.success('Product deleted permanently');
@@ -477,10 +461,7 @@ const AdminProducts = () => {
         setFormData(prev => ({ ...prev, image_url: nextMain }));
 
         if (editingProduct) {
-          await supabase
-            .from('products')
-            .update({ image_url: nextMain || null })
-            .eq('id', editingProduct.id);
+          await patchProductD1(editingProduct.id, { image_url: nextMain || null });
         }
       }
 
