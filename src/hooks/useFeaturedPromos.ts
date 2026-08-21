@@ -1,11 +1,11 @@
 /**
  * Featured Promos Hooks
- * 
- * React Query hooks for fetching featured promo data from Supabase.
+ *
+ * React Query hooks for fetching featured promo data from Cloudflare D1 via /api/products?table=featured_promos.
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList } from '@/lib/contentApi';
 
 export interface FeaturedPromo {
   id: string;
@@ -28,17 +28,12 @@ export const useFeaturedPromos = () => {
   return useQuery({
     queryKey: ['featured-promos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('featured_promos')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<FeaturedPromo>('featured_promos');
+      } catch (error) {
         console.error('Error fetching featured promos:', error);
         throw error;
       }
-      return (data ?? []) as FeaturedPromo[];
     },
   });
 };
@@ -50,16 +45,12 @@ export const useAdminFeaturedPromos = () => {
   return useQuery({
     queryKey: ['admin', 'featured-promos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('featured_promos')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<FeaturedPromo>('featured_promos', { active: 'all' });
+      } catch (error) {
         console.error('Error fetching admin featured promos:', error);
         throw error;
       }
-      return (data ?? []) as FeaturedPromo[];
     },
   });
 };

@@ -119,10 +119,268 @@ const PRODUCT_COLUMNS = `id, name, price, stock, image_url, is_active, created_a
   category, category_id, brand_id, sizes, colors, description, is_featured,
   is_on_sale, sale_price, sale_badge, display_order`;
 
+/**
+ * Generic content-table router — reuses this same function/lambda (instead of a
+ * new api/*.ts file) so we stay under Vercel Hobby's 12-function cap. Covers all
+ * the non-auth content tables that moved from Supabase to D1: brands, categories,
+ * hero_slides, featured_promos, site_settings, store_locations, instagram_reels,
+ * blog_posts, faqs, navigation_links, content_pages, collections, and the
+ * product_collections junction table. Reached via /api/products?table=<name>.
+ */
+interface TableSchema {
+  columns: string[];
+  boolCols: string[];
+  orderBy: string;
+}
+
+const TABLE_SCHEMAS: Record<string, TableSchema> = {
+  brands: {
+    columns: ['id', 'name', 'slug', 'logo_url', 'description', 'is_featured', 'is_active', 'display_order', 'created_at'],
+    boolCols: ['is_featured', 'is_active'],
+    orderBy: 'display_order ASC',
+  },
+  categories: {
+    columns: ['id', 'name', 'slug', 'subtitle', 'image_url', 'href', 'is_large', 'display_order', 'is_active', 'created_at'],
+    boolCols: ['is_large', 'is_active'],
+    orderBy: 'display_order ASC',
+  },
+  hero_slides: {
+    columns: ['id', 'subtitle', 'title', 'description', 'button_text', 'button_link', 'image_url', 'align', 'display_order', 'is_active', 'created_at'],
+    boolCols: ['is_active'],
+    orderBy: 'display_order ASC',
+  },
+  featured_promos: {
+    columns: ['id', 'brand', 'title', 'subtitle', 'button_text', 'button_link', 'image_url', 'accent', 'display_order', 'is_active', 'created_at'],
+    boolCols: ['is_active'],
+    orderBy: 'display_order ASC',
+  },
+  site_settings: {
+    columns: ['id', 'setting_key', 'setting_value', 'category', 'label', 'description', 'display_order', 'updated_at'],
+    boolCols: [],
+    orderBy: 'category ASC, display_order ASC',
+  },
+  store_locations: {
+    columns: ['id', 'branch_name', 'address', 'city', 'state', 'phone', 'timing', 'map_url', 'is_primary', 'is_active', 'display_order', 'created_at'],
+    boolCols: ['is_primary', 'is_active'],
+    orderBy: 'display_order ASC',
+  },
+  instagram_reels: {
+    columns: ['id', 'reel_url', 'title', 'is_active', 'display_order', 'created_at'],
+    boolCols: ['is_active'],
+    orderBy: 'display_order ASC',
+  },
+  blog_posts: {
+    columns: ['id', 'slug', 'title', 'excerpt', 'content', 'image_url', 'category', 'is_published', 'display_order', 'created_at', 'updated_at'],
+    boolCols: ['is_published'],
+    orderBy: 'display_order ASC',
+  },
+  faqs: {
+    columns: ['id', 'question', 'answer', 'is_active', 'display_order', 'created_at'],
+    boolCols: ['is_active'],
+    orderBy: 'display_order ASC',
+  },
+  navigation_links: {
+    columns: ['id', 'name', 'description', 'href', 'icon', 'category', 'is_active', 'display_order', 'created_at'],
+    boolCols: ['is_active'],
+    orderBy: 'display_order ASC',
+  },
+  content_pages: {
+    columns: ['id', 'slug', 'title', 'content', 'meta_description', 'is_published', 'created_at', 'updated_at'],
+    boolCols: ['is_published'],
+    orderBy: 'title ASC',
+  },
+  collections: {
+    columns: ['id', 'name', 'slug', 'image_url', 'display_order', 'is_active', 'created_at', 'updated_at'],
+    boolCols: ['is_active'],
+    orderBy: 'display_order ASC',
+  },
+};
+
+function rowToContent(row: any, schema: TableSchema) {
+  const out: any = { ...row };
+  for (const col of schema.boolCols) out[col] = !!row[col];
+  return out;
+}
+
+async function handleContentTable(req: VercelRequest, res: VercelResponse, d1: D1Config, table: string) {
+  const schema = TABLE_SCHEMAS[table];
+  if (!schema) return res.status(400).json({ error: `Unknown table: ${table}` });
+  const cols = schema.columns.join(', ');
+
+  // ---------------- site_settings: keyed by setting_key, not id ----------------
+  if (table === 'site_settings') {
+    if (req.method === 'GET') {
+      const { key } = req.query;
+      if (typeof key === 'string') {
+        const rows = await d1Query(d1, `SELECT ${cols} FROM site_settings WHERE setting_key = ? LIMIT 1`, [key]);
+        if (!rows.length) return res.status(404).json({ error: 'Setting not found' });
+        return res.status(200).json(rowToContent(rows[0], schema));
+      }
+      const rows = await d1Query(d1, `SELECT ${cols} FROM site_settings ORDER BY ${schema.orderBy}`);
+      return res.status(200).json(rows.map((r) => rowToContent(r, schema)));
+    }
+    const isAdmin = await requireAdmin(req, res);
+    if (!isAdmin) return;
+    if (req.method === 'PUT' || req.method === 'PATCH') {
+      const { key } = req.query;
+      const b = req.body ?? {};
+      if (typeof key !== 'string') return res.status(400).json({ error: 'Missing setting key' });
+      await d1Query(d1, `UPDATE site_settings SET setting_value = ?, updated_at = ? WHERE setting_key = ?`, [
+        b.setting_value ?? null,
+        new Date().toISOString(),
+        key,
+      ]);
+      const rows = await d1Query(d1, `SELECT ${cols} FROM site_settings WHERE setting_key = ?`, [key]);
+      if (!rows.length) return res.status(404).json({ error: 'Setting not found' });
+      return res.status(200).json(rowToContent(rows[0], schema));
+    }
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // ---------------- product_collections: composite key junction table ----------------
+  if (table === 'product_collections') {
+    if (req.method === 'GET') {
+      const { product_id, collection_id } = req.query;
+      if (typeof product_id === 'string') {
+        const rows = await d1Query(d1, `SELECT collection_id FROM product_collections WHERE product_id = ?`, [product_id]);
+        return res.status(200).json(rows.map((r) => r.collection_id));
+      }
+      if (typeof collection_id === 'string') {
+        const rows = await d1Query(d1, `SELECT product_id FROM product_collections WHERE collection_id = ?`, [collection_id]);
+        return res.status(200).json(rows.map((r) => r.product_id));
+      }
+      const rows = await d1Query(d1, `SELECT product_id, collection_id FROM product_collections`);
+      return res.status(200).json(rows);
+    }
+    const isAdmin = await requireAdmin(req, res);
+    if (!isAdmin) return;
+    if (req.method === 'POST') {
+      const b = req.body ?? {};
+      if (!b.product_id || !b.collection_id) {
+        return res.status(400).json({ error: 'product_id and collection_id are required' });
+      }
+      await d1Query(
+        d1,
+        `INSERT OR IGNORE INTO product_collections (product_id, collection_id, created_at) VALUES (?,?,?)`,
+        [b.product_id, b.collection_id, new Date().toISOString()]
+      );
+      return res.status(201).json({ success: true });
+    }
+    if (req.method === 'DELETE') {
+      const { product_id, collection_id } = req.query;
+      if (typeof product_id !== 'string') return res.status(400).json({ error: 'Missing product_id' });
+      if (typeof collection_id === 'string') {
+        await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ? AND collection_id = ?`, [product_id, collection_id]);
+      } else {
+        await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ?`, [product_id]);
+      }
+      return res.status(200).json({ success: true });
+    }
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // ---------------- everything else: standard id-keyed table ----------------
+  if (req.method === 'GET') {
+    const { id, slug, active } = req.query;
+    if (typeof id === 'string') {
+      const rows = await d1Query(d1, `SELECT ${cols} FROM ${table} WHERE id = ? LIMIT 1`, [id]);
+      if (!rows.length) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json(rowToContent(rows[0], schema));
+    }
+    if (typeof slug === 'string' && schema.columns.includes('slug')) {
+      const rows = await d1Query(d1, `SELECT ${cols} FROM ${table} WHERE slug = ? LIMIT 1`, [slug]);
+      if (!rows.length) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json(rowToContent(rows[0], schema));
+    }
+    const where = active !== 'all' && schema.columns.includes('is_active') ? 'WHERE is_active = 1' : '';
+    const rows = await d1Query(d1, `SELECT ${cols} FROM ${table} ${where} ORDER BY ${schema.orderBy}`);
+    return res.status(200).json(rows.map((r) => rowToContent(r, schema)));
+  }
+
+  const isAdmin = await requireAdmin(req, res);
+  if (!isAdmin) return;
+
+  if (req.method === 'POST') {
+    const b = req.body ?? {};
+    const id = typeof b.id === 'string' && b.id ? b.id : crypto.randomUUID();
+    const writable = schema.columns.filter((c) => c !== 'created_at' && c !== 'updated_at');
+    const values = writable.map((c) => {
+      if (c === 'id') return id;
+      if (schema.boolCols.includes(c)) return b[c] ? 1 : 0;
+      const v = b[c];
+      return v === undefined ? null : v;
+    });
+    const now = new Date().toISOString();
+    const insertCols = [...writable];
+    const insertVals = [...values];
+    if (schema.columns.includes('created_at')) { insertCols.push('created_at'); insertVals.push(now); }
+    if (schema.columns.includes('updated_at')) { insertCols.push('updated_at'); insertVals.push(now); }
+    const placeholders = insertCols.map(() => '?').join(',');
+    await d1Query(d1, `INSERT INTO ${table} (${insertCols.join(',')}) VALUES (${placeholders})`, insertVals);
+    const rows = await d1Query(d1, `SELECT ${cols} FROM ${table} WHERE id = ?`, [id]);
+    return res.status(201).json(rowToContent(rows[0], schema));
+  }
+
+  const id = typeof req.query.id === 'string' ? req.query.id : null;
+  if (!id) return res.status(400).json({ error: 'Missing id' });
+
+  if (req.method === 'DELETE') {
+    await d1Query(d1, `DELETE FROM ${table} WHERE id = ?`, [id]);
+    return res.status(200).json({ success: true });
+  }
+
+  if (req.method === 'PUT') {
+    const b = req.body ?? {};
+    const writable = schema.columns.filter((c) => c !== 'id' && c !== 'created_at' && c !== 'updated_at');
+    const sets = writable.map((c) => `${c} = ?`);
+    const values = writable.map((c) => {
+      if (schema.boolCols.includes(c)) return b[c] ? 1 : 0;
+      const v = b[c];
+      return v === undefined ? null : v;
+    });
+    if (schema.columns.includes('updated_at')) { sets.push('updated_at = ?'); values.push(new Date().toISOString()); }
+    values.push(id);
+    await d1Query(d1, `UPDATE ${table} SET ${sets.join(', ')} WHERE id = ?`, values);
+    const rows = await d1Query(d1, `SELECT ${cols} FROM ${table} WHERE id = ?`, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    return res.status(200).json(rowToContent(rows[0], schema));
+  }
+
+  if (req.method === 'PATCH') {
+    const b = req.body ?? {};
+    const sets: string[] = [];
+    const values: unknown[] = [];
+    for (const c of schema.columns) {
+      if (c === 'id' || c === 'created_at' || !(c in b)) continue;
+      sets.push(`${c} = ?`);
+      values.push(schema.boolCols.includes(c) ? (b[c] ? 1 : 0) : b[c]);
+    }
+    if (!sets.length) return res.status(400).json({ error: 'No recognized fields to update' });
+    if (schema.columns.includes('updated_at')) { sets.push('updated_at = ?'); values.push(new Date().toISOString()); }
+    values.push(id);
+    await d1Query(d1, `UPDATE ${table} SET ${sets.join(', ')} WHERE id = ?`, values);
+    const rows = await d1Query(d1, `SELECT ${cols} FROM ${table} WHERE id = ?`, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    return res.status(200).json(rowToContent(rows[0], schema));
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const d1 = getD1Config();
   if (!d1) {
     return res.status(500).json({ error: 'Product database not configured' });
+  }
+
+  const { table } = req.query;
+  if (typeof table === 'string') {
+    try {
+      return await handleContentTable(req, res, d1, table);
+    } catch (err: any) {
+      console.error('[api/products:content]', table, err?.message || err);
+      return res.status(500).json({ error: err?.message || 'Internal server error' });
+    }
   }
 
   try {

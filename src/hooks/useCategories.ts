@@ -1,11 +1,11 @@
 /**
  * Categories Hooks
- * 
- * React Query hooks for fetching category data from Supabase.
+ *
+ * React Query hooks for fetching category data from Cloudflare D1 via /api/products?table=categories.
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, fetchContentBySlug } from '@/lib/contentApi';
 
 export interface SupabaseCategory {
   id: string;
@@ -27,17 +27,12 @@ export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<SupabaseCategory>('categories');
+      } catch (error) {
         console.error('Error fetching categories:', error);
         throw error;
       }
-      return (data ?? []) as SupabaseCategory[];
     },
   });
 };
@@ -49,15 +44,8 @@ export const useCategory = (slug: string) => {
   return useQuery({
     queryKey: ['categories', slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('slug', slug)
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as SupabaseCategory | null;
+      const category = await fetchContentBySlug<SupabaseCategory>('categories', slug);
+      return category && category.is_active ? category : null;
     },
     enabled: !!slug,
   });
@@ -70,16 +58,12 @@ export const useAdminCategories = () => {
   return useQuery({
     queryKey: ['admin', 'categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<SupabaseCategory>('categories', { active: 'all' });
+      } catch (error) {
         console.error('Error fetching admin categories:', error);
         throw error;
       }
-      return (data ?? []) as SupabaseCategory[];
     },
   });
 };

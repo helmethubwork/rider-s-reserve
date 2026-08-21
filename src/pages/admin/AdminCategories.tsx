@@ -17,8 +17,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/uploadImage';
+import { fetchContentList, createContentRow, patchContentRow } from '@/lib/contentApi';
 import { SupabaseCategory } from '@/hooks/useCategories';
 import { Plus, Pencil, Eye, EyeOff, Loader2, Upload, X, Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -57,20 +57,14 @@ const AdminCategories = () => {
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['admin', 'categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      return data as SupabaseCategory[];
+      return await fetchContentList<SupabaseCategory>('categories', { active: 'all' });
     },
   });
 
   // Create category mutation
   const createCategory = useMutation({
     mutationFn: async (data: CategoryFormData & { image_url: string }) => {
-      const { error } = await supabase.from('categories').insert({
+      await createContentRow('categories', {
         name: data.name.trim(),
         slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
         subtitle: data.subtitle.trim() || null,
@@ -81,8 +75,6 @@ const AdminCategories = () => {
         display_order: parseInt(data.display_order) || 0,
         is_active: true,
       });
-
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success('Category created successfully');
@@ -98,21 +90,16 @@ const AdminCategories = () => {
   // Update category mutation
   const updateCategory = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: CategoryFormData & { image_url: string } }) => {
-      const { error } = await supabase
-        .from('categories')
-        .update({
-          name: data.name.trim(),
-          slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
-          subtitle: data.subtitle.trim() || null,
-          // Derived from the slug so the link can never point elsewhere
+      await patchContentRow('categories', id, {
+        name: data.name.trim(),
+        slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
+        subtitle: data.subtitle.trim() || null,
+        // Derived from the slug so the link can never point elsewhere
         href: `/category/${data.slug.trim().toLowerCase().replace(/\s+/g, '-')}`,
-          image_url: data.image_url || null,
-          is_large: data.is_large,
-          display_order: parseInt(data.display_order) || 0,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+        image_url: data.image_url || null,
+        is_large: data.is_large,
+        display_order: parseInt(data.display_order) || 0,
+      });
     },
     onSuccess: () => {
       toast.success('Category updated successfully');
@@ -128,12 +115,7 @@ const AdminCategories = () => {
   // Toggle active status
   const toggleActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase
-        .from('categories')
-        .update({ is_active: !isActive })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('categories', id, { is_active: !isActive });
     },
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? 'Category hidden' : 'Category visible');

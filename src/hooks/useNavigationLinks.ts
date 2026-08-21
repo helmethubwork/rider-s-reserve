@@ -1,12 +1,12 @@
 /**
  * Navigation Links Hooks
- * 
- * Provides React Query hooks for managing navigation links in Supabase.
+ *
+ * Provides React Query hooks for managing navigation links in Cloudflare D1.
  * Used by Header, Footer, and Support page with static fallback support.
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, createContentRow, patchContentRow, deleteContentRow } from '@/lib/contentApi';
 import { toast } from 'sonner';
 
 // Types
@@ -29,24 +29,13 @@ export const useNavigationLinks = (category?: string) => {
   return useQuery({
     queryKey: ['navigationLinks', category],
     queryFn: async () => {
-      let query = supabase
-        .from('navigation_links')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-      
-      if (category) {
-        query = query.eq('category', category);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) {
+      try {
+        const all = await fetchContentList<NavigationLink>('navigation_links');
+        return category ? all.filter((l) => l.category === category) : all;
+      } catch (error) {
         console.error('Error fetching navigation links:', error);
         return [];
       }
-      
-      return data as NavigationLink[];
     },
   });
 };
@@ -56,17 +45,12 @@ export const useAdminNavigationLinks = () => {
   return useQuery({
     queryKey: ['adminNavigationLinks'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('navigation_links')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) {
+      try {
+        return await fetchContentList<NavigationLink>('navigation_links', { active: 'all' });
+      } catch (error) {
         console.error('Error fetching admin navigation links:', error);
         throw error;
       }
-      
-      return data as NavigationLink[];
     },
   });
 };
@@ -74,17 +58,10 @@ export const useAdminNavigationLinks = () => {
 // Add navigation link
 export const useAddNavigationLink = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (link: NavigationLinkInput) => {
-      const { data, error } = await supabase
-        .from('navigation_links')
-        .insert([link])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return createContentRow('navigation_links', link);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigationLinks'] });
@@ -101,18 +78,10 @@ export const useAddNavigationLink = () => {
 // Update navigation link
 export const useUpdateNavigationLink = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, ...link }: Partial<NavigationLink> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('navigation_links')
-        .update(link)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return patchContentRow('navigation_links', id, link);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigationLinks'] });
@@ -129,15 +98,10 @@ export const useUpdateNavigationLink = () => {
 // Delete navigation link
 export const useDeleteNavigationLink = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('navigation_links')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await deleteContentRow('navigation_links', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['navigationLinks'] });
@@ -154,18 +118,10 @@ export const useDeleteNavigationLink = () => {
 // Toggle active status
 export const useToggleNavigationLinkActive = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { data, error } = await supabase
-        .from('navigation_links')
-        .update({ is_active })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return patchContentRow<NavigationLink>('navigation_links', id, { is_active });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['navigationLinks'] });

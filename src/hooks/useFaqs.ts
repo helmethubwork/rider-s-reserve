@@ -1,13 +1,13 @@
 /**
  * FAQs Hooks
- * 
- * Provides hooks for fetching and managing FAQs.
+ *
+ * Provides hooks for fetching and managing FAQs in Cloudflare D1 (faqs table).
  * Public hooks return only active FAQs.
  * Admin hooks return all FAQs.
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, createContentRow, patchContentRow, deleteContentRow } from '@/lib/contentApi';
 import { toast } from 'sonner';
 
 export interface Faq {
@@ -26,17 +26,12 @@ export const useFaqs = () => {
   return useQuery({
     queryKey: ['faqs', 'active'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('faqs')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-      
-      if (error) {
+      try {
+        return await fetchContentList<Faq>('faqs');
+      } catch (error) {
         console.error('Error fetching FAQs:', error);
         throw error;
       }
-      return (data ?? []) as Faq[];
     },
   });
 };
@@ -46,16 +41,12 @@ export const useAdminFaqs = () => {
   return useQuery({
     queryKey: ['admin', 'faqs'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('faqs')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) {
+      try {
+        return await fetchContentList<Faq>('faqs', { active: 'all' });
+      } catch (error) {
         console.error('Error fetching admin FAQs:', error);
         throw error;
       }
-      return (data ?? []) as Faq[];
     },
   });
 };
@@ -63,17 +54,10 @@ export const useAdminFaqs = () => {
 // Add a new FAQ
 export const useAddFaq = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (faq: FaqInput) => {
-      const { data, error } = await supabase
-        .from('faqs')
-        .insert(faq)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return createContentRow('faqs', faq);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'faqs'] });
@@ -89,18 +73,10 @@ export const useAddFaq = () => {
 // Update an existing FAQ
 export const useUpdateFaq = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Faq> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('faqs')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return patchContentRow('faqs', id, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'faqs'] });
@@ -116,15 +92,10 @@ export const useUpdateFaq = () => {
 // Delete a FAQ
 export const useDeleteFaq = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('faqs')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await deleteContentRow('faqs', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'faqs'] });
@@ -140,18 +111,10 @@ export const useDeleteFaq = () => {
 // Toggle active status
 export const useToggleFaqActive = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { data, error } = await supabase
-        .from('faqs')
-        .update({ is_active })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return patchContentRow<Faq>('faqs', id, { is_active });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'faqs'] });

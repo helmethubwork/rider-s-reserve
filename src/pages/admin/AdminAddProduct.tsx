@@ -26,6 +26,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/uploadImage';
 import { createProductD1 } from '@/lib/productsApi';
+import { fetchContentList, createContentRow, addProductToCollection } from '@/lib/contentApi';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { SupabaseCategory } from '@/hooks/useCategories';
 import { useAdminCollections } from '@/hooks/useCollections';
@@ -313,46 +314,39 @@ const AdminAddProduct = () => {
         // specific position — stops every new slide landing on the same number.
         let resolvedOrder = parseInt(heroOrder, 10);
         if (!resolvedOrder || resolvedOrder < 1) {
-          const { data: lastSlide } = await supabase
-            .from('hero_slides')
-            .select('display_order')
-            .order('display_order', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          resolvedOrder = (lastSlide?.display_order ?? 0) + 1;
+          const existingSlides = await fetchContentList<{ display_order: number }>('hero_slides', { active: 'all' });
+          const maxOrder = existingSlides.reduce((max, s) => Math.max(max, s.display_order || 0), 0);
+          resolvedOrder = maxOrder + 1;
         }
 
-        const { error: heroError } = await supabase.from('hero_slides').insert({
-          subtitle:      heroSubtitle.trim() || 'NEW ARRIVAL',
-          title:         heroTitle.trim() || name.trim(),
-          description:   null,
-          button_text:   heroButtonText.trim() || 'Shop Now',
-          button_link:   `/product/${productId}`,
-          image_url:     mainImageUrl,
-          align:         'left',
-          display_order: resolvedOrder,
-          is_active:     true,
-        });
-
-        // Non-fatal — the product exists, only the banner entry failed
-        if (heroError) {
+        try {
+          await createContentRow('hero_slides', {
+            subtitle:      heroSubtitle.trim() || 'NEW ARRIVAL',
+            title:         heroTitle.trim() || name.trim(),
+            description:   null,
+            button_text:   heroButtonText.trim() || 'Shop Now',
+            button_link:   `/product/${productId}`,
+            image_url:     mainImageUrl,
+            align:         'left',
+            display_order: resolvedOrder,
+            is_active:     true,
+          });
+          toast.success('Added to homepage hero slider');
+        } catch (heroError) {
+          // Non-fatal — the product exists, only the banner entry failed
           console.error('Hero slide creation failed:', heroError);
           toast.warning('Product saved, but adding it to the hero slider failed.');
-        } else {
-          toast.success('Added to homepage hero slider');
         }
       }
 
       // Assign the product to any selected Exclusive Collections
       if (selectedCollections.length > 0) {
-        const { error: collError } = await supabase.from('product_collections').insert(
-          selectedCollections.map((collection_id) => ({
-            product_id: productId,
-            collection_id,
-          }))
-        );
-        // Non-fatal — the product exists, only the collection tagging failed
-        if (collError) {
+        try {
+          for (const collection_id of selectedCollections) {
+            await addProductToCollection(productId, collection_id);
+          }
+        } catch (collError) {
+          // Non-fatal — the product exists, only the collection tagging failed
           console.error('Collection assignment failed:', collError);
           toast.warning('Product saved, but collection assignment failed. Edit it to retry.');
         }

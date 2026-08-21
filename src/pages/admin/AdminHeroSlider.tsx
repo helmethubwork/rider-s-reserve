@@ -24,8 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/uploadImage';
+import { fetchContentList, createContentRow, patchContentRow, deleteContentRow } from '@/lib/contentApi';
 import { SupabaseHeroSlide } from '@/hooks/useHeroSlides';
 import { Plus, Pencil, Eye, EyeOff, Loader2, Upload, X, Image as ImageIcon, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
@@ -66,20 +66,15 @@ const AdminHeroSlider = () => {
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ['admin', 'hero-slides'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hero_slides')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      return data as SupabaseHeroSlide[];
+      const rows = await fetchContentList<SupabaseHeroSlide>('hero_slides', { active: 'all' });
+      return [...rows].sort((a, b) => a.display_order - b.display_order);
     },
   });
 
   // Create slide mutation
   const createSlide = useMutation({
     mutationFn: async (data: SlideFormData & { image_url: string }) => {
-      const { error } = await supabase.from('hero_slides').insert({
+      await createContentRow('hero_slides', {
         subtitle: data.subtitle.trim(),
         title: data.title.trim(),
         description: data.description.trim() || null,
@@ -90,8 +85,6 @@ const AdminHeroSlider = () => {
         display_order: parseInt(data.display_order) || 0,
         is_active: true,
       });
-
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success('Slide created successfully');
@@ -107,21 +100,16 @@ const AdminHeroSlider = () => {
   // Update slide mutation
   const updateSlide = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: SlideFormData & { image_url: string } }) => {
-      const { error } = await supabase
-        .from('hero_slides')
-        .update({
-          subtitle: data.subtitle.trim(),
-          title: data.title.trim(),
-          description: data.description.trim() || null,
-          button_text: data.button_text.trim(),
-          button_link: data.button_link.trim(),
-          image_url: data.image_url || null,
-          align: data.align,
-          display_order: parseInt(data.display_order) || 0,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('hero_slides', id, {
+        subtitle: data.subtitle.trim(),
+        title: data.title.trim(),
+        description: data.description.trim() || null,
+        button_text: data.button_text.trim(),
+        button_link: data.button_link.trim(),
+        image_url: data.image_url || null,
+        align: data.align,
+        display_order: parseInt(data.display_order) || 0,
+      });
     },
     onSuccess: () => {
       toast.success('Slide updated successfully');
@@ -137,12 +125,7 @@ const AdminHeroSlider = () => {
   // Toggle active status
   const toggleActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase
-        .from('hero_slides')
-        .update({ is_active: !isActive })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('hero_slides', id, { is_active: !isActive });
     },
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? 'Slide hidden' : 'Slide activated');
@@ -157,12 +140,7 @@ const AdminHeroSlider = () => {
   // Delete slide mutation
   const deleteSlide = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('hero_slides')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await deleteContentRow('hero_slides', id);
     },
     onSuccess: () => {
       toast.success('Slide deleted');
@@ -260,11 +238,7 @@ const AdminHeroSlider = () => {
     setIsRenumbering(true);
     try {
       for (let i = 0; i < slides.length; i++) {
-        const { error } = await supabase
-          .from('hero_slides')
-          .update({ display_order: i + 1 })
-          .eq('id', slides[i].id);
-        if (error) throw error;
+        await patchContentRow('hero_slides', slides[i].id, { display_order: i + 1 });
       }
       queryClient.invalidateQueries({ queryKey: ['admin', 'hero-slides'] });
       queryClient.invalidateQueries({ queryKey: ['hero-slides'] });

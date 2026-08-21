@@ -1,11 +1,11 @@
 /**
  * Brands Hooks
- * 
- * React Query hooks for fetching brand data from Supabase.
+ *
+ * React Query hooks for fetching brand data from Cloudflare D1 via /api/products?table=brands.
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, fetchContentBySlug } from '@/lib/contentApi';
 
 export interface SupabaseBrand {
   id: string;
@@ -26,17 +26,12 @@ export const useBrands = () => {
   return useQuery({
     queryKey: ['brands'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<SupabaseBrand>('brands');
+      } catch (error) {
         console.error('Error fetching brands:', error);
         throw error;
       }
-      return (data ?? []) as SupabaseBrand[];
     },
   });
 };
@@ -48,18 +43,13 @@ export const useFeaturedBrands = () => {
   return useQuery({
     queryKey: ['brands', 'featured'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*')
-        .eq('is_active', true)
-        .eq('is_featured', true)
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        const brands = await fetchContentList<SupabaseBrand>('brands');
+        return brands.filter((b) => b.is_featured);
+      } catch (error) {
         console.error('Error fetching featured brands:', error);
         throw error;
       }
-      return (data ?? []) as SupabaseBrand[];
     },
   });
 };
@@ -71,15 +61,8 @@ export const useBrand = (slug: string) => {
   return useQuery({
     queryKey: ['brands', slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*')
-        .eq('slug', slug)
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as SupabaseBrand | null;
+      const brand = await fetchContentBySlug<SupabaseBrand>('brands', slug);
+      return brand && brand.is_active ? brand : null;
     },
     enabled: !!slug,
   });
@@ -96,29 +79,19 @@ export const useBrandsWithProducts = () => {
   return useQuery({
     queryKey: ['brands', 'with-products'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*, products!inner(id)')
-        .eq('is_active', true)
-        .eq('products.is_active', true)
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        const [brands, products] = await Promise.all([
+          fetchContentList<SupabaseBrand>('brands'),
+          fetch('/api/products').then((r) => r.json()),
+        ]);
+        const brandIdsWithProducts = new Set(
+          (products as { brand_id: string | null }[]).map((p) => p.brand_id).filter(Boolean)
+        );
+        return brands.filter((b) => brandIdsWithProducts.has(b.id));
+      } catch (error) {
         console.error('Error fetching brands with products:', error);
         return [] as SupabaseBrand[];
       }
-
-      // The inner join returns one row per product — collapse to unique brands
-      const seen = new Set<string>();
-      const unique: SupabaseBrand[] = [];
-      for (const row of data ?? []) {
-        if (!seen.has(row.id)) {
-          seen.add(row.id);
-          const { products, ...brand } = row as any;
-          unique.push(brand as SupabaseBrand);
-        }
-      }
-      return unique;
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -131,16 +104,12 @@ export const useAdminBrands = () => {
   return useQuery({
     queryKey: ['admin', 'brands'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<SupabaseBrand>('brands', { active: 'all' });
+      } catch (error) {
         console.error('Error fetching admin brands:', error);
         throw error;
       }
-      return (data ?? []) as SupabaseBrand[];
     },
   });
 };

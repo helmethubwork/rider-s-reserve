@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchAllSettings } from '@/lib/contentApi';
 
 export interface SiteSetting {
   id: string;
@@ -16,26 +16,21 @@ export const useSiteSettings = (category?: string) => {
   return useQuery({
     queryKey: ['site-settings', category],
     queryFn: async () => {
-      let query = supabase.from('site_settings').select('*');
-      
-      if (category) {
-        query = query.eq('category', category);
-      }
-      
-      const { data, error } = await query.order('display_order');
-      if (error) {
+      try {
+        const all = await fetchAllSettings<SiteSetting>();
+        return category ? all.filter((s) => s.category === category) : all;
+      } catch (error) {
         console.error('Error fetching site settings:', error);
         throw error;
       }
-      return (data ?? []) as SiteSetting[];
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 };
 
 export const getSettingValue = (
-  settings: SiteSetting[] | undefined, 
-  key: string, 
+  settings: SiteSetting[] | undefined,
+  key: string,
   fallback: string = ''
 ): string => {
   if (!settings) return fallback;

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { fetchContentList, fetchContentBySlug, createContentRow, patchContentRow } from "@/lib/contentApi";
 import { useToast } from "@/hooks/use-toast";
 
 export interface ContentPage {
@@ -18,18 +18,13 @@ export const useContentPage = (slug: string) => {
   return useQuery({
     queryKey: ["content-page", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("content_pages")
-        .select("*")
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .maybeSingle();
-
-      if (error) {
+      try {
+        const page = await fetchContentBySlug<ContentPage>("content_pages", slug);
+        return page && page.is_published ? page : null;
+      } catch (error) {
         console.error("Error fetching content page:", error);
         return null;
       }
-      return data as ContentPage | null;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -40,16 +35,12 @@ export const useAdminContentPages = () => {
   return useQuery({
     queryKey: ["admin-content-pages"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("content_pages")
-        .select("*")
-        .order("slug", { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<ContentPage>("content_pages", { active: "all" });
+      } catch (error) {
         console.error("Error fetching content pages:", error);
         throw error;
       }
-      return data as ContentPage[];
     },
   });
 };
@@ -71,20 +62,7 @@ export const useUpdateContentPage = () => {
       content: string;
       meta_description?: string;
     }) => {
-      const { data, error } = await supabase
-        .from("content_pages")
-        .update({
-          title,
-          content,
-          meta_description,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return patchContentRow<ContentPage>("content_pages", id, { title, content, meta_description });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["admin-content-pages"] });
@@ -112,15 +90,7 @@ export const useToggleContentPagePublished = () => {
 
   return useMutation({
     mutationFn: async ({ id, is_published }: { id: string; is_published: boolean }) => {
-      const { data, error } = await supabase
-        .from("content_pages")
-        .update({ is_published, updated_at: new Date().toISOString() })
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return patchContentRow<ContentPage>("content_pages", id, { is_published });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["admin-content-pages"] });
@@ -158,20 +128,13 @@ export const useCreateContentPage = () => {
       content: string;
       meta_description?: string;
     }) => {
-      const { data, error } = await supabase
-        .from("content_pages")
-        .insert({
-          slug,
-          title,
-          content,
-          meta_description,
-          is_published: true,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return createContentRow<ContentPage>("content_pages", {
+        slug,
+        title,
+        content,
+        meta_description,
+        is_published: true,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-content-pages"] });

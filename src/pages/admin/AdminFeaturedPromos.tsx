@@ -7,8 +7,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/uploadImage';
+import { createContentRow, patchContentRow, deleteContentRow, updateSetting } from '@/lib/contentApi';
 import { useAdminFeaturedPromos, FeaturedPromo } from '@/hooks/useFeaturedPromos';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import AdminLayout from './AdminLayout';
@@ -64,20 +64,10 @@ const AdminFeaturedPromos = () => {
     setSectionVisible(setting?.setting_value !== 'false');
   }, [homepageSettings]);
 
-  // Update visibility in Supabase site_settings
+  // Update visibility in site_settings (Cloudflare D1)
   const updateVisibility = useMutation({
     mutationFn: async (visible: boolean) => {
-      const { error } = await supabase
-        .from('site_settings')
-        .upsert({
-          setting_key: 'featured_promos_visible',
-          setting_value: String(visible),
-          category: 'homepage',
-          label: 'Featured Promos Visibility',
-          description: 'Show or hide the Featured Promos section on homepage',
-          display_order: 1,
-        }, { onConflict: 'setting_key' });
-      if (error) throw error;
+      await updateSetting('featured_promos_visible', String(visible));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['site-settings'] });
@@ -98,8 +88,7 @@ const AdminFeaturedPromos = () => {
   // Create promo mutation
   const createPromo = useMutation({
     mutationFn: async (data: PromoFormData & { image_url?: string }) => {
-      const { error } = await supabase.from('featured_promos').insert([data]);
-      if (error) throw error;
+      await createContentRow('featured_promos', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['featured-promos'] });
@@ -115,8 +104,7 @@ const AdminFeaturedPromos = () => {
   // Update promo mutation
   const updatePromo = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PromoFormData> & { image_url?: string } }) => {
-      const { error } = await supabase.from('featured_promos').update(data).eq('id', id);
-      if (error) throw error;
+      await patchContentRow('featured_promos', id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['featured-promos'] });
@@ -132,8 +120,7 @@ const AdminFeaturedPromos = () => {
   // Delete promo mutation
   const deletePromo = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('featured_promos').delete().eq('id', id);
-      if (error) throw error;
+      await deleteContentRow('featured_promos', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['featured-promos'] });

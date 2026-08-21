@@ -1,11 +1,11 @@
 /**
  * Hero Slides Hooks
- * 
- * React Query hooks for fetching hero slide data from Supabase.
+ *
+ * React Query hooks for fetching hero slide data from Cloudflare D1 (hero_slides table).
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList } from '@/lib/contentApi';
 
 export interface SupabaseHeroSlide {
   id: string;
@@ -28,20 +28,19 @@ export const useHeroSlides = () => {
   return useQuery({
     queryKey: ['hero-slides'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hero_slides')
-        .select('*')
-        .eq('is_active', true)
+      try {
+        const rows = await fetchContentList<SupabaseHeroSlide>('hero_slides');
         // Secondary sort so slides sharing a display_order keep a stable,
         // predictable order instead of coming back shuffled each request.
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: true });
-
-      if (error) {
+        return [...rows].sort((a, b) =>
+          a.display_order !== b.display_order
+            ? a.display_order - b.display_order
+            : a.created_at.localeCompare(b.created_at)
+        );
+      } catch (error) {
         console.error('Error fetching hero slides:', error);
         return [];
       }
-      return data as SupabaseHeroSlide[];
     },
   });
 };
@@ -53,14 +52,12 @@ export const useAdminHeroSlides = () => {
   return useQuery({
     queryKey: ['admin', 'hero-slides'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hero_slides')
-        .select('*')
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      return data as SupabaseHeroSlide[];
+      const rows = await fetchContentList<SupabaseHeroSlide>('hero_slides', { active: 'all' });
+      return [...rows].sort((a, b) =>
+        a.display_order !== b.display_order
+          ? a.display_order - b.display_order
+          : a.created_at.localeCompare(b.created_at)
+      );
     },
   });
 };

@@ -1,11 +1,11 @@
 /**
  * Store Locations Hook
- * 
- * Fetch and manage store location data from the store_locations table.
+ *
+ * Fetch and manage store location data from Cloudflare D1 (store_locations table).
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList } from '@/lib/contentApi';
 
 export interface StoreLocation {
   id: string;
@@ -63,16 +63,8 @@ export const useStoreLocations = (activeOnly: boolean = true) => {
   return useQuery({
     queryKey: ['store-locations', activeOnly],
     queryFn: async () => {
-      let query = supabase.from('store_locations').select('*');
-
-      if (activeOnly) {
-        query = query.eq('is_active', true);
-      }
-
-      const { data, error } = await query.order('display_order');
-      if (error) throw error;
-
-      return dedupeStores((data || []).map(mapStoreData));
+      const rows = await fetchContentList('store_locations', activeOnly ? {} : { active: 'all' });
+      return dedupeStores((rows || []).map(mapStoreData));
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -82,29 +74,10 @@ export const useMainStore = () => {
   return useQuery({
     queryKey: ['store-locations', 'main'],
     queryFn: async () => {
-      // Prefer explicitly marked primary store (supports both `is_primary` and older `is_main_branch`)
-      const { data: primary, error: primaryError } = await supabase
-        .from('store_locations')
-        .select('*')
-        .eq('is_active', true)
-        .or('is_primary.eq.true,is_main_branch.eq.true')
-        .order('display_order')
-        .limit(1)
-        .maybeSingle();
-
-      if (!primaryError && primary) return mapStoreData(primary);
-
-      // Fallback: first active store
-      const { data: firstStore, error: fallbackError } = await supabase
-        .from('store_locations')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order')
-        .limit(1)
-        .maybeSingle();
-
-      if (fallbackError) return null;
-      return firstStore ? mapStoreData(firstStore) : null;
+      const rows = await fetchContentList('store_locations');
+      if (!rows.length) return null;
+      const primary = rows.find((r: any) => r.is_primary);
+      return mapStoreData(primary || rows[0]);
     },
     staleTime: 5 * 60 * 1000,
   });

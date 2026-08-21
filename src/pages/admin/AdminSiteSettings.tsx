@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { updateSetting } from '@/lib/contentApi';
 import { useSiteSettings, SiteSetting } from '@/hooks/useSiteSettings';
 import AdminLayout from './AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -48,11 +48,7 @@ const AdminSiteSettings = () => {
   const updateSettings = useMutation({
     mutationFn: async (updates: { key: string; value: string }[]) => {
       for (const update of updates) {
-        const { error } = await supabase
-          .from('site_settings')
-          .update({ setting_value: update.value, updated_at: new Date().toISOString() })
-          .eq('setting_key', update.key);
-        if (error) throw error;
+        await updateSetting(update.key, update.value);
       }
     },
     onSuccess: () => {

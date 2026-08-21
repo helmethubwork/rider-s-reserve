@@ -80,22 +80,12 @@ export const useProductsByCategory = (categorySlug: string) => {
         }
       }
 
-      // First, get the category UUID from the slug (categories still live in Supabase)
-      const { supabase } = await import('@/lib/supabase');
-      const { data: category, error: categoryError } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('slug', categorySlug)
-        .eq('is_active', true)
-        .maybeSingle();
+      // First, get the category UUID from the slug (categories now live in D1)
+      const { fetchContentBySlug } = await import('@/lib/contentApi');
+      const category = await fetchContentBySlug<{ id: string; is_active: boolean }>('categories', categorySlug);
 
-      if (categoryError) {
-        console.error('Error fetching category:', categoryError);
-        throw categoryError;
-      }
-
-      // If category not found, return empty array
-      if (!category) {
+      // If category not found or inactive, return empty array
+      if (!category || !category.is_active) {
         return [] as SupabaseProduct[];
       }
 

@@ -4,10 +4,23 @@
  * "Exclusive Collections" are the circular category cards on the homepage
  * (Under 1000, Under 2000, ECE 23.06 Certified, Accessories).
  * Admin can rename / reorder / hide them, and assign products to them.
+ *
+ * Collections and product_collections both live in Cloudflare D1 now, same
+ * database as products — see api/products.ts's handleContentTable().
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import {
+  fetchContentList,
+  fetchContentBySlug,
+  createContentRow,
+  patchContentRow,
+  fetchCollectionsForProduct,
+  fetchProductsForCollection,
+  addProductToCollection,
+  removeProductFromCollection,
+  deleteContentRow,
+} from '@/lib/contentApi';
 import { toast } from 'sonner';
 
 export interface Collection {
@@ -26,17 +39,12 @@ export const useCollections = () => {
   return useQuery({
     queryKey: ['collections'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('collections')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-
-      if (error) {
+      try {
+        return await fetchContentList<Collection>('collections');
+      } catch (error) {
         console.error('Error fetching collections:', error);
         return [] as Collection[];
       }
-      return (data ?? []) as Collection[];
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -47,13 +55,7 @@ export const useAdminCollections = () => {
   return useQuery({
     queryKey: ['admin', 'collections'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('collections')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      return (data ?? []) as Collection[];
+      return await fetchContentList<Collection>('collections', { active: 'all' });
     },
   });
 };
@@ -63,14 +65,8 @@ export const useCollectionBySlug = (slug?: string) => {
   return useQuery({
     queryKey: ['collections', slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('collections')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as Collection | null;
+      if (!slug) return null;
+      return await fetchContentBySlug<Collection>('collections', slug);
     },
     enabled: !!slug,
   });
@@ -81,19 +77,16 @@ export const useCollectionProducts = (collectionId?: string) => {
   return useQuery({
     queryKey: ['collections', collectionId, 'products'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('product_collections')
-        .select('product_id, products(*)')
-        .eq('collection_id', collectionId);
-
-      if (error) {
+      try {
+        const productIds = await fetchProductsForCollection(collectionId!);
+        if (!productIds.length) return [];
+        const allProducts = await fetch('/api/products').then((r) => r.json());
+        const idSet = new Set(productIds);
+        return (allProducts as any[]).filter((p) => idSet.has(p.id) && p.is_active === true);
+      } catch (error) {
         console.error('Error fetching collection products:', error);
         return [];
       }
-      // Flatten the joined product rows, dropping anything hidden in the admin
-      return (data ?? [])
-        .map((row: any) => row.products)
-        .filter((p: any) => p && p.is_active === true);
     },
     enabled: !!collectionId,
   });
@@ -104,13 +97,7 @@ export const useProductCollections = (productId?: string) => {
   return useQuery({
     queryKey: ['products', productId, 'collections'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('product_collections')
-        .select('collection_id')
-        .eq('product_id', productId);
-
-      if (error) throw error;
-      return (data ?? []).map((r) => r.collection_id as string);
+      return await fetchCollectionsForProduct(productId!);
     },
     enabled: !!productId,
   });
@@ -129,24 +116,11 @@ export const useSetProductCollections = () => {
       collectionIds: string[];
     }) => {
       // Clear existing assignments
-      const { error: delError } = await supabase
-        .from('product_collections')
-        .delete()
-        .eq('product_id', productId);
-      if (delError) throw delError;
-
-      if (collectionIds.length === 0) return;
-
+      await removeProductFromCollection(productId);
       // Insert the new set
-      const { error: insError } = await supabase
-        .from('product_collections')
-        .insert(
-          collectionIds.map((collection_id) => ({
-            product_id: productId,
-            collection_id,
-          }))
-        );
-      if (insError) throw insError;
+      for (const collection_id of collectionIds) {
+        await addProductToCollection(productId, collection_id);
+      }
     },
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ['products', vars.productId, 'collections'] });
@@ -158,20 +132,17 @@ export const useSetProductCollections = () => {
   });
 };
 
-/** Create / update / delete collections — admin */
+/** Create / update collections — admin */
 export const useUpsertCollection = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (collection: Partial<Collection> & { name: string; slug: string }) => {
-      const { data, error } = await supabase
-        .from('collections')
-        .upsert(collection, { onConflict: 'id' })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as Collection;
+      const { id, ...rest } = collection;
+      if (id) {
+        return await patchContentRow<Collection>('collections', id, rest);
+      }
+      return await createContentRow<Collection>('collections', rest);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });
@@ -189,8 +160,7 @@ export const useDeleteCollection = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('collections').delete().eq('id', id);
-      if (error) throw error;
+      await deleteContentRow('collections', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });

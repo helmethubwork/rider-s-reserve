@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, createContentRow, patchContentRow, deleteContentRow } from '@/lib/contentApi';
 import { StoreLocation } from '@/hooks/useStoreLocations';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, MapPin, Phone, Mail, Clock, Star } from 'lucide-react';
 import { toast } from 'sonner';
@@ -74,13 +74,8 @@ const AdminStoreLocations = () => {
   const { data: stores = [], isLoading } = useQuery({
     queryKey: ['admin', 'store-locations'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('store_locations')
-        .select('*')
-        .order('display_order', { ascending: true });
+      const data = await fetchContentList<any>('store_locations', { active: 'all' });
 
-      if (error) throw error;
-      
       // Map database columns to interface
       return (data || []).map((row: any): StoreLocation => ({
         id: row.id,
@@ -105,23 +100,18 @@ const AdminStoreLocations = () => {
   // Create store mutation
   const createStore = useMutation({
     mutationFn: async (data: StoreFormData) => {
-      const { error } = await supabase.from('store_locations').insert({
+      await createContentRow('store_locations', {
         branch_name: data.name.trim(),
         address: data.address.trim(),
         city: data.city.trim(),
         state: data.state.trim(),
-        pincode: data.pincode.trim(),
         phone: data.phone_primary.trim(),
-        phone_secondary: data.phone_secondary.trim() || null,
-        email: data.email.trim() || null,
         map_url: data.map_url.trim() || null,
         timing: data.opening_hours.trim() || null,
         is_primary: data.is_main_branch,
         display_order: parseInt(data.display_order) || 0,
         is_active: true,
       });
-
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success('Store location created successfully');
@@ -137,25 +127,17 @@ const AdminStoreLocations = () => {
   // Update store mutation
   const updateStore = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: StoreFormData }) => {
-      const { error } = await supabase
-        .from('store_locations')
-        .update({
-          branch_name: data.name.trim(),
-          address: data.address.trim(),
-          city: data.city.trim(),
-          state: data.state.trim(),
-          pincode: data.pincode.trim(),
-          phone: data.phone_primary.trim(),
-          phone_secondary: data.phone_secondary.trim() || null,
-          email: data.email.trim() || null,
-          map_url: data.map_url.trim() || null,
-          timing: data.opening_hours.trim() || null,
-          is_primary: data.is_main_branch,
-          display_order: parseInt(data.display_order) || 0,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('store_locations', id, {
+        branch_name: data.name.trim(),
+        address: data.address.trim(),
+        city: data.city.trim(),
+        state: data.state.trim(),
+        phone: data.phone_primary.trim(),
+        map_url: data.map_url.trim() || null,
+        timing: data.opening_hours.trim() || null,
+        is_primary: data.is_main_branch,
+        display_order: parseInt(data.display_order) || 0,
+      });
     },
     onSuccess: () => {
       toast.success('Store location updated successfully');
@@ -171,12 +153,7 @@ const AdminStoreLocations = () => {
   // Toggle active status
   const toggleActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase
-        .from('store_locations')
-        .update({ is_active: !isActive })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('store_locations', id, { is_active: !isActive });
     },
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? 'Store deactivated' : 'Store activated');
@@ -191,12 +168,7 @@ const AdminStoreLocations = () => {
   // Delete store mutation
   const deleteStore = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('store_locations')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await deleteContentRow('store_locations', id);
     },
     onSuccess: () => {
       toast.success('Store location deleted');

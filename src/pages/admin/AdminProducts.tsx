@@ -41,6 +41,15 @@ import {
   deleteProductD1,
   fetchAllProductsD1,
 } from '@/lib/productsApi';
+import {
+  fetchContentList,
+  createContentRow,
+  patchContentRow,
+  deleteContentRow,
+  fetchCollectionsForProduct,
+  addProductToCollection,
+  removeProductFromCollection,
+} from '@/lib/contentApi';
 import { useBrands } from '@/hooks/useBrands';
 import { useCategories } from '@/hooks/useCategories';
 import { useAdminCollections } from '@/hooks/useCollections';
@@ -233,41 +242,30 @@ const AdminProducts = () => {
 
       if (heroSlider.existing_slide_id) {
         // Update existing slide
-        const { error } = await supabase
-          .from('hero_slides')
-          .update(slideData)
-          .eq('id', heroSlider.existing_slide_id);
-        
-        if (error) {
+        try {
+          await patchContentRow('hero_slides', heroSlider.existing_slide_id, slideData);
+          toast.success('Hero slide updated');
+        } catch (error) {
           console.error('Error updating hero slide:', error);
           toast.error('Product saved but failed to update hero slide');
-        } else {
-          toast.success('Hero slide updated');
         }
       } else {
         // Create new slide
-        const { error } = await supabase
-          .from('hero_slides')
-          .insert(slideData);
-        
-        if (error) {
+        try {
+          await createContentRow('hero_slides', slideData);
+          toast.success('Hero slide created');
+        } catch (error) {
           console.error('Error creating hero slide:', error);
           toast.error('Product saved but failed to create hero slide');
-        } else {
-          toast.success('Hero slide created');
         }
       }
     } else if (heroSlider.existing_slide_id) {
       // Remove existing hero slide
-      const { error } = await supabase
-        .from('hero_slides')
-        .delete()
-        .eq('id', heroSlider.existing_slide_id);
-      
-      if (error) {
-        console.error('Error deleting hero slide:', error);
-      } else {
+      try {
+        await deleteContentRow('hero_slides', heroSlider.existing_slide_id);
         toast.success('Hero slide removed');
+      } catch (error) {
+        console.error('Error deleting hero slide:', error);
       }
     }
     
@@ -331,12 +329,15 @@ const AdminProducts = () => {
       });
 
       // Replace this product's Exclusive Collection assignments
-      await supabase.from('product_collections').delete().eq('product_id', id);
+      await removeProductFromCollection(id);
       if (selectedCollections.length > 0) {
-        const { error: collError } = await supabase.from('product_collections').insert(
-          selectedCollections.map((collection_id) => ({ product_id: id, collection_id }))
-        );
-        if (collError) console.error('Collection assignment failed:', collError);
+        try {
+          for (const collection_id of selectedCollections) {
+            await addProductToCollection(id, collection_id);
+          }
+        } catch (collError) {
+          console.error('Collection assignment failed:', collError);
+        }
       }
 
       // Handle hero slider
@@ -540,13 +541,10 @@ const AdminProducts = () => {
   const checkForExistingHeroSlide = async (productId: string) => {
     if (!productId) return;
     
-    const { data, error } = await supabase
-      .from('hero_slides')
-      .select('*')
-      .eq('button_link', `/product/${productId}`)
-      .maybeSingle();
-    
-    if (data && !error) {
+    const allSlides = await fetchContentList<any>('hero_slides', { active: 'all' });
+    const data = allSlides.find((s) => s.button_link === `/product/${productId}`) || null;
+
+    if (data) {
       setHeroSliderData({
         enabled: true,
         subtitle: data.subtitle || 'NEW ARRIVAL',
@@ -587,11 +585,8 @@ const AdminProducts = () => {
     setIsDialogOpen(true);
 
     // Load which Exclusive Collections this product already belongs to
-    const { data: existingCollections } = await supabase
-      .from('product_collections')
-      .select('collection_id')
-      .eq('product_id', product.id);
-    setSelectedCollections((existingCollections ?? []).map((r) => r.collection_id as string));
+    const existingCollections = await fetchCollectionsForProduct(product.id);
+    setSelectedCollections(existingCollections ?? []);
 
     // Fetch existing images from storage
     fetchProductImages(product.id, product.image_url || '');

@@ -1,13 +1,13 @@
 /**
  * Blog Posts Hooks
- * 
- * Provides hooks for fetching and managing blog posts.
+ *
+ * Provides hooks for fetching and managing blog posts in Cloudflare D1 (blog_posts table).
  * Public hooks return only published posts.
  * Admin hooks return all posts including drafts.
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, fetchContentBySlug, createContentRow, patchContentRow, deleteContentRow } from '@/lib/contentApi';
 import { toast } from 'sonner';
 
 export interface BlogPost {
@@ -31,17 +31,12 @@ export const useBlogPosts = () => {
   return useQuery({
     queryKey: ['blog-posts', 'published'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('is_published', true)
-        .order('display_order', { ascending: true });
-      
-      if (error) {
+      try {
+        return await fetchContentList<BlogPost>('blog_posts');
+      } catch (error) {
         console.error('Error fetching blog posts:', error);
         throw error;
       }
-      return (data ?? []) as BlogPost[];
     },
   });
 };
@@ -52,19 +47,8 @@ export const useBlogPost = (slug: string | undefined) => {
     queryKey: ['blog-posts', 'slug', slug],
     queryFn: async () => {
       if (!slug) return null;
-      
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('slug', slug)
-        .eq('is_published', true)
-        .maybeSingle();
-      
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
-      }
-      return data as BlogPost;
+      const post = await fetchContentBySlug<BlogPost>('blog_posts', slug);
+      return post && post.is_published ? post : null;
     },
     enabled: !!slug,
   });
@@ -75,16 +59,12 @@ export const useAdminBlogPosts = () => {
   return useQuery({
     queryKey: ['admin', 'blog-posts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) {
+      try {
+        return await fetchContentList<BlogPost>('blog_posts', { active: 'all' });
+      } catch (error) {
         console.error('Error fetching admin blog posts:', error);
         throw error;
       }
-      return (data ?? []) as BlogPost[];
     },
   });
 };
@@ -92,17 +72,10 @@ export const useAdminBlogPosts = () => {
 // Add a new blog post
 export const useAddBlogPost = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (post: BlogPostInput) => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert(post)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return createContentRow('blog_posts', post);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'blog-posts'] });
@@ -118,18 +91,10 @@ export const useAddBlogPost = () => {
 // Update an existing blog post
 export const useUpdateBlogPost = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<BlogPost> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return patchContentRow('blog_posts', id, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'blog-posts'] });
@@ -145,15 +110,10 @@ export const useUpdateBlogPost = () => {
 // Delete a blog post
 export const useDeleteBlogPost = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('blog_posts')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await deleteContentRow('blog_posts', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'blog-posts'] });
@@ -169,18 +129,10 @@ export const useDeleteBlogPost = () => {
 // Toggle published status
 export const useToggleBlogPostPublished = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, is_published }: { id: string; is_published: boolean }) => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .update({ is_published })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      return patchContentRow<BlogPost>('blog_posts', id, { is_published });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'blog-posts'] });

@@ -18,8 +18,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { uploadImage } from '@/lib/uploadImage';
+import { fetchContentList, createContentRow, patchContentRow } from '@/lib/contentApi';
 import { SupabaseBrand } from '@/hooks/useBrands';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, Upload, X, Star } from 'lucide-react';
 import { toast } from 'sonner';
@@ -56,20 +56,14 @@ const AdminBrands = () => {
   const { data: brands = [], isLoading } = useQuery({
     queryKey: ['admin', 'brands'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) throw error;
-      return data as SupabaseBrand[];
+      return await fetchContentList<SupabaseBrand>('brands', { active: 'all' });
     },
   });
 
   // Create brand mutation
   const createBrand = useMutation({
     mutationFn: async (data: BrandFormData & { logo_url: string }) => {
-      const { error } = await supabase.from('brands').insert({
+      await createContentRow('brands', {
         name: data.name.trim(),
         slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
         description: data.description.trim() || null,
@@ -78,8 +72,6 @@ const AdminBrands = () => {
         display_order: parseInt(data.display_order) || 0,
         is_active: true,
       });
-
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success('Brand created successfully');
@@ -95,19 +87,14 @@ const AdminBrands = () => {
   // Update brand mutation
   const updateBrand = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: BrandFormData & { logo_url: string } }) => {
-      const { error } = await supabase
-        .from('brands')
-        .update({
-          name: data.name.trim(),
-          slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
-          description: data.description.trim() || null,
-          logo_url: data.logo_url || null,
-          is_featured: data.is_featured,
-          display_order: parseInt(data.display_order) || 0,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('brands', id, {
+        name: data.name.trim(),
+        slug: data.slug.trim().toLowerCase().replace(/\s+/g, '-'),
+        description: data.description.trim() || null,
+        logo_url: data.logo_url || null,
+        is_featured: data.is_featured,
+        display_order: parseInt(data.display_order) || 0,
+      });
     },
     onSuccess: () => {
       toast.success('Brand updated successfully');
@@ -123,12 +110,7 @@ const AdminBrands = () => {
   // Toggle active status
   const toggleActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase
-        .from('brands')
-        .update({ is_active: !isActive })
-        .eq('id', id);
-
-      if (error) throw error;
+      await patchContentRow('brands', id, { is_active: !isActive });
     },
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? 'Brand deactivated' : 'Brand activated');

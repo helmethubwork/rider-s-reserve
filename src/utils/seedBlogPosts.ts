@@ -5,7 +5,7 @@
  * Run this from the browser console or an admin action.
  */
 
-import { supabase } from '@/lib/supabase';
+import { fetchContentList, createContentRow } from '@/lib/contentApi';
 
 // Import local images
 import helmetFineImg from '@/assets/blog/helmet-fine.jpg';
@@ -183,34 +183,29 @@ Many riders think city speeds are "safe" speeds. However, studies show that most
 
 export async function seedBlogPosts() {
   // Seed blog posts
-  
+
   // Check if posts already exist
-  const { data: existing, error: checkError } = await supabase
-    .from('blog_posts')
-    .select('id')
-    .limit(1);
-  
-  if (checkError) {
+  try {
+    const existing = await fetchContentList('blog_posts', { active: 'all' });
+    if (existing.length > 0) {
+      return { success: true, message: 'Posts already exist' };
+    }
+  } catch (checkError: any) {
     console.error('Error checking existing posts:', checkError);
     return { success: false, error: checkError.message };
   }
-  
-  if (existing && existing.length > 0) {
-    return { success: true, message: 'Posts already exist' };
-  }
-  
+
   // Insert all blog posts
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert(blogPostsData)
-    .select();
-  
-  if (error) {
+  try {
+    const data = [];
+    for (const post of blogPostsData) {
+      data.push(await createContentRow('blog_posts', post));
+    }
+    return { success: true, data };
+  } catch (error: any) {
     console.error('Error seeding blog posts:', error);
     return { success: false, error: error.message };
   }
-  
-  return { success: true, data };
 }
 
 export { blogPostsData };
