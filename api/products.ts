@@ -203,6 +203,48 @@ function rowToContent(row: any, schema: TableSchema) {
 }
 
 async function handleContentTable(req: VercelRequest, res: VercelResponse, d1: D1Config, table: string) {
+  // ---------------- product_collections: composite key junction table (not in TABLE_SCHEMAS) ----------------
+  if (table === 'product_collections') {
+    if (req.method === 'GET') {
+      const { product_id, collection_id } = req.query;
+      if (typeof product_id === 'string') {
+        const rows = await d1Query(d1, `SELECT collection_id FROM product_collections WHERE product_id = ?`, [product_id]);
+        return res.status(200).json(rows.map((r) => r.collection_id));
+      }
+      if (typeof collection_id === 'string') {
+        const rows = await d1Query(d1, `SELECT product_id FROM product_collections WHERE collection_id = ?`, [collection_id]);
+        return res.status(200).json(rows.map((r) => r.product_id));
+      }
+      const rows = await d1Query(d1, `SELECT product_id, collection_id FROM product_collections`);
+      return res.status(200).json(rows);
+    }
+    const isAdminPC = await requireAdmin(req, res);
+    if (!isAdminPC) return;
+    if (req.method === 'POST') {
+      const b = req.body ?? {};
+      if (!b.product_id || !b.collection_id) {
+        return res.status(400).json({ error: 'product_id and collection_id are required' });
+      }
+      await d1Query(
+        d1,
+        `INSERT OR IGNORE INTO product_collections (product_id, collection_id, created_at) VALUES (?,?,?)`,
+        [b.product_id, b.collection_id, new Date().toISOString()]
+      );
+      return res.status(201).json({ success: true });
+    }
+    if (req.method === 'DELETE') {
+      const { product_id, collection_id } = req.query;
+      if (typeof product_id !== 'string') return res.status(400).json({ error: 'Missing product_id' });
+      if (typeof collection_id === 'string') {
+        await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ? AND collection_id = ?`, [product_id, collection_id]);
+      } else {
+        await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ?`, [product_id]);
+      }
+      return res.status(200).json({ success: true });
+    }
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const schema = TABLE_SCHEMAS[table];
   if (!schema) return res.status(400).json({ error: `Unknown table: ${table}` });
   const cols = schema.columns.join(', ');
@@ -233,48 +275,6 @@ async function handleContentTable(req: VercelRequest, res: VercelResponse, d1: D
       const rows = await d1Query(d1, `SELECT ${cols} FROM site_settings WHERE setting_key = ?`, [key]);
       if (!rows.length) return res.status(404).json({ error: 'Setting not found' });
       return res.status(200).json(rowToContent(rows[0], schema));
-    }
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  // ---------------- product_collections: composite key junction table ----------------
-  if (table === 'product_collections') {
-    if (req.method === 'GET') {
-      const { product_id, collection_id } = req.query;
-      if (typeof product_id === 'string') {
-        const rows = await d1Query(d1, `SELECT collection_id FROM product_collections WHERE product_id = ?`, [product_id]);
-        return res.status(200).json(rows.map((r) => r.collection_id));
-      }
-      if (typeof collection_id === 'string') {
-        const rows = await d1Query(d1, `SELECT product_id FROM product_collections WHERE collection_id = ?`, [collection_id]);
-        return res.status(200).json(rows.map((r) => r.product_id));
-      }
-      const rows = await d1Query(d1, `SELECT product_id, collection_id FROM product_collections`);
-      return res.status(200).json(rows);
-    }
-    const isAdmin = await requireAdmin(req, res);
-    if (!isAdmin) return;
-    if (req.method === 'POST') {
-      const b = req.body ?? {};
-      if (!b.product_id || !b.collection_id) {
-        return res.status(400).json({ error: 'product_id and collection_id are required' });
-      }
-      await d1Query(
-        d1,
-        `INSERT OR IGNORE INTO product_collections (product_id, collection_id, created_at) VALUES (?,?,?)`,
-        [b.product_id, b.collection_id, new Date().toISOString()]
-      );
-      return res.status(201).json({ success: true });
-    }
-    if (req.method === 'DELETE') {
-      const { product_id, collection_id } = req.query;
-      if (typeof product_id !== 'string') return res.status(400).json({ error: 'Missing product_id' });
-      if (typeof collection_id === 'string') {
-        await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ? AND collection_id = ?`, [product_id, collection_id]);
-      } else {
-        await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ?`, [product_id]);
-      }
-      return res.status(200).json({ success: true });
     }
     return res.status(405).json({ error: 'Method not allowed' });
   }
