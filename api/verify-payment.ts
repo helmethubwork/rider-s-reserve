@@ -15,6 +15,27 @@ const escapeHtml = (str = '') =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 
+// Order numbers are sequential (HH-00001, HH-00002, ...), so this endpoint is
+// guessable. It can't be used to forge a "paid" status (Cashfree is the source
+// of truth) and returns no customer PII, but without a throttle it could be
+// scripted to enumerate order amounts or spam the Cashfree API. Same in-memory
+// pattern as track-order.ts, sized generously since legitimate post-checkout
+// polling calls this repeatedly.
+const attempts = new Map<string, { count: number; first: number }>();
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_ATTEMPTS = 40;
+
+const isRateLimited = (ip: string): boolean => {
+  const now = Date.now();
+  const rec = attempts.get(ip);
+  if (!rec || now - rec.first > WINDOW_MS) {
+    attempts.set(ip, { count: 1, first: now });
+    return false;
+  }
+  rec.count += 1;
+  return rec.count > MAX_ATTEMPTS;
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -24,6 +45,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!orderId || typeof orderId !== 'string' || orderId.length > 100) {
     return res.status(400).json({ error: 'Invalid order_id', success: false });
+  }
+
+  const ip =
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+    req.socket?.remoteAddress ||
+    'unknown';
+
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Too many requests', success: false });
   }
 
   const appId          = process.env.CASHFREE_APP_ID;
