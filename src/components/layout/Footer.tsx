@@ -162,9 +162,14 @@ const Footer = () => {
       <div className="border-t border-border/40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5">
-            <p className="text-muted-foreground/60 text-[11px] order-2 sm:order-1">
-              © {new Date().getFullYear()} Helmet Hub. All rights reserved.
-            </p>
+            <div className="flex flex-col items-center sm:items-start gap-0.5 order-2 sm:order-1">
+              <p className="text-muted-foreground/60 text-[11px]">
+                © {new Date().getFullYear()} Helmet Hub. All rights reserved.
+              </p>
+              <p className="text-muted-foreground/45 text-[11px]">
+                Designed &amp; Developed by Zoptavi
+              </p>
+            </div>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60 order-1 sm:order-2">
               <span>Secure Payments</span>
               <span className="w-px h-3 bg-border" />
@@ -177,9 +182,6 @@ const Footer = () => {
               </Link>
             </div>
           </div>
-          <p className="text-center text-muted-foreground/50 text-[11px] mt-3">
-            Designed &amp; Developed by Zoptavi
-          </p>
         </div>
       </div>
     </footer>
