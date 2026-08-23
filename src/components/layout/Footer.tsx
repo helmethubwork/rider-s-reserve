@@ -177,6 +177,9 @@ const Footer = () => {
               </Link>
             </div>
           </div>
+          <p className="text-center text-muted-foreground/50 text-[11px] mt-3">
+            Designed &amp; Developed by Zoptavi
+          </p>
         </div>
       </div>
     </footer>
