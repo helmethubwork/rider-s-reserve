@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import { products, categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
+import { useBrands } from "@/hooks/useBrands";
+import { useCategories } from "@/hooks/useCategories";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -21,19 +23,30 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Real data from D1 — this used to search src/data/products.ts, a
+  // leftover pre-migration mock file, which is why searching would surface
+  // products no admin ever added.
+  const { data: allProducts = [] } = useProducts();
+  const { data: brands = [] } = useBrands();
+  const { data: categories = [] } = useCategories();
+
   const normalizedQuery = query.trim();
   const queryLower = normalizedQuery.toLowerCase();
 
   const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+  const brandName = (id: string | null) => brands.find((b) => b.id === id)?.name || "";
+  const categoryName = (id: string | null) => categories.find((c) => c.id === id)?.name || "";
+
   // Filter products
   const filteredProducts = normalizedQuery.length > 0
-    ? products
+    ? (allProducts as any[])
+        .filter((p) => p.is_active)
         .filter(
           (product) =>
             product.name.toLowerCase().includes(queryLower) ||
-            product.category.toLowerCase().includes(queryLower) ||
-            product.brand.toLowerCase().includes(queryLower)
+            categoryName(product.category_id).toLowerCase().includes(queryLower) ||
+            brandName(product.brand_id).toLowerCase().includes(queryLower)
         )
         .slice(0, 4)
     : [];
@@ -53,12 +66,13 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     ? [
         ...new Set([
           // Brand + query (e.g. "ls2 helmets")
-          ...products
-            .filter((p) => p.brand.toLowerCase().includes(queryLower))
-            .map((p) => `${p.brand.toLowerCase()} ${normalizedQuery}`.trim()),
+          ...(allProducts as any[])
+            .filter((p) => brandName(p.brand_id).toLowerCase().includes(queryLower))
+            .map((p) => `${brandName(p.brand_id).toLowerCase()} ${normalizedQuery}`.trim())
+            .filter(Boolean),
 
           // Product name prefix (first two words)
-          ...products
+          ...(allProducts as any[])
             .filter((p) => p.name.toLowerCase().includes(queryLower))
             .map((p) => p.name.toLowerCase().split(" ").slice(0, 2).join(" ")),
         ]),
@@ -275,7 +289,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                               className="flex items-center gap-3 hover:bg-secondary/50 p-2 -mx-2 rounded-lg transition-colors"
                             >
                               <img
-                                src={product.image}
+                                src={product.image_url || "/placeholder.svg"}
                                 alt={product.name}
                                 className="w-14 h-14 object-contain bg-secondary/50 rounded-lg"
                                 loading="lazy"

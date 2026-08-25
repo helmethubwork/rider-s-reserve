@@ -179,48 +179,20 @@ const AdminProducts = () => {
     return true;
   });
 
-  // Fetch existing images from storage for a product
-  const fetchProductImages = async (productId: string, mainImageUrl: string) => {
+  // Load a product's existing images straight from its own `image_urls`
+  // column (D1) instead of scanning a storage bucket by filename pattern.
+  // The old approach scanned Supabase Storage's `product-images/products`
+  // folder for files matching the product ID — that stopped working once
+  // uploads moved to Cloudflare R2, which is why edits only ever showed (and
+  // then saved) a single image regardless of how many were actually there.
+  const loadProductImages = (product: ProductWithRelations) => {
     setIsLoadingImages(true);
-    try {
-      const allImages: string[] = [];
-      let offset = 0;
-      const pageSize = 100;
-      
-      while (true) {
-        const { data: files, error } = await supabase.storage
-          .from('product-images')
-          .list('products', { limit: pageSize, offset });
-        
-        if (error || !files || files.length === 0) break;
-        
-        const matching = files.filter(f => 
-          f.name.startsWith(`${productId}-`) || 
-          f.name.includes(productId)
-        );
-        
-        for (const file of matching) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('product-images')
-            .getPublicUrl(`products/${file.name}`);
-          if (publicUrl && !allImages.includes(publicUrl)) {
-            allImages.push(publicUrl);
-          }
-        }
-        
-        if (files.length < pageSize) break;
-        offset += pageSize;
-      }
-      
-      // Add main image if not already included
-      if (mainImageUrl && !allImages.includes(mainImageUrl)) {
-        allImages.unshift(mainImageUrl);
-      }
-      
-      setExistingStorageImages(allImages);
-    } catch (err) {
-      console.error('Error fetching images:', err);
+    const stored = Array.isArray(product.image_urls) ? product.image_urls : [];
+    const allImages = [...stored];
+    if (product.image_url && !allImages.includes(product.image_url)) {
+      allImages.unshift(product.image_url);
     }
+    setExistingStorageImages(allImages);
     setIsLoadingImages(false);
   };
 
@@ -284,6 +256,7 @@ const AdminProducts = () => {
         category_id: data.category_id || null,
         brand_id: data.brand_id || null,
         image_url: data.image_url.trim() || null,
+        image_urls: data.image_urls || [],
         stock: parseInt(data.stock) || 0,
         description: data.description.trim() || null,
         is_featured: data.is_featured,
@@ -305,6 +278,7 @@ const AdminProducts = () => {
       setIsDialogOpen(false);
       setFormData(emptyFormData);
       setHeroSliderData(emptyHeroSliderData);
+      setExistingStorageImages([]);
     },
     onError: (error) => {
       toast.error('Failed to create product: ' + error.message);
@@ -321,6 +295,7 @@ const AdminProducts = () => {
         category_id: data.category_id || null,
         brand_id: data.brand_id || null,
         image_url: data.image_url.trim() || null,
+        image_urls: data.image_urls || [],
         stock: parseInt(data.stock) || 0,
         description: data.description.trim() || null,
         is_featured: data.is_featured,
@@ -378,10 +353,12 @@ const AdminProducts = () => {
     },
   });
 
-  // Delete product permanently
+  // Delete product permanently — also removes every image that belonged to
+  // it from storage (R2/Supabase), not just the database row.
   const deleteProduct = useMutation({
     mutationFn: async (id: string) => {
-      await deleteProductD1(id);
+      const { image_urls } = await deleteProductD1(id);
+      await Promise.all(image_urls.map((url) => deleteImage(url)));
     },
     onSuccess: () => {
       toast.success('Product deleted permanently');
@@ -501,7 +478,12 @@ const AdminProducts = () => {
       return;
     }
 
-    let allImageUrls = [...formData.image_urls];
+    // existingStorageImages is the live, admin-editable list shown in the
+    // dialog (already reflects any images the admin removed there) — that's
+    // the correct base to build from, not formData.image_urls, which is only
+    // ever set once when the dialog opens and never updated as the admin
+    // adds/removes images in the grid.
+    let allImageUrls = [...existingStorageImages];
 
     if (imageFiles.length > 0) {
       setIsUploading(true);
@@ -568,7 +550,7 @@ const AdminProducts = () => {
       category_id: product.category_id || '',
       brand_id: product.brand_id || '',
       image_url: product.image_url || '',
-      image_urls: [],
+      image_urls: Array.isArray(product.image_urls) ? product.image_urls : [],
       stock: product.stock.toString(),
       sizes: product.sizes?.join(', ') || '',
       colors: product.colors?.join(', ') || '',
@@ -581,15 +563,14 @@ const AdminProducts = () => {
     });
     setImageFiles([]);
     setImagePreviews([]);
-    setExistingStorageImages([]);
     setIsDialogOpen(true);
 
     // Load which Exclusive Collections this product already belongs to
     const existingCollections = await fetchCollectionsForProduct(product.id);
     setSelectedCollections(existingCollections ?? []);
 
-    // Fetch existing images from storage
-    fetchProductImages(product.id, product.image_url || '');
+    // Load this product's existing images (from its own image_urls column)
+    loadProductImages(product);
     
     // Check for existing hero slide
     checkForExistingHeroSlide(product.id);
@@ -649,9 +630,12 @@ const AdminProducts = () => {
   // Open add dialog
   const handleAdd = () => {
     setEditingProduct(null);
-      setSelectedCollections([]);
+    setSelectedCollections([]);
     setFormData(emptyFormData);
     setHeroSliderData(emptyHeroSliderData);
+    setImageFiles([]);
+    setImagePreviews([]);
+    setExistingStorageImages([]);
     setIsDialogOpen(true);
   };
 

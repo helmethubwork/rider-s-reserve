@@ -29,6 +29,7 @@ export interface ProductInput {
   price: number;
   stock?: number;
   image_url?: string | null;
+  image_urls?: string[];
   category?: string | null;
   category_id?: string | null;
   brand_id?: string | null;
@@ -62,7 +63,7 @@ export async function updateProductD1(id: string, input: ProductInput): Promise<
 
 export async function patchProductD1(
   id: string,
-  patch: { is_active?: boolean; image_url?: string | null }
+  patch: { is_active?: boolean; image_url?: string | null; image_urls?: string[] }
 ): Promise<SupabaseProduct> {
   const res = await fetch(`/api/products?id=${encodeURIComponent(id)}`, {
     method: 'PATCH',
@@ -72,12 +73,15 @@ export async function patchProductD1(
   return parseOrThrow(res);
 }
 
-export async function deleteProductD1(id: string): Promise<void> {
+// Returns every image URL the deleted product had, so the caller can also
+// remove them from R2/Supabase Storage — the API only deletes the DB row.
+export async function deleteProductD1(id: string): Promise<{ image_urls: string[] }> {
   const res = await fetch(`/api/products?id=${encodeURIComponent(id)}`, {
     method: 'DELETE',
     headers: await authHeaders(),
   });
-  await parseOrThrow(res);
+  const body = await parseOrThrow(res);
+  return { image_urls: Array.isArray(body?.image_urls) ? body.image_urls : [] };
 }
 
 // Fetch every product regardless of is_active, for the admin list view.

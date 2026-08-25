@@ -64,6 +64,7 @@ function rowToProduct(row: any) {
     is_on_sale: !!row.is_on_sale,
     sizes: safeJsonArray(row.sizes),
     colors: safeJsonArray(row.colors),
+    image_urls: safeJsonArray(row.image_urls),
   };
 }
 
@@ -115,7 +116,7 @@ async function requireAdmin(req: VercelRequest, res: VercelResponse): Promise<bo
   return true;
 }
 
-const PRODUCT_COLUMNS = `id, name, price, stock, image_url, is_active, created_at, updated_at,
+const PRODUCT_COLUMNS = `id, name, price, stock, image_url, image_urls, is_active, created_at, updated_at,
   category, category_id, brand_id, sizes, colors, description, is_featured,
   is_on_sale, sale_price, sale_badge, display_order`;
 
@@ -454,16 +455,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await d1Query(
         d1,
         `INSERT INTO products (
-          id, name, price, stock, image_url, is_active, created_at, updated_at,
+          id, name, price, stock, image_url, image_urls, is_active, created_at, updated_at,
           category, category_id, brand_id, sizes, colors, description,
           is_featured, is_on_sale, sale_price, sale_badge, display_order
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           id,
           b.name.trim(),
           price,
           Number.isFinite(Number(b.stock)) ? Number(b.stock) : 0,
           b.image_url || null,
+          JSON.stringify(Array.isArray(b.image_urls) ? b.image_urls : []),
           1,
           now,
           now,
@@ -490,9 +492,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!id) return res.status(400).json({ error: 'Missing product id' });
 
     // ---------------- DELETE ----------------
+    // Removes the product row, any product_collections links pointing at it
+    // (that table has no id column and was never covered by ON DELETE CASCADE
+    // in SQLite), and hands back every image URL that belonged to this product
+    // so the caller can clean those up from R2/Supabase Storage too — deleting
+    // a product previously left orphaned images and orphaned junction rows.
     if (req.method === 'DELETE') {
+      const existing = await d1Query(
+        d1,
+        `SELECT image_url, image_urls FROM products WHERE id = ?`,
+        [id]
+      );
+      if (!existing.length) return res.status(404).json({ error: 'Product not found' });
+
+      const urls = new Set<string>();
+      if (existing[0].image_url) urls.add(String(existing[0].image_url));
+      for (const u of safeJsonArray(existing[0].image_urls)) urls.add(u);
+
+      await d1Query(d1, `DELETE FROM product_collections WHERE product_id = ?`, [id]);
       await d1Query(d1, `DELETE FROM products WHERE id = ?`, [id]);
-      return res.status(200).json({ success: true });
+
+      return res.status(200).json({ success: true, image_urls: Array.from(urls) });
     }
 
     // ---------------- PUT: full update ----------------
@@ -509,7 +529,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await d1Query(
         d1,
         `UPDATE products SET
-          name = ?, price = ?, stock = ?, image_url = ?, updated_at = ?,
+          name = ?, price = ?, stock = ?, image_url = ?, image_urls = ?, updated_at = ?,
           category = ?, category_id = ?, brand_id = ?, sizes = ?, colors = ?,
           description = ?, is_featured = ?, is_on_sale = ?, sale_price = ?,
           sale_badge = ?, display_order = ?
@@ -519,6 +539,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           price,
           Number.isFinite(Number(b.stock)) ? Number(b.stock) : 0,
           b.image_url || null,
+          JSON.stringify(Array.isArray(b.image_urls) ? b.image_urls : []),
           new Date().toISOString(),
           b.category || null,
           b.category_id || null,
@@ -553,6 +574,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (typeof b.image_url === 'string' || b.image_url === null) {
         sets.push('image_url = ?');
         params.push(b.image_url);
+      }
+      if (Array.isArray(b.image_urls)) {
+        sets.push('image_urls = ?');
+        params.push(JSON.stringify(b.image_urls));
       }
       if (!sets.length) {
         return res.status(400).json({ error: 'No recognized fields to update' });

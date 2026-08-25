@@ -15,6 +15,7 @@ export interface SupabaseProduct {
   price: number;
   stock: number;
   image_url: string | null;
+  image_urls: string[] | null;
   description: string | null;
   is_active: boolean;
   created_at: string;

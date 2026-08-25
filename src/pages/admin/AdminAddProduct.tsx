@@ -297,6 +297,7 @@ const AdminAddProduct = () => {
         price: priceValue,
         stock: stockValue,
         image_url: mainImageUrl,
+        image_urls: imageUrls,
         brand_id: brandId || null,
         category_id: categoryId || null,
         is_featured: isFeatured,
