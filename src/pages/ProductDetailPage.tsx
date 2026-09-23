@@ -11,7 +11,6 @@ import { Star, Truck, Minus, Plus, Check, Loader2, ArrowLeft } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
 import { getSwatchBackground } from "@/lib/colorUtils";
 const ProductDetailPage = () => {
   const {
@@ -33,83 +32,12 @@ const ProductDetailPage = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
-  const [productImages, setProductImages] = useState<string[]>([]);
-  const [imagesLoading, setImagesLoading] = useState(true);
-
-  // Fetch product from Supabase
+  // Fetch product from Cloudflare D1 (via useProduct -> /api/products)
   const {
     data: product,
     isLoading,
     error
   } = useProduct(id || "");
-
-  // Fetch all images for this product from storage
-  useEffect(() => {
-    const fetchProductImages = async () => {
-      if (!id) return;
-
-      setImagesLoading(true);
-      try {
-        const matching: { name: string }[] = [];
-        const pageSize = 100;
-        let offset = 0;
-
-        // Paginate through storage objects to find files that start with the product id
-        // (Supabase list() returns a limited page; without pagination thumbnails may not appear.)
-        // Stop once we find some images and reach a reasonable number.
-        while (true) {
-          const { data: files, error } = await supabase.storage
-            .from("product-images")
-            .list("products", { limit: pageSize, offset });
-
-          if (error) {
-            console.error("Error fetching product images:", error);
-            break;
-          }
-
-          if (!files || files.length === 0) break;
-
-          for (const file of files) {
-            if (file.name.startsWith(id)) matching.push({ name: file.name });
-          }
-
-          // If we already found images and this page didn't add any new ones, we can stop early.
-          if (matching.length >= 12) break;
-
-          offset += pageSize;
-        }
-
-        if (matching.length > 0) {
-          const sorted = matching.sort((a, b) => {
-            const getIndex = (name: string) => {
-              const parts = name.split("-");
-              const lastPart = parts[parts.length - 1];
-              return parseInt(lastPart?.split(".")[0] || "0");
-            };
-            return getIndex(a.name) - getIndex(b.name);
-          });
-
-          const imageUrls = sorted.map(file => {
-            const { data } = supabase.storage
-              .from("product-images")
-              .getPublicUrl(`products/${file.name}`);
-            return data.publicUrl;
-          });
-
-          setProductImages(imageUrls);
-        } else {
-          setProductImages([]);
-        }
-      } catch (err) {
-        console.error("Error fetching product images:", err);
-        setProductImages([]);
-      } finally {
-        setImagesLoading(false);
-      }
-    };
-
-    fetchProductImages();
-  }, [id]);
 
   // Track product view
   useEffect(() => {
@@ -221,21 +149,22 @@ const ProductDetailPage = () => {
     }
   };
 
-  // Product images - combine main image_url with any additional images from storage
+  // Product images - the full gallery lives in D1's image_urls column
+  // (image_url is just the first/main image, kept for backward compatibility).
   const getAllImages = () => {
     const mainImage = product.image_url || "/placeholder.svg";
-    
-    // If we found images in storage, use them (they include properly named uploads)
-    if (productImages.length > 0) {
-      // Deduplicate: if main image URL is in productImages, don't add it twice
-      const uniqueImages = productImages.filter(url => url !== mainImage);
-      return [mainImage, ...uniqueImages];
+    const gallery = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
+
+    if (gallery.length > 0) {
+      // Ensure the main image is first, then every other gallery image (deduped).
+      const rest = gallery.filter(url => url !== mainImage);
+      return [mainImage, ...rest];
     }
-    
+
     // Fallback to just the main image
     return [mainImage];
   };
-  
+
   const thumbnails = getAllImages();
     
   return <div className="min-h-screen flex flex-col bg-background">
