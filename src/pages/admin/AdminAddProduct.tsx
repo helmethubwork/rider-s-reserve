@@ -576,7 +576,6 @@ const AdminAddProduct = () => {
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
                   placeholder="0"
                   min="1"
                   step="1"
@@ -590,7 +589,6 @@ const AdminAddProduct = () => {
                   type="number"
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
                   placeholder="0"
                   min="0"
                   disabled={isLoading}
