@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import { sendMetaPurchaseEvent } from './_lib/metaCapi';
 
 // Disable Vercel's body parser so we receive the raw bytes Cashfree signed (C2)
 export const config = { api: { bodyParser: false } };
@@ -223,6 +224,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (err) {
     console.error(`[${istNow()}] Error during Supabase update:`, err);
+  }
+
+  // --- Forward successful payments to Meta Conversions API (server-side Purchase) ---
+  if (paymentStatus === 'paid') {
+    // Fire-and-forget — no-ops silently if META_CAPI_TOKEN isn't configured.
+    void sendMetaPurchaseEvent({
+      orderId,
+      value: paymentAmount ?? 0,
+      email: customerEmail || undefined,
+      phone: customerPhone || undefined,
+    });
   }
 
   // --- Forward successful payments to Google Sheets ---

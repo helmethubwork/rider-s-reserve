@@ -19,10 +19,17 @@ let initialized = false;
 
 // Fire a Meta Pixel event, but only in production and only if fbq actually
 // loaded (defensive — e.g. an ad blocker may have stripped the pixel script).
-function fbTrack(event: string, params?: Record<string, unknown>) {
+// `eventId`, when passed, lets Meta deduplicate this browser event against a
+// matching server-side Conversions API event sharing the same id (see
+// api/_lib/metaCapi.ts) — used for Purchase, keyed on the order number.
+function fbTrack(event: string, params?: Record<string, unknown>, eventId?: string) {
   if (!isProduction) return;
   if (typeof window.fbq !== 'function') return;
-  window.fbq('track', event, params);
+  if (eventId) {
+    window.fbq('track', event, params, { eventID: eventId });
+  } else {
+    window.fbq('track', event, params);
+  }
 }
 
 export function initGA() {
@@ -140,7 +147,7 @@ export function trackPurchase(orderId: string, items: { id: string; name: string
     num_items: items.reduce((sum, i) => sum + i.quantity, 0),
     value: total,
     currency: 'INR',
-  });
+  }, orderId); // shared event_id — deduplicates against the server-side copy, if configured
 }
 
 // Fired when the contact form is successfully submitted — see ContactPage.tsx.
