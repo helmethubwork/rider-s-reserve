@@ -142,3 +142,19 @@ export function trackPurchase(orderId: string, items: { id: string; name: string
     currency: 'INR',
   });
 }
+
+// Fired when the contact form is successfully submitted — see ContactPage.tsx.
+export function trackLead(source: string = 'contact_form') {
+  if (isProduction && GA_ID) {
+    window.gtag?.('event', 'generate_lead', { source });
+  }
+  fbTrack('Lead', { content_name: source });
+}
+
+// Fired right after a new account is created — see AuthPage.tsx.
+export function trackCompleteRegistration() {
+  if (isProduction && GA_ID) {
+    window.gtag?.('event', 'sign_up', { method: 'email' });
+  }
+  fbTrack('CompleteRegistration', { content_name: 'email' });
+}

@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { z } from "zod";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { trackCompleteRegistration } from "@/lib/analytics";
 
 // Validation schemas
 const emailSchema = z.string().trim().email("Please enter a valid email");
@@ -65,6 +66,7 @@ const AuthPage = () => {
       }
       const { error: signUpError } = await signUp(email, password, name);
       if (signUpError) setError(signUpError);
+      else trackCompleteRegistration();
     }
 
     setLoading(false);

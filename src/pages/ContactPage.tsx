@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Clock, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteSettings, getSettingValue } from "@/hooks/useSiteSettings";
+import { trackLead } from "@/lib/analytics";
 
 const ContactPage = () => {
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ const ContactPage = () => {
         }),
       }).catch(err => console.error('Contact email notification failed:', err));
 
+      trackLead('contact_form');
       toast({
         title: "Message Sent ✅",
         description: "Thank you! We've sent a confirmation to your email and will reply within 24 hours."
