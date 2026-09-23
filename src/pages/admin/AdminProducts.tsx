@@ -802,6 +802,7 @@ const AdminProducts = () => {
                     type="number"
                     value={formData.price}
                     onChange={(e) => handleInputChange('price', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="0"
                     min="0"
                   />
@@ -813,6 +814,7 @@ const AdminProducts = () => {
                     type="number"
                     value={formData.stock}
                     onChange={(e) => handleInputChange('stock', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
                     placeholder="0"
                     min="0"
                   />

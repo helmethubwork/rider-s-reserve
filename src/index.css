@@ -466,6 +466,19 @@
     @apply text-gray-400;
   }
 
+  /* Number fields (Price, Stock, etc.) — remove the native up/down steppers
+     so they read and behave like a normal, freely-writable text field. */
+  .admin-theme input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .admin-theme input[type="number"]::-webkit-outer-spin-button,
+  .admin-theme input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   /* Tables read better with tabular figures and lighter dividers */
   .admin-theme table {
     font-variant-numeric: tabular-nums;
