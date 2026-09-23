@@ -254,6 +254,21 @@ const CheckoutPage = () => {
         throw new Error('Payment session not received. Please try again.');
       }
 
+      // Stash the order's line items so the post-payment page (PaymentStatus.tsx)
+      // can fire a Purchase/purchase event with real values — the cart is cleared
+      // right below, and Cashfree's redirect only passes back the order_id.
+      try {
+        sessionStorage.setItem(
+          `hh_pending_purchase_${order.order_number}`,
+          JSON.stringify({
+            items: items.map((item) => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            total: orderTotal,
+          })
+        );
+      } catch {
+        // sessionStorage can fail in private-browsing edge cases — non-critical, skip silently
+      }
+
       // Clear cart BEFORE redirect — startCashfreePayment redirects the page so
       // any code after it never executes. (Same pattern as Meena Rajwada.)
       clearCart();

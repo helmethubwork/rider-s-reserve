@@ -1,10 +1,14 @@
-// Google Analytics 4 integration
-// Only loads in production. Uses VITE_GA_ID env var.
+// Analytics — Google Analytics 4 (gtag) + Meta Pixel (fbq).
+// GA only loads in production and reads VITE_GA_ID.
+// Meta Pixel's base code is loaded unconditionally from index.html <head>
+// (fbq is a global by the time React mounts), so every tracking call here
+// also mirrors the same event to Meta — one call site, both platforms.
 
 declare global {
   interface Window {
     gtag: (...args: unknown[]) => void;
     dataLayer: unknown[];
+    fbq: (...args: unknown[]) => void;
   }
 }
 
@@ -12,6 +16,14 @@ const GA_ID = import.meta.env.VITE_GA_ID as string | undefined;
 const isProduction = import.meta.env.PROD;
 
 let initialized = false;
+
+// Fire a Meta Pixel event, but only in production and only if fbq actually
+// loaded (defensive — e.g. an ad blocker may have stripped the pixel script).
+function fbTrack(event: string, params?: Record<string, unknown>) {
+  if (!isProduction) return;
+  if (typeof window.fbq !== 'function') return;
+  window.fbq('track', event, params);
+}
 
 export function initGA() {
   if (!isProduction || !GA_ID || initialized) return;
@@ -35,46 +47,98 @@ export function initGA() {
 export function trackPageView(path: string) {
   if (!isProduction || !GA_ID) return;
   window.gtag?.('event', 'page_view', { page_path: path });
+  // Meta's base pixel code already fires a PageView of its own on initial
+  // load (see index.html), so client-side route changes are not re-sent
+  // here to avoid double-counting PageView in Ads Manager.
 }
 
 export function trackProductView(product: { id: string; name: string; price: number; category?: string }) {
-  if (!isProduction || !GA_ID) return;
-  window.gtag?.('event', 'view_item', {
-    currency: 'INR',
+  if (isProduction && GA_ID) {
+    window.gtag?.('event', 'view_item', {
+      currency: 'INR',
+      value: product.price,
+      items: [{
+        item_id: product.id,
+        item_name: product.name,
+        price: product.price,
+        item_category: product.category,
+      }],
+    });
+  }
+  fbTrack('ViewContent', {
+    content_ids: [product.id],
+    content_name: product.name,
+    content_type: 'product',
     value: product.price,
-    items: [{
-      item_id: product.id,
-      item_name: product.name,
-      price: product.price,
-      item_category: product.category,
-    }],
+    currency: 'INR',
   });
 }
 
 export function trackAddToCart(product: { id: string; name: string; price: number; quantity?: number }) {
-  if (!isProduction || !GA_ID) return;
-  window.gtag?.('event', 'add_to_cart', {
+  const quantity = product.quantity || 1;
+  if (isProduction && GA_ID) {
+    window.gtag?.('event', 'add_to_cart', {
+      currency: 'INR',
+      value: product.price * quantity,
+      items: [{
+        item_id: product.id,
+        item_name: product.name,
+        price: product.price,
+        quantity,
+      }],
+    });
+  }
+  fbTrack('AddToCart', {
+    content_ids: [product.id],
+    content_name: product.name,
+    content_type: 'product',
+    value: product.price * quantity,
     currency: 'INR',
-    value: product.price * (product.quantity || 1),
-    items: [{
-      item_id: product.id,
-      item_name: product.name,
-      price: product.price,
-      quantity: product.quantity || 1,
-    }],
   });
 }
 
 export function trackBeginCheckout(items: { id: string; name: string; price: number; quantity: number }[], total: number) {
-  if (!isProduction || !GA_ID) return;
-  window.gtag?.('event', 'begin_checkout', {
-    currency: 'INR',
+  if (isProduction && GA_ID) {
+    window.gtag?.('event', 'begin_checkout', {
+      currency: 'INR',
+      value: total,
+      items: items.map(i => ({
+        item_id: i.id,
+        item_name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+      })),
+    });
+  }
+  fbTrack('InitiateCheckout', {
+    content_ids: items.map(i => i.id),
+    contents: items.map(i => ({ id: i.id, quantity: i.quantity, item_price: i.price })),
+    num_items: items.reduce((sum, i) => sum + i.quantity, 0),
     value: total,
-    items: items.map(i => ({
-      item_id: i.id,
-      item_name: i.name,
-      price: i.price,
-      quantity: i.quantity,
-    })),
+    currency: 'INR',
+  });
+}
+
+// Fired once, right after a payment is confirmed successful — see PaymentStatus.tsx.
+export function trackPurchase(orderId: string, items: { id: string; name: string; price: number; quantity: number }[], total: number) {
+  if (isProduction && GA_ID) {
+    window.gtag?.('event', 'purchase', {
+      transaction_id: orderId,
+      currency: 'INR',
+      value: total,
+      items: items.map(i => ({
+        item_id: i.id,
+        item_name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+      })),
+    });
+  }
+  fbTrack('Purchase', {
+    content_ids: items.map(i => i.id),
+    contents: items.map(i => ({ id: i.id, quantity: i.quantity, item_price: i.price })),
+    num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+    value: total,
+    currency: 'INR',
   });
 }

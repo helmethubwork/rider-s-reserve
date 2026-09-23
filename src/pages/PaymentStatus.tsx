@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { CheckCircle, XCircle, ShoppingBag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { trackPurchase } from '@/lib/analytics';
 
 type Status = 'loading' | 'success' | 'failed';
 
@@ -23,7 +24,25 @@ const PaymentStatus = () => {
         const res = await fetch(`/api/verify-payment?order_id=${encodeURIComponent(orderId)}`);
         const data = await res.json();
         // support both old {status:'PAID'} and new {success:true} response shapes
-        setStatus(data.success === true || data.status === 'PAID' || data.status === 'SUCCESS' ? 'success' : 'failed');
+        const paid = data.success === true || data.status === 'PAID' || data.status === 'SUCCESS';
+        setStatus(paid ? 'success' : 'failed');
+
+        // Fire the Purchase/purchase conversion event exactly once, using the
+        // line items stashed by CheckoutPage.tsx right before the Cashfree
+        // redirect (the cart itself is already cleared by the time we land here).
+        if (paid) {
+          const storageKey = `hh_pending_purchase_${orderId}`;
+          try {
+            const raw = sessionStorage.getItem(storageKey);
+            if (raw) {
+              const { items, total } = JSON.parse(raw);
+              trackPurchase(orderId, items, total);
+              sessionStorage.removeItem(storageKey);
+            }
+          } catch {
+            // malformed/missing sessionStorage entry — skip tracking rather than break the page
+          }
+        }
       } catch {
         setStatus('failed');
       }
