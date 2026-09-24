@@ -19,6 +19,11 @@ import crypto from 'crypto';
 
 const GRAPH_API_VERSION = 'v21.0';
 
+// Matches the hardcoded pixel ID in index.html's fbq('init', ...) call.
+// VITE_META_PIXEL_ID can still override this via env var if ever needed,
+// but nothing requires it to be set anymore.
+const DEFAULT_PIXEL_ID = '1085620764214461';
+
 const sha256 = (value: string) =>
   crypto.createHash('sha256').update(value.trim().toLowerCase()).digest('hex');
 
@@ -36,17 +41,15 @@ interface PurchaseEventInput {
  */
 export async function sendMetaPurchaseEvent({ orderId, value, email, phone }: PurchaseEventInput): Promise<void> {
   const accessToken = process.env.META_CAPI_TOKEN;
-  const pixelId = process.env.VITE_META_PIXEL_ID;
+  const pixelId = process.env.VITE_META_PIXEL_ID || DEFAULT_PIXEL_ID;
 
-  if (!accessToken || !pixelId) {
+  if (!accessToken) {
     // Server-side forwarding not configured — the browser pixel's own
     // Purchase event (see analytics.ts) is all that fires. This is a
     // perfectly valid, complete setup on its own; log at debug level so
     // "nothing sent" reads as intentional, not a silent failure, when
     // checking Vercel logs.
-    console.log(
-      `[meta-capi] Skipped for order ${orderId} — ${!accessToken ? 'META_CAPI_TOKEN' : 'VITE_META_PIXEL_ID'} not set`
-    );
+    console.log(`[meta-capi] Skipped for order ${orderId} — META_CAPI_TOKEN not set`);
     return;
   }
 
