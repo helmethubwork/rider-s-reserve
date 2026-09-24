@@ -23,6 +23,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import { trackAddToCart } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -142,6 +143,7 @@ const SalePage = () => {
       size: "M",
       brand: brandName(product.brand_id),
     });
+    trackAddToCart({ id: product.id, name: product.name, price: product.sale_price, quantity: 1 });
     toast({
       title: "Added to Cart",
       description: `${product.name} added to your cart.`,

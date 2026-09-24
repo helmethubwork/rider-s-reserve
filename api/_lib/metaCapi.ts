@@ -41,7 +41,12 @@ export async function sendMetaPurchaseEvent({ orderId, value, email, phone }: Pu
   if (!accessToken || !pixelId) {
     // Server-side forwarding not configured — the browser pixel's own
     // Purchase event (see analytics.ts) is all that fires. This is a
-    // perfectly valid, complete setup on its own.
+    // perfectly valid, complete setup on its own; log at debug level so
+    // "nothing sent" reads as intentional, not a silent failure, when
+    // checking Vercel logs.
+    console.log(
+      `[meta-capi] Skipped for order ${orderId} — ${!accessToken ? 'META_CAPI_TOKEN' : 'VITE_META_PIXEL_ID'} not set`
+    );
     return;
   }
 

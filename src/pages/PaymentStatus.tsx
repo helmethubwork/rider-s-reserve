@@ -19,36 +19,64 @@ const PaymentStatus = () => {
       return;
     }
 
-    const verify = async () => {
-      try {
-        const res = await fetch(`/api/verify-payment?order_id=${encodeURIComponent(orderId)}`);
-        const data = await res.json();
-        // support both old {status:'PAID'} and new {success:true} response shapes
-        const paid = data.success === true || data.status === 'PAID' || data.status === 'SUCCESS';
-        setStatus(paid ? 'success' : 'failed');
+    // verify-payment.ts asks Cashfree directly (not gated on the webhook having
+    // landed in the DB yet), so this is usually accurate on the first call.
+    // But Cashfree's own status can occasionally take a few seconds to settle
+    // right after the redirect back — so poll for up to ~15s before giving up,
+    // rather than showing "Payment Failed" for a payment that actually succeeded.
+    const POLL_INTERVAL_MS = 2000;
+    const MAX_WAIT_MS = 15000;
+    let cancelled = false;
 
-        // Fire the Purchase/purchase conversion event exactly once, using the
-        // line items stashed by CheckoutPage.tsx right before the Cashfree
-        // redirect (the cart itself is already cleared by the time we land here).
-        if (paid) {
-          const storageKey = `hh_pending_purchase_${orderId}`;
-          try {
-            const raw = sessionStorage.getItem(storageKey);
-            if (raw) {
-              const { items, total } = JSON.parse(raw);
-              trackPurchase(orderId, items, total);
-              sessionStorage.removeItem(storageKey);
-            }
-          } catch {
-            // malformed/missing sessionStorage entry — skip tracking rather than break the page
-          }
+    const firePurchaseOnce = (paidOrderId: string) => {
+      const storageKey = `hh_pending_purchase_${paidOrderId}`;
+      try {
+        const raw = sessionStorage.getItem(storageKey);
+        if (raw) {
+          const { items, total } = JSON.parse(raw);
+          trackPurchase(paidOrderId, items, total);
+          sessionStorage.removeItem(storageKey);
         }
       } catch {
-        setStatus('failed');
+        // malformed/missing sessionStorage entry — skip tracking rather than break the page
+      }
+    };
+
+    const checkOnce = async (): Promise<boolean> => {
+      const res = await fetch(`/api/verify-payment?order_id=${encodeURIComponent(orderId)}`);
+      const data = await res.json();
+      // support both old {status:'PAID'} and new {success:true} response shapes
+      return data.success === true || data.status === 'PAID' || data.status === 'SUCCESS';
+    };
+
+    const verify = async () => {
+      const startedAt = Date.now();
+      try {
+        while (!cancelled) {
+          const paid = await checkOnce();
+          if (paid) {
+            setStatus('success');
+            // Fire the Purchase/purchase conversion event exactly once, using
+            // the line items stashed by CheckoutPage.tsx right before the
+            // Cashfree redirect (the cart is already cleared by now).
+            firePurchaseOnce(orderId);
+            return;
+          }
+          if (Date.now() - startedAt >= MAX_WAIT_MS) {
+            setStatus('failed');
+            return;
+          }
+          await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+        }
+      } catch {
+        if (!cancelled) setStatus('failed');
       }
     };
 
     verify();
+    return () => {
+      cancelled = true;
+    };
   }, [orderId]);
 
   return (
